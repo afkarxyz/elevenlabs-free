@@ -10,13 +10,16 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 API_KEYS = [
-    "API_KEY"
+    "sk_a65da633762a90985615f2a8caf1b5eef334029fada0afb1",
+    "sk_584fa5b9525e26f94550b35253e25e233ebe15010f7e4a46",
+    "sk_d8aa70d04f96bb724636c4f9710cf26da0038dab1cb6d5f1"
 ]
 USAGE_LIMIT = 10000
 
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'audio')
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+TEMP_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp', 'audio')
+
+if not os.path.exists(TEMP_FOLDER):
+    os.makedirs(TEMP_FOLDER)
 
 # Helper functions
 def get_current_key_index():
@@ -38,6 +41,18 @@ def format_use_case(use_case):
     if not use_case:
         return "General"
     return " ".join(word.capitalize() for word in use_case.replace("_", " ").split())
+
+def cleanup_old_files(directory, max_age=3600):
+    current_time = time.time()
+    try:
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            if os.path.isfile(file_path):
+                file_age = current_time - os.path.getctime(file_path)
+                if file_age > max_age:
+                    os.remove(file_path)
+    except Exception as e:
+        print(f"Error during cleanup: {str(e)}")
 
 def get_voices():
     try:
@@ -84,6 +99,7 @@ def get_current_usage():
 # Route definitions
 @app.route('/')
 def index():
+    cleanup_old_files(TEMP_FOLDER)
     voices = get_voices()
     return render_template('index.html', voices=voices)
 
@@ -108,9 +124,9 @@ def get_usage():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/static/audio/<filename>')
+@app.route('/temp/audio/<filename>')
 def serve_audio(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    return send_from_directory(TEMP_FOLDER, filename)
 
 @app.route('/generate-speech', methods=['POST'])
 def generate_speech():
@@ -136,8 +152,8 @@ def generate_speech():
             model="eleven_multilingual_v2"
         )
         
-        filename = f'output_{int(time.time())}.mp3'
-        output_path = os.path.join(UPLOAD_FOLDER, filename)
+        filename = f'output_{int(time.time())}_{secrets.token_hex(8)}.mp3'
+        output_path = os.path.join(TEMP_FOLDER, filename)
         
         save(audio, output_path)
         
@@ -147,9 +163,24 @@ def generate_speech():
         
         return jsonify({
             'success': True, 
-            'audio_url': f'/static/audio/{filename}',
+            'audio_url': f'/temp/audio/{filename}',
             'usage_data': updated_usage
         })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/cleanup-file', methods=['POST'])
+def cleanup_file():
+    try:
+        filename = request.json.get('filename')
+        if not filename:
+            return jsonify({'success': False, 'error': 'No filename provided'})
+            
+        file_path = os.path.join(TEMP_FOLDER, os.path.basename(filename))
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return jsonify({'success': True})
+        return jsonify({'success': False, 'error': 'File not found'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
