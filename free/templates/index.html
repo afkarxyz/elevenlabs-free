@@ -235,7 +235,7 @@
             font-weight: 500;
         }
 
-        .voice-type {
+        .voice-use-case {
             background-color: #e9ecef;
             padding: 2px 8px;
             border-radius: 4px;
@@ -325,11 +325,12 @@
                         <div class="form-select custom-select-trigger" onclick="toggleDropdown()">
                             <span id="selectedVoice">Select voice...</span>
                         </div>
+
                         <div class="custom-options" id="voiceOptions">
                             {% for voice in voices %}
                             <div class="custom-option" data-value="{{ voice.voice_id }}" onclick="selectVoice(this)">
                                 <span class="voice-name">{{ voice.name }}</span>
-                                <span class="voice-type">{{ voice.type }}</span>
+                                <span class="voice-use-case">{{ voice.use_case }}</span>
                             </div>
                             {% endfor %}
                         </div>
@@ -441,12 +442,52 @@
             updateCharCount(textarea);
         }
 
+        function updateVoiceList(voices) {
+            const voiceSelect = document.getElementById('voice');
+            const voiceOptions = document.getElementById('voiceOptions');
+            
+            voiceSelect.innerHTML = '';
+            voiceOptions.innerHTML = '';
+            
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.voice_id;
+                option.textContent = voice.name;
+                voiceSelect.appendChild(option);
+                
+                const customOption = document.createElement('div');
+                customOption.className = 'custom-option';
+                customOption.dataset.value = voice.voice_id;
+                customOption.onclick = () => selectVoice(customOption);
+                customOption.innerHTML = `
+                    <span class="voice-name">${voice.name}</span>
+                    <span class="voice-use-case">${voice.use_case}</span>
+                `;
+                voiceOptions.appendChild(customOption);
+            });
+            
+            const savedVoice = JSON.parse(localStorage.getItem('selectedVoice'));
+            if (savedVoice) {
+                const voiceStillExists = voices.some(v => v.voice_id === savedVoice.value);
+                if (voiceStillExists) {
+                    voiceSelect.value = savedVoice.value;
+                    document.getElementById('selectedVoice').textContent = savedVoice.name;
+                } else {
+                    document.getElementById('selectedVoice').textContent = 'Select voice...';
+                    localStorage.removeItem('selectedVoice');
+                }
+            }
+        }
+
         async function fetchAndUpdateUsage() {
             try {
                 const response = await fetch('/get-usage');
                 const data = await response.json();
                 if (data.success) {
                     updateUsage(data);
+                    if (data.voices) {
+                        updateVoiceList(data.voices);
+                    }
                 } else {
                     throw new Error(data.error);
                 }
@@ -490,6 +531,9 @@
                     }, { once: true });
 
                     updateUsage(data.usage_data);
+                    if (data.usage_data.voices) {
+                        updateVoiceList(data.usage_data.voices);
+                    }
                 } else {
                     alert('Error generating speech: ' + data.error);
                 }
