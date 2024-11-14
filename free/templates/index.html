@@ -235,12 +235,59 @@
             font-weight: 500;
         }
 
+        .voice-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .voice-labels {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .voice-label {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
         .voice-use-case {
             background-color: #e9ecef;
             padding: 2px 8px;
             border-radius: 4px;
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #495057;
+        }
+
+        .descriptive-label {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #A5D6A7;
+        }
+
+        .age-label {
+            background-color: #E3F2FD;
+            color: #1565C0;
+            border: 1px solid #90CAF9;
+        }
+
+        .gender-label {
+            background-color: #F3E5F5;
+            color: #7B1FA2;
+            border: 1px solid #CE93D8;
+        }
+
+        .use-case-label {
+            background-color: #FFF3E0;
+            color: #E65100;
+            border: 1px solid #FFCC80;
+        }
+
+        .custom-option {
+            padding: 12px 15px;
         }
 
         .custom-options.show {
@@ -329,8 +376,15 @@
                         <div class="custom-options" id="voiceOptions">
                             {% for voice in voices %}
                             <div class="custom-option" data-value="{{ voice.voice_id }}" onclick="selectVoice(this)">
-                                <span class="voice-name">{{ voice.name }}</span>
-                                <span class="voice-use-case">{{ voice.use_case }}</span>
+                                <div class="voice-info">
+                                    <span class="voice-name">{{ voice.name }}</span>
+                                    <div class="voice-labels">
+                                        <span class="voice-label gender-label">{{ voice.gender }}</span>
+                                        <span class="voice-label age-label">{{ voice.age }}</span>
+                                        <span class="voice-label descriptive-label">{{ voice.descriptive }}</span>
+                                        <span class="voice-label use-case-label">{{ voice.use_case }}</span>
+                                    </div>
+                                </div>
                             </div>
                             {% endfor %}
                         </div>
@@ -471,10 +525,19 @@
                 customOption.className = 'custom-option';
                 customOption.dataset.value = voice.voice_id;
                 customOption.onclick = () => selectVoice(customOption);
+                
                 customOption.innerHTML = `
-                    <span class="voice-name">${voice.name}</span>
-                    <span class="voice-use-case">${voice.use_case}</span>
+                    <div class="voice-info">
+                        <span class="voice-name">${voice.name}</span>
+                        <div class="voice-labels">
+                            <span class="voice-label gender-label">${voice.gender}</span>
+                            <span class="voice-label age-label">${voice.age}</span>
+                            <span class="voice-label descriptive-label">${voice.descriptive}</span>
+                            <span class="voice-label use-case-label">${voice.use_case}</span>
+                        </div>
+                    </div>
                 `;
+                
                 voiceOptions.appendChild(customOption);
             });
             
