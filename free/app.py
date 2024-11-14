@@ -35,10 +35,22 @@ def rotate_api_key():
     set_current_key_index(new_index)
     return get_client()
 
-def format_use_case(use_case):
-    if not use_case:
+def format_label(label):
+    if not label:
         return "General"
-    return " ".join(word.capitalize() for word in use_case.replace("_", " ").split())
+    formatted = label.replace("_", " ").replace("-", " ")
+    return " ".join(word.capitalize() for word in formatted.split())
+
+def cleanup_previous_audio():
+    try:
+        previous_file = session.get('last_audio_file')
+        if previous_file:
+            file_path = os.path.join(TEMP_FOLDER, previous_file)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                session['last_audio_file'] = None
+    except Exception as e:
+        print(f"Error cleaning up previous audio: {str(e)}")
 
 def cleanup_old_files(directory, max_age=3600):
     current_time = time.time()
@@ -59,15 +71,21 @@ def get_voices():
         
         voices = []
         for voice in voices_response.voices:
-            use_case = voice.labels.get('use_case', 'General') if hasattr(voice, 'labels') else 'General'
-            formatted_use_case = format_use_case(use_case)
+            labels = voice.labels if hasattr(voice, 'labels') else {}
+            
+            description = labels.get('descriptive') or labels.get('description', 'Natural')
             
             voice_data = {
                 "voice_id": voice.voice_id,
                 "name": voice.name,
-                "use_case": formatted_use_case
+                "use_case": format_label(labels.get('use_case')),
+                "descriptive": format_label(description),
+                "age": format_label(labels.get('age', 'Adult')),
+                "gender": format_label(labels.get('gender', 'Unknown')),
             }
             voices.append(voice_data)
+            
+        voices.sort(key=lambda x: x['name'].lower())
             
         return voices
     except Exception as e:
@@ -132,6 +150,8 @@ def generate_speech():
     voice_id = request.form.get('voice_id')
     
     try:
+        cleanup_previous_audio()
+        
         client = get_client()
         usage_data = get_current_usage()
         current_usage = usage_data['usage']
@@ -155,6 +175,8 @@ def generate_speech():
         
         save(audio, output_path)
         
+        session['last_audio_file'] = filename
+        
         updated_usage = get_current_usage()
         voices = get_voices()
         updated_usage['voices'] = voices
@@ -177,6 +199,8 @@ def cleanup_file():
         file_path = os.path.join(TEMP_FOLDER, os.path.basename(filename))
         if os.path.exists(file_path):
             os.remove(file_path)
+            if session.get('last_audio_file') == os.path.basename(filename):
+                session['last_audio_file'] = None
             return jsonify({'success': True})
         return jsonify({'success': False, 'error': 'File not found'})
     except Exception as e:
