@@ -18,29 +18,6 @@ UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-VOICES = [
-    {"voice_id": "Xb7hH8MSUJpSbSDYk0k2", "name": "Alice", "type": "News"},
-    {"voice_id": "9BWtsMINqrJLrRacOk9x", "name": "Aria", "type": "Social media"},
-    {"voice_id": "pqHfZKP75CvOlQylNhV4", "name": "Bill", "type": "Narration"},
-    {"voice_id": "nPczCjzI2devNBz1zQrb", "name": "Brian", "type": "Narration"},
-    {"voice_id": "N2lVS1w4EtoT3dr4eOWO", "name": "Callum", "type": "Characters"},
-    {"voice_id": "IKne3meq5aSn9XLyUdCD", "name": "Charlie", "type": "Conversational"},
-    {"voice_id": "XB0fDUnXU5powFXDhCwa", "name": "Charlotte", "type": "Characters"},
-    {"voice_id": "iP95p4xoKVk53GoZ742B", "name": "Chris", "type": "Conversational"},
-    {"voice_id": "onwK4e9ZLuTAKqWW03F9", "name": "Daniel", "type": "News"},
-    {"voice_id": "cjVigY5qzO86Huf0OWal", "name": "Eric", "type": "Conversational"},
-    {"voice_id": "JBFqnCBsd6RMkjVDRZzb", "name": "George", "type": "Narration"},
-    {"voice_id": "cgSgspJ2msm6clMCkdW9", "name": "Jessica", "type": "Conversational"},
-    {"voice_id": "FGY2WhTYpPnrIDTdsKH5", "name": "Laura", "type": "Social media"},
-    {"voice_id": "TX3LPaxmHKxFdv7VOQHJ", "name": "Liam", "type": "Narration"},
-    {"voice_id": "pFZP5JQG7iQjIQuC4Bku", "name": "Lily", "type": "Narration"},
-    {"voice_id": "XrExE9yKIg1WjnnlVkGX", "name": "Matilda", "type": "Narration"},
-    {"voice_id": "SAz9YHcvj6GT2YYXdXww", "name": "River", "type": "Social media"},
-    {"voice_id": "CwhRBWXzGAHq8TQ4Fs17", "name": "Roger", "type": "Social media"},
-    {"voice_id": "EXAVITQu4vr4xnSDxMaL", "name": "Sarah", "type": "News"},
-    {"voice_id": "bIHbv24MWmeRgasZH58o", "name": "Will", "type": "Social media"}
-]
-
 # Helper functions
 def get_current_key_index():
     return session.get('current_key_index', 0)
@@ -56,6 +33,35 @@ def rotate_api_key():
     new_index = (current_index + 1) % len(API_KEYS)
     set_current_key_index(new_index)
     return get_client()
+
+def format_use_case(use_case):
+    if not use_case:
+        return "General"
+    return " ".join(word.capitalize() for word in use_case.replace("_", " ").split())
+
+def get_voices():
+    try:
+        client = get_client()
+        voices_response = client.voices.get_all()
+        
+        voices = []
+        for voice in voices_response.voices:
+            use_case = voice.labels.get('use_case', 'General') if hasattr(voice, 'labels') else 'General'
+            formatted_use_case = format_use_case(use_case)
+            
+            voice_data = {
+                "voice_id": voice.voice_id,
+                "name": voice.name,
+                "use_case": formatted_use_case
+            }
+            voices.append(voice_data)
+            
+        return voices
+    except Exception as e:
+        print(f"Error fetching voices: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        return []
 
 def get_current_usage():
     client = get_client()
@@ -78,7 +84,16 @@ def get_current_usage():
 # Route definitions
 @app.route('/')
 def index():
-    return render_template('index.html', voices=VOICES)
+    voices = get_voices()
+    return render_template('index.html', voices=voices)
+
+@app.route('/get-voices')
+def get_voices_route():
+    try:
+        voices = get_voices()
+        return jsonify({'success': True, 'voices': voices})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/get-usage')
 def get_usage():
@@ -87,6 +102,8 @@ def get_usage():
         if usage_data['usage'] >= USAGE_LIMIT:
             rotate_api_key()
             usage_data = get_current_usage()
+            voices = get_voices()
+            usage_data['voices'] = voices
         return jsonify({'success': True, **usage_data})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
@@ -105,13 +122,11 @@ def generate_speech():
         usage_data = get_current_usage()
         current_usage = usage_data['usage']
         
-        # Check if current key has reached its limit
         if current_usage >= USAGE_LIMIT:
             client = rotate_api_key()
             usage_data = get_current_usage()
             current_usage = usage_data['usage']
             
-            # If all keys have reached their limit
             if current_usage >= USAGE_LIMIT:
                 return jsonify({'success': False, 'error': 'All API keys have reached their usage limit.'})
 
@@ -126,8 +141,9 @@ def generate_speech():
         
         save(audio, output_path)
         
-        # Get updated usage after generation
         updated_usage = get_current_usage()
+        voices = get_voices()
+        updated_usage['voices'] = voices
         
         return jsonify({
             'success': True, 
@@ -137,6 +153,5 @@ def generate_speech():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-# Main execution
 if __name__ == '__main__':
     app.run(debug=True)
