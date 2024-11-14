@@ -10,9 +10,7 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 API_KEYS = [
-    "sk_a65da633762a90985615f2a8caf1b5eef334029fada0afb1",
-    "sk_584fa5b9525e26f94550b35253e25e233ebe15010f7e4a46",
-    "sk_d8aa70d04f96bb724636c4f9710cf26da0038dab1cb6d5f1"
+    "API_KEY"
 ]
 USAGE_LIMIT = 10000
 
