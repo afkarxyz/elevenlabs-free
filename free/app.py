@@ -14,7 +14,7 @@ API_KEYS = [
 ]
 USAGE_LIMIT = 10000
 
-TEMP_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp', 'audio')
+TEMP_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
 
 if not os.path.exists(TEMP_FOLDER):
     os.makedirs(TEMP_FOLDER)
@@ -122,7 +122,7 @@ def get_usage():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-@app.route('/temp/audio/<filename>')
+@app.route('/temp/<filename>')
 def serve_audio(filename):
     return send_from_directory(TEMP_FOLDER, filename)
 
@@ -161,7 +161,7 @@ def generate_speech():
         
         return jsonify({
             'success': True, 
-            'audio_url': f'/temp/audio/{filename}',
+            'audio_url': f'/temp/{filename}',
             'usage_data': updated_usage
         })
     except Exception as e:
