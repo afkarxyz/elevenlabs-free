@@ -374,18 +374,27 @@
             const audioUrl = audio.src;
             
             try {
-                const response = await fetch(audioUrl);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'elevenlabs-speech.mp3';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+            const response = await fetch(audioUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const voiceSelect = document.getElementById('voice');
+            const selectedVoice = voiceSelect.options[voiceSelect.selectedIndex].text;
+            
+            const now = new Date();
+            const date = now.toLocaleDateString('en-GB').replace(/\//g, '');
+            const time = now.toLocaleTimeString('en-GB', { hour12: false }).replace(/:/g, '');
+            const filename = `ElevenLabs-Free-${selectedVoice}-${date}-${time}.mp3`;
+            
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
             } catch (error) {
-                alert('Error downloading audio: ' + error.message);
+            alert('Error downloading audio: ' + error.message);
             }
         }
 
