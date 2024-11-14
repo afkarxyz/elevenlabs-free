@@ -391,6 +391,15 @@
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
+
+                const filename = audioUrl.split('/').pop().split('?')[0];
+                await fetch('/cleanup-file', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ filename })
+                });
             } catch (error) {
                 alert('Error downloading audio: ' + error.message);
             }
