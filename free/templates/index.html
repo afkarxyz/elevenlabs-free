@@ -374,6 +374,7 @@
             const audio = document.getElementById('audioPlayer');
             const audioUrl = audio.src;
             const voiceName = document.getElementById('selectedVoice').textContent;
+            const audioContainer = document.getElementById('audioContainer');
             
             try {
                 const response = await fetch(audioUrl);
@@ -400,6 +401,8 @@
                     },
                     body: JSON.stringify({ filename })
                 });
+
+                audioContainer.classList.add('d-none');
             } catch (error) {
                 alert('Error downloading audio: ' + error.message);
             }
