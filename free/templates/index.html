@@ -118,7 +118,7 @@
         .audio-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
             gap: 1rem;
         }
 
@@ -161,8 +161,8 @@
             background-color: var(--primary-color);
             border: none;
             color: #FFFFFF;
-            margin: 0 auto;
-            max-width: 200px;
+            width: 100%;
+            max-width: none;
         }
 
         .btn-primary:hover:not(:disabled) {
@@ -259,6 +259,7 @@
             .audio-container {
                 flex-direction: row;
                 justify-content: space-between;
+                align-items: center;
             }
 
             #audioPlayer {
@@ -267,8 +268,7 @@
             }
 
             .btn-primary {
-                margin: 0;
-                max-width: none;
+                width: auto;
             }
         }
     </style>
@@ -290,6 +290,10 @@
             </div>
             <div class="progress">
                 <div class="progress-bar" id="usageBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="usage-info mt-2">
+                <span class="usage-label">API Keys</span>
+                <span class="usage-value" id="apiKeyInfo">Loading...</span>
             </div>
         </div>
 
@@ -357,7 +361,7 @@
     <script>
         let currentUsage = 0;
         const TOTAL_LIMIT = 10000;
-
+    
         function updateCharCount(textarea) {
             const count = textarea.value.length;
             const remainingCredits = TOTAL_LIMIT - currentUsage;
@@ -368,7 +372,6 @@
         async function downloadAudio() {
             const audio = document.getElementById('audioPlayer');
             const audioUrl = audio.src;
-            const voiceName = document.getElementById('selectedVoice').textContent;
             
             try {
                 const response = await fetch(audioUrl);
@@ -376,11 +379,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                
-                const now = new Date();
-                const dateString = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}-${now.getHours()}${now.getMinutes()}${now.getSeconds()}`;
-                a.download = `ElevenLabs-Free-${voiceName}-${dateString}.mp3`;
-                
+                a.download = 'elevenlabs-speech.mp3';
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
@@ -409,32 +408,46 @@
             localStorage.setItem('selectedVoice', JSON.stringify({ value, name }));
         }
 
-        async function updateUsage() {
+        function updateUsage(data) {
+            currentUsage = data.usage;
+            const limit = TOTAL_LIMIT;
+            const percentage = (currentUsage / limit) * 100;
+            
+            document.getElementById('usageValue').textContent =
+                `${currentUsage.toLocaleString()}/${limit.toLocaleString()}`;
+            
+            document.getElementById('apiKeyInfo').textContent =
+                `${data.key_index}/${data.total_keys}`;
+            
+            const progressBar = document.getElementById('usageBar');
+            progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute('aria-valuenow', percentage);
+            
+            if (percentage > 90) {
+                progressBar.style.backgroundColor = '#dc3545';
+            } else if (percentage > 70) {
+                progressBar.style.backgroundColor = '#ffc107';
+            } else {
+                progressBar.style.backgroundColor = '#4854E5';
+            }
+
+            const textarea = document.getElementById('text');
+            updateCharCount(textarea);
+        }
+
+        async function fetchAndUpdateUsage() {
             try {
                 const response = await fetch('/get-usage');
                 const data = await response.json();
-                currentUsage = data.usage;
-                const limit = TOTAL_LIMIT;
-                const percentage = (currentUsage / limit) * 100;
-                
-                document.getElementById('usageValue').textContent = 
-                    `${currentUsage.toLocaleString()}/${limit.toLocaleString()}`;
-                
-                const progressBar = document.getElementById('usageBar');
-                progressBar.style.width = `${percentage}%`;
-                progressBar.setAttribute('aria-valuenow', percentage);
-                
-                if (percentage > 90) {
-                    progressBar.style.backgroundColor = '#dc3545';
-                } else if (percentage > 70) {
-                    progressBar.style.backgroundColor = '#ffc107';
+                if (data.success) {
+                    updateUsage(data);
+                } else {
+                    throw new Error(data.error);
                 }
-
-                const textarea = document.getElementById('text');
-                updateCharCount(textarea);
             } catch (error) {
                 console.error('Error fetching usage:', error);
-                document.getElementById('usageValue').textContent = 'Error loading usage';
+                document.getElementById('usageValue').textContent = 'Error';
+                document.getElementById('apiKeyInfo').textContent = 'Error';
             }
         }
 
@@ -469,6 +482,8 @@
                     audioPlayer.addEventListener('canplay', function() {
                         audioPlayer.play();
                     }, { once: true });
+
+                    updateUsage(data.usage_data);
                 } else {
                     alert('Error generating speech: ' + data.error);
                 }
@@ -490,6 +505,10 @@
             }
         });
 
+        function startUsageUpdateInterval() {
+            setInterval(fetchAndUpdateUsage, 60000);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const savedVoice = JSON.parse(localStorage.getItem('selectedVoice'));
             if (savedVoice) {
@@ -497,7 +516,8 @@
                 select.value = savedVoice.value;
                 document.getElementById('selectedVoice').textContent = savedVoice.name;
             }
-            updateUsage();
+            fetchAndUpdateUsage();
+            startUsageUpdateInterval();
         });
     </script>
 </body>
