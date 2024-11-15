@@ -1,4 +1,5 @@
 import os
+import json
 import secrets
 import time
 from flask import Flask, render_template, request, jsonify, send_from_directory, session
@@ -9,30 +10,48 @@ from elevenlabs.client import ElevenLabs
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
-API_KEYS = [
-    "API_KEY",
-    "API_KEY",
-    "API_KEY"
-]
 USAGE_LIMIT = 10000
 TEMP_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
+API_KEYS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'api_keys.json')
 
 if not os.path.exists(TEMP_FOLDER):
     os.makedirs(TEMP_FOLDER)
 
-# Helper functions
+# Helper functions for API key storage and management
+def load_api_keys():
+    if os.path.exists(API_KEYS_FILE):
+        with open(API_KEYS_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get('API_KEYS', []), data.get('current_key_index', 0)
+    return [], 0
+
+def save_api_keys(api_keys, current_index):
+    with open(API_KEYS_FILE, 'w') as f:
+        json.dump({'API_KEYS': api_keys, 'current_key_index': current_index}, f)
+
+API_KEYS, CURRENT_KEY_INDEX = load_api_keys()
+
 def get_current_key_index():
-    return session.get('current_key_index', 0)
+    global CURRENT_KEY_INDEX
+    return CURRENT_KEY_INDEX
 
 def set_current_key_index(index):
-    session['current_key_index'] = index
+    global CURRENT_KEY_INDEX
+    CURRENT_KEY_INDEX = index
+    save_api_keys(API_KEYS, CURRENT_KEY_INDEX)
 
 def get_client():
     return ElevenLabs(api_key=API_KEYS[get_current_key_index()])
 
-def rotate_api_key():
+def rotate_api_key(direction):
     current_index = get_current_key_index()
-    new_index = (current_index + 1) % len(API_KEYS)
+    if direction == 'next':
+        new_index = (current_index + 1) % len(API_KEYS)
+    elif direction == 'previous':
+        new_index = (current_index - 1) % len(API_KEYS)
+    else:
+        return jsonify({'success': False, 'error': 'Invalid direction'})
+    
     set_current_key_index(new_index)
     return get_client()
 
@@ -41,29 +60,6 @@ def format_label(label):
         return "General"
     formatted = label.replace("_", " ").replace("-", " ")
     return " ".join(word.capitalize() for word in formatted.split())
-
-def cleanup_previous_audio():
-    try:
-        previous_file = session.get('last_audio_file')
-        if previous_file:
-            file_path = os.path.join(TEMP_FOLDER, previous_file)
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                session['last_audio_file'] = None
-    except Exception as e:
-        print(f"Error cleaning up previous audio: {str(e)}")
-
-def cleanup_old_files(directory, max_age=3600):
-    current_time = time.time()
-    try:
-        for filename in os.listdir(directory):
-            file_path = os.path.join(directory, filename)
-            if os.path.isfile(file_path):
-                file_age = current_time - os.path.getctime(file_path)
-                if file_age > max_age:
-                    os.remove(file_path)
-    except Exception as e:
-        print(f"Error during cleanup: {str(e)}")
 
 def get_voices():
     try:
@@ -115,6 +111,30 @@ def get_current_usage():
         print(f"Error getting usage: {str(e)}")
         return {'usage': 0, 'key_index': get_current_key_index() + 1, 'total_keys': len(API_KEYS)}
 
+# Helper functions for file management
+def cleanup_previous_audio():
+    try:
+        previous_file = session.get('last_audio_file')
+        if previous_file:
+            file_path = os.path.join(TEMP_FOLDER, previous_file)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                session['last_audio_file'] = None
+    except Exception as e:
+        print(f"Error cleaning up previous audio: {str(e)}")
+
+def cleanup_old_files(directory, max_age=3600):
+    current_time = time.time()
+    try:
+        for filename in os.listdir(directory):
+            file_path = os.path.join(directory, filename)
+            if os.path.isfile(file_path):
+                file_age = current_time - os.path.getctime(file_path)
+                if file_age > max_age:
+                    os.remove(file_path)
+    except Exception as e:
+        print(f"Error during cleanup: {str(e)}")
+
 # Route definitions
 @app.route('/')
 def index():
@@ -135,7 +155,7 @@ def get_usage():
     try:
         usage_data = get_current_usage()
         if usage_data['usage'] >= USAGE_LIMIT:
-            rotate_api_key()
+            rotate_api_key('next')
             usage_data = get_current_usage()
             voices = get_voices()
             usage_data['voices'] = voices
@@ -159,7 +179,7 @@ def generate_speech():
         current_usage = usage_data['usage']
         
         if current_usage >= USAGE_LIMIT:
-            client = rotate_api_key()
+            client = rotate_api_key('next')
             usage_data = get_current_usage()
             current_usage = usage_data['usage']
             if current_usage >= USAGE_LIMIT:
@@ -203,6 +223,15 @@ def cleanup_file():
         return jsonify({'success': False, 'error': 'File not found'})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/change-api-key', methods=['POST'])
+def change_api_key():
+    direction = request.json.get('direction')
+    rotate_api_key(direction)
+    usage_data = get_current_usage()
+    voices = get_voices()
+    usage_data['voices'] = voices
+    return jsonify({'success': True, 'usage_data': usage_data})
 
 if __name__ == '__main__':
     app.run(debug=True)
