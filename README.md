@@ -10,7 +10,6 @@ A simple web application built with Flask that allows users to generate speech f
 
 ## Features
 
-- Text-to-speech conversion using ElevenLabs API
 - Multiple API keys
 - Multiple voice options
 - Credit usage tracking
