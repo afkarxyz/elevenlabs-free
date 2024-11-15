@@ -10,9 +10,9 @@ A simple web application built with Flask that allows users to generate speech f
 
 ## Features
 
+- Credit usage tracking
 - Multiple API keys
 - Multiple voice options
-- Credit usage tracking
 - Download generated audio files
 
 ## Installation
