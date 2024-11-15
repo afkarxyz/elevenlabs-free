@@ -520,7 +520,6 @@
             const textarea = document.getElementById('text');
             updateCharCount(textarea);
 
-            // Update API key navigation buttons
             document.getElementById('prevKeyBtn').disabled = data.key_index === 1;
             document.getElementById('nextKeyBtn').disabled = data.key_index === data.total_keys;
         }
