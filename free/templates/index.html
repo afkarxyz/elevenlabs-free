@@ -30,8 +30,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-top: 1rem;
-            margin-bottom: 1.5rem;
+            margin: 1rem 0 1.5rem;
         }
 
         .header img {
@@ -60,13 +59,21 @@
             line-height: 1;
         }
 
-        .usage-card {
+        .usage-card, .card {
             background: var(--card-background);
             border-radius: 12px;
             border: 1px solid rgba(0, 0, 0, 0.1);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            padding: 1rem;
             margin-bottom: 1rem;
+        }
+
+        .usage-card {
+            padding: 1rem;
+        }
+
+        .card {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
         .usage-info {
@@ -95,15 +102,6 @@
             background-color: var(--primary-color);
             border-radius: 4px;
             transition: width 0.3s ease;
-        }
-
-        .card {
-            background: var(--card-background);
-            border-radius: 12px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
         }
 
         .character-count {
@@ -162,7 +160,6 @@
             border: none;
             color: #FFFFFF;
             width: 100%;
-            max-width: none;
         }
 
         .btn-primary:hover:not(:disabled) {
@@ -220,7 +217,7 @@
         }
 
         .custom-option {
-            padding: 10px 15px;
+            padding: 12px 15px;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
@@ -254,18 +251,11 @@
             font-weight: 500;
         }
 
-        .voice-use-case {
-            background-color: #e9ecef;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75em;
-            color: #495057;
-        }
-
-        .descriptive-label {
-            background-color: #E8F5E9;
-            color: #2E7D32;
-            border: 1px solid #A5D6A7;
+        /* Voice label variants */
+        .gender-label {
+            background-color: #F3E5F5;
+            color: #7B1FA2;
+            border: 1px solid #CE93D8;
         }
 
         .age-label {
@@ -274,10 +264,10 @@
             border: 1px solid #90CAF9;
         }
 
-        .gender-label {
-            background-color: #F3E5F5;
-            color: #7B1FA2;
-            border: 1px solid #CE93D8;
+        .descriptive-label {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #A5D6A7;
         }
 
         .use-case-label {
@@ -286,8 +276,10 @@
             border: 1px solid #FFCC80;
         }
 
-        .custom-option {
-            padding: 12px 15px;
+        .language-label {
+            background-color: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #EF9A9A;
         }
 
         .custom-options.show {
@@ -383,6 +375,9 @@
                                         <span class="voice-label age-label">{{ voice.age }}</span>
                                         <span class="voice-label descriptive-label">{{ voice.descriptive }}</span>
                                         <span class="voice-label use-case-label">{{ voice.use_case }}</span>
+                                        {% if voice.language %}
+                                        <span class="voice-label language-label">{{ voice.language }}</span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -416,14 +411,13 @@
     <script>
         let currentUsage = 0;
         const TOTAL_LIMIT = 10000;
-    
+        
         function updateCharCount(textarea) {
             const count = textarea.value.length;
             const remainingCredits = TOTAL_LIMIT - currentUsage;
-            document.getElementById('charCount').textContent = 
-                `${count.toLocaleString()}/${remainingCredits.toLocaleString()}`;
+            document.getElementById('charCount').textContent = `${count.toLocaleString()}/${remainingCredits.toLocaleString()}`;
         }
-
+        
         async function downloadAudio() {
             const audio = document.getElementById('audioPlayer');
             const audioUrl = audio.src;
@@ -446,51 +440,42 @@
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-
+        
                 const filename = audioUrl.split('/').pop().split('?')[0];
                 await fetch('/cleanup-file', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ filename })
                 });
-
+        
                 audioContainer.classList.add('d-none');
             } catch (error) {
                 alert('Error downloading audio: ' + error.message);
             }
         }
-
+        
         function toggleDropdown() {
             const options = document.getElementById('voiceOptions');
             options.classList.toggle('show');
         }
-
+        
         function selectVoice(element) {
             const value = element.dataset.value;
             const name = element.querySelector('.voice-name').textContent;
-            
             const select = document.getElementById('voice');
             select.value = value;
-            
             document.getElementById('selectedVoice').textContent = name;
-            
             document.getElementById('voiceOptions').classList.remove('show');
-
             localStorage.setItem('selectedVoice', JSON.stringify({ value, name }));
         }
-
+        
         function updateUsage(data) {
             currentUsage = data.usage;
             const limit = TOTAL_LIMIT;
             const percentage = (currentUsage / limit) * 100;
             
-            document.getElementById('usageValue').textContent =
-                `${currentUsage.toLocaleString()}/${limit.toLocaleString()}`;
-            
-            document.getElementById('apiKeyInfo').textContent =
-                `${data.key_index}/${data.total_keys}`;
+            document.getElementById('usageValue').textContent = `${currentUsage.toLocaleString()}/${limit.toLocaleString()}`;
+            document.getElementById('apiKeyInfo').textContent = `${data.key_index}/${data.total_keys}`;
             
             const progressBar = document.getElementById('usageBar');
             progressBar.style.width = `${percentage}%`;
@@ -503,15 +488,14 @@
             } else {
                 progressBar.style.backgroundColor = '#4854E5';
             }
-
+        
             const textarea = document.getElementById('text');
             updateCharCount(textarea);
         }
-
+        
         function updateVoiceList(voices) {
             const voiceSelect = document.getElementById('voice');
             const voiceOptions = document.getElementById('voiceOptions');
-            
             voiceSelect.innerHTML = '';
             voiceOptions.innerHTML = '';
             
@@ -526,6 +510,7 @@
                 customOption.dataset.value = voice.voice_id;
                 customOption.onclick = () => selectVoice(customOption);
                 
+                const languageLabel = voice.language ? `<span class="voice-label language-label">${voice.language}</span>` : '';
                 customOption.innerHTML = `
                     <div class="voice-info">
                         <span class="voice-name">${voice.name}</span>
@@ -534,9 +519,9 @@
                             <span class="voice-label age-label">${voice.age}</span>
                             <span class="voice-label descriptive-label">${voice.descriptive}</span>
                             <span class="voice-label use-case-label">${voice.use_case}</span>
+                            ${languageLabel}
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 
                 voiceOptions.appendChild(customOption);
             });
@@ -553,16 +538,14 @@
                 }
             }
         }
-
+        
         async function fetchAndUpdateUsage() {
             try {
                 const response = await fetch('/get-usage');
                 const data = await response.json();
                 if (data.success) {
                     updateUsage(data);
-                    if (data.voices) {
-                        updateVoiceList(data.voices);
-                    }
+                    if (data.voices) updateVoiceList(data.voices);
                 } else {
                     throw new Error(data.error);
                 }
@@ -572,43 +555,36 @@
                 document.getElementById('apiKeyInfo').textContent = 'Error';
             }
         }
-
+        
         const form = document.getElementById('ttsForm');
         const submitBtn = document.getElementById('submitBtn');
         const spinner = document.getElementById('spinner');
         const buttonText = document.getElementById('buttonText');
         const audioContainer = document.getElementById('audioContainer');
         const audioPlayer = document.getElementById('audioPlayer');
-
+        
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             submitBtn.disabled = true;
             spinner.classList.remove('d-none');
             buttonText.textContent = 'Generating...';
             
-            const formData = new FormData(form);
-            
             try {
                 const response = await fetch('/generate-speech', {
                     method: 'POST',
-                    body: formData
+                    body: new FormData(form)
                 });
                 
                 const data = await response.json();
-                
                 if (data.success) {
                     audioPlayer.src = `${data.audio_url}?t=${Date.now()}`;
                     audioContainer.classList.remove('d-none');
-                    
                     audioPlayer.addEventListener('canplay', function() {
                         audioPlayer.play();
                     }, { once: true });
-
+        
                     updateUsage(data.usage_data);
-                    if (data.usage_data.voices) {
-                        updateVoiceList(data.usage_data.voices);
-                    }
+                    if (data.usage_data.voices) updateVoiceList(data.usage_data.voices);
                 } else {
                     alert('Error generating speech: ' + data.error);
                 }
@@ -620,20 +596,19 @@
                 buttonText.textContent = 'Generate';
             }
         });
-
+        
         document.addEventListener('click', function(e) {
             const select = document.querySelector('.custom-select');
             const trigger = document.querySelector('.custom-select-trigger');
-            
             if (!select.contains(e.target) && !trigger.contains(e.target)) {
                 document.getElementById('voiceOptions').classList.remove('show');
             }
         });
-
+        
         function startUsageUpdateInterval() {
             setInterval(fetchAndUpdateUsage, 60000);
         }
-
+        
         document.addEventListener('DOMContentLoaded', function() {
             const savedVoice = JSON.parse(localStorage.getItem('selectedVoice'));
             if (savedVoice) {
