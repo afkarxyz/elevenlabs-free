@@ -10,10 +10,11 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
 API_KEYS = [
+    "API_KEY",
+    "API_KEY",
     "API_KEY"
 ]
 USAGE_LIMIT = 10000
-
 TEMP_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
 
 if not os.path.exists(TEMP_FOLDER):
@@ -68,12 +69,15 @@ def get_voices():
     try:
         client = get_client()
         voices_response = client.voices.get_all()
-        
         voices = []
         for voice in voices_response.voices:
             labels = voice.labels if hasattr(voice, 'labels') else {}
-            
             description = labels.get('descriptive') or labels.get('description', 'Natural')
+            language = labels.get('language')
+            formatted_language = None
+            if language:
+                if language.lower() == 'id':
+                    formatted_language = 'Indonesia'
             
             voice_data = {
                 "voice_id": voice.voice_id,
@@ -82,11 +86,10 @@ def get_voices():
                 "descriptive": format_label(description),
                 "age": format_label(labels.get('age', 'Adult')),
                 "gender": format_label(labels.get('gender', 'Unknown')),
+                "language": formatted_language
             }
             voices.append(voice_data)
-            
         voices.sort(key=lambda x: x['name'].lower())
-            
         return voices
     except Exception as e:
         print(f"Error fetching voices: {str(e)}")
@@ -151,7 +154,6 @@ def generate_speech():
     
     try:
         cleanup_previous_audio()
-        
         client = get_client()
         usage_data = get_current_usage()
         current_usage = usage_data['usage']
@@ -160,7 +162,6 @@ def generate_speech():
             client = rotate_api_key()
             usage_data = get_current_usage()
             current_usage = usage_data['usage']
-            
             if current_usage >= USAGE_LIMIT:
                 return jsonify({'success': False, 'error': 'All API keys have reached their usage limit.'})
 
@@ -172,9 +173,7 @@ def generate_speech():
         
         filename = f'output_{int(time.time())}_{secrets.token_hex(8)}.mp3'
         output_path = os.path.join(TEMP_FOLDER, filename)
-        
         save(audio, output_path)
-        
         session['last_audio_file'] = filename
         
         updated_usage = get_current_usage()
@@ -195,7 +194,6 @@ def cleanup_file():
         filename = request.json.get('filename')
         if not filename:
             return jsonify({'success': False, 'error': 'No filename provided'})
-            
         file_path = os.path.join(TEMP_FOLDER, os.path.basename(filename))
         if os.path.exists(file_path):
             os.remove(file_path)
