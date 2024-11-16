@@ -33,4 +33,4 @@ A simple web application built with Flask that allows users to generate speech f
    python app.py
    ```
 
-5. Access the web interface at `http://localhost:5000`
+5. Access the web interface at `http://127.0.0.1:5000`
