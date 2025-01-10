@@ -4,6 +4,8 @@ A simple web application built with Flask that allows users to generate speech f
 
 ![image](https://github.com/user-attachments/assets/5842d344-267a-42be-b638-b4c03e82bf7e)
 
+> In this screenshot, I’m using 100 API keys, each with 10,000 credits. When multiplied, I get a total of 1,000,000 free credits.
+
 ## Features
 
 - Credit usage tracking
