@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElevenLabs Free</title>
+    <link rel="icon" href="https://elevenlabs.io/favicon.ico" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4854E5;
+            --hover-color: #3A45D6;
+            --background-color: #F7F7F9;
+            --card-background: #FFFFFF;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: #1A1D2A;
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 1rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 1rem 0 1.5rem;
+        }
+
+        .header img {
+            width: 48px;
+            height: 48px;
+        }
+
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125rem;
+        }
+
+        .header-titles h1 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .header-titles h2 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .usage-card, .card {
+            background: var(--card-background);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+        }
+
+        .usage-card {
+            padding: 1rem;
+        }
+
+        .card {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .usage-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .usage-label {
+            font-weight: 500;
+            color: #1A1D2A;
+        }
+
+        .usage-value {
+            color: #6c757d;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .character-count {
+            color: #6c757d;
+            font-size: 0.875rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .audio-container {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        #audioPlayer {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(72, 84, 229, 0.15);
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            color: #FFFFFF;
+            width: 100%;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--hover-color);
+        }
+
+        .btn-primary:disabled {
+            background-color: var(--primary-color);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #1A1D2A;
+        }
+
+        #audioContainer {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .spinner-border {
+            margin-right: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .custom-select {
+            position: relative;
+        }
+
+        .custom-select-trigger {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+        }
+
+        .custom-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-option {
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .custom-option:hover {
+            background-color: var(--background-color);
+        }
+
+        .custom-option.selected {
+            background-color: var(--background-color);
+        }
+
+        .voice-name {
+            font-weight: 500;
+        }
+
+        .voice-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .voice-labels {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .voice-label {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .gender-label {
+            background-color: #F3E5F5;
+            color: #7B1FA2;
+            border: 1px solid #CE93D8;
+        }
+
+        .age-label {
+            background-color: #E3F2FD;
+            color: #1565C0;
+            border: 1px solid #90CAF9;
+        }
+
+        .descriptive-label {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #A5D6A7;
+        }
+
+        .use-case-label {
+            background-color: #FFF3E0;
+            color: #E65100;
+            border: 1px solid #FFCC80;
+        }
+
+        .language-label {
+            background-color: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #EF9A9A;
+        }
+
+        .custom-options.show {
+            display: block;
+        }
+
+        .api-key-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .api-key-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .api-key-button:hover {
+            color: var(--hover-color);
+        }
+
+        .api-key-button:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+
+            .header-titles h1 {
+                font-size: 1.75rem;
+            }
+
+            .audio-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            #audioPlayer {
+                flex: 1;
+                margin-right: 1rem;
+            }
+
+            .btn-primary {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://elevenlabs.io/icon.svg" alt="ElevenLabs Logo">
+            <div class="header-titles">
+                <h1>ElevenLabs</h1>
+                <h2>Free</h2>
+            </div>
+        </div>
+
+        <div class="usage-card">
+            <div class="usage-info">
+                <span class="usage-label">Credit Usage</span>
+                <span class="usage-value" id="usageValue">Loading...</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" id="usageBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="usage-info mt-2">
+                <span class="usage-label">API Keys</span>
+                <div class="api-key-controls">
+                    <button class="api-key-button" id="prevKeyBtn" onclick="changeApiKey('previous')" disabled>&lt;</button>
+                    <span class="usage-value" id="apiKeyInfo">Loading...</span>
+                    <button class="api-key-button" id="nextKeyBtn" onclick="changeApiKey('next')">&gt;</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <form id="ttsForm">
+                <div class="mb-3">
+                    <label for="text" class="form-label">Enter Text</label>
+                    <textarea 
+                        class="form-control" 
+                        id="text" 
+                        name="text" 
+                        rows="4" 
+                        required
+                        placeholder="Type or paste your text here..."
+                        oninput="updateCharCount(this)"></textarea>
+                    <div class="character-count mt-2">
+                        <span>Credit: <span id="charCount">0/0</span></span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="voice" class="form-label">Select Voice</label>
+                    <div class="custom-select">
+                        <select class="form-select d-none" id="voice" name="voice_id" required>
+                            {% for voice in voices %}
+                            <option value="{{ voice.voice_id }}">{{ voice.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-select custom-select-trigger" onclick="toggleDropdown()">
+                            <span id="selectedVoice">Select voice...</span>
+                        </div>
+
+                        <div class="custom-options" id="voiceOptions">
+                            {% for voice in voices %}
+                            <div class="custom-option" data-value="{{ voice.voice_id }}" onclick="selectVoice(this)">
+                                <div class="voice-info">
+                                    <span class="voice-name">{{ voice.name }}</span>
+                                    <div class="voice-labels">
+                                        <span class="voice-label gender-label">{{ voice.gender }}</span>
+                                        <span class="voice-label age-label">{{ voice.age }}</span>
+                                        <span class="voice-label descriptive-label">{{ voice.descriptive }}</span>
+                                        <span class="voice-label use-case-label">{{ voice.use_case }}</span>
+                                        {% if voice.language %}
+                                        <span class="voice-label language-label">{{ voice.language }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="spinner-border spinner-border-sm d-none" id="spinner"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M333.1 34.8C344.6 40 352 51.4 352 64l0 384c0 12.6-7.4 24-18.9 29.2s-25 3.1-34.4-5.3L163.8 352 96 352c-35.3 0-64-28.7-64-64l0-64c0-35.3 28.7-64 64-64l67.8 0L298.7 40.1c9.4-8.4 22.9-10.4 34.4-5.3zm172 72.2c43.2 35.2 70.9 88.9 70.9 149s-27.7 113.8-70.9 149c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C507.3 341.3 528 301.1 528 256s-20.7-85.3-53.2-111.8c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5zm-60.5 74.5C466.1 199.1 480 225.9 480 256s-13.9 56.9-35.4 74.5c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C425.1 284.4 432 271 432 256s-6.9-28.4-17.7-37.3c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5z"/></svg>
+                    <span id="buttonText">Generate</span>
+                </button>
+            </form>
+        </div>
+
+        <div id="audioContainer" class="d-none">
+            <div class="audio-container">
+                <audio id="audioPlayer" controls>
+                    Your browser does not support the audio element.
+                </audio>
+                <button class="btn btn-primary" id="saveBtn" onclick="downloadAudio()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M32 480c-17.7 0-32-14.3-32-32s14.3-32 32-32l320 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 480zM214.6 342.6c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 242.7 160 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 178.7 73.4-73.4c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3l-128 128z"/></svg>
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUsage = 0;
+        const TOTAL_LIMIT = 10000;
+        
+        function updateCharCount(textarea) {
+            const count = textarea.value.length;
+            const remainingCredits = TOTAL_LIMIT - currentUsage;
+            document.getElementById('charCount').textContent = `${count.toLocaleString()}/${remainingCredits.toLocaleString()}`;
+        }
+        
+        async function downloadAudio() {
+            const audio = document.getElementById('audioPlayer');
+            const audioUrl = audio.src;
+            const voiceName = document.getElementById('selectedVoice').textContent;
+            
+            try {
+                const response = await fetch(audioUrl);
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                const now = new Date();
+                const dateString = `${now.getDate().toString().padStart(2, '0')}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getFullYear()}`;
+                const timeString = `${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
+                a.download = `ElevenLabs-Free-${voiceName}-${dateString}-${timeString}.mp3`;
+                
+                document.body.appendChild(a);
+                a.click();
+                URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                alert('Error downloading audio: ' + error.message);
+            }
+        }
+        
+        function toggleDropdown() {
+            const options = document.getElementById('voiceOptions');
+            options.classList.toggle('show');
+        }
+        
+        function selectVoice(element) {
+            const value = element.dataset.value;
+            const name = element.querySelector('.voice-name').textContent;
+            const select = document.getElementById('voice');
+            select.value = value;
+            document.getElementById('selectedVoice').textContent = name;
+            document.getElementById('voiceOptions').classList.remove('show');
+            
+            const voiceInfo = {
+                value: value,
+                name: name,
+                labels: {
+                    gender: element.querySelector('.gender-label').textContent,
+                    age: element.querySelector('.age-label').textContent,
+                    descriptive: element.querySelector('.descriptive-label').textContent,
+                    useCase: element.querySelector('.use-case-label').textContent,
+                    language: element.querySelector('.language-label')?.textContent || ''
+                }
+            };
+            localStorage.setItem('selectedVoice', JSON.stringify(voiceInfo));
+
+            const allOptions = document.querySelectorAll('.custom-option');
+            allOptions.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+        
+        function loadSavedVoice() {
+            const savedVoice = localStorage.getItem('selectedVoice');
+            if (savedVoice) {
+                try {
+                    const voiceInfo = JSON.parse(savedVoice);
+                    const voiceSelect = document.getElementById('voice');
+                    const selectedVoiceDisplay = document.getElementById('selectedVoice');
+                    
+                    if (voiceInfo.value && voiceInfo.name) {
+                        voiceSelect.value = voiceInfo.value;
+                        selectedVoiceDisplay.textContent = voiceInfo.name;
+                        
+                        const option = document.querySelector(`.custom-option[data-value="${voiceInfo.value}"]`);
+                        if (option) {
+                            const allOptions = document.querySelectorAll('.custom-option');
+                            allOptions.forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading saved voice:', error);
+                    localStorage.removeItem('selectedVoice');
+                }
+            }
+        }
+        
+        function updateVoiceList(voices) {
+            const voiceSelect = document.getElementById('voice');
+            const voiceOptions = document.getElementById('voiceOptions');
+            voiceSelect.innerHTML = '';
+            voiceOptions.innerHTML = '';
+            
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.voice_id;
+                option.textContent = voice.name;
+                voiceSelect.appendChild(option);
+                
+                const customOption = document.createElement('div');
+                customOption.className = 'custom-option';
+                customOption.dataset.value = voice.voice_id;
+                customOption.onclick = () => selectVoice(customOption);
+                
+                const languageLabel = voice.language ? `<span class="voice-label language-label">${voice.language}</span>` : '';
+                customOption.innerHTML = `
+                    <div class="voice-info">
+                        <span class="voice-name">${voice.name}</span>
+                        <div class="voice-labels">
+                            <span class="voice-label gender-label">${voice.gender}</span>
+                            <span class="voice-label age-label">${voice.age}</span>
+                            <span class="voice-label descriptive-label">${voice.descriptive}</span>
+                            <span class="voice-label use-case-label">${voice.use_case}</span>
+                            ${languageLabel}
+                        </div>
+                    </div>
+                `;
+                
+                voiceOptions.appendChild(customOption);
+            });
+            
+            loadSavedVoice();
+        }
+        
+        async function changeApiKey(direction) {
+            try {
+                const response = await fetch('/change-api-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ direction }),
+                });
+                const data = await response.json();
+                if (data.success) {
+                    updateUsage(data.usage_data);
+                    if (data.usage_data.voices) updateVoiceList(data.usage_data.voices);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error changing API key:', error);
+                alert('Error changing API key: ' + error.message);
+            }
+        }
+        
+        function updateUsage(data) {
+            currentUsage = data.usage;
+            const limit = TOTAL_LIMIT;
+            const percentage = (currentUsage / limit) * 100;
+            
+            document.getElementById('usageValue').textContent = `${currentUsage.toLocaleString()}/${limit.toLocaleString()}`;
+            document.getElementById('apiKeyInfo').textContent = `${data.key_index}/${data.total_keys}`;
+            
+            const progressBar = document.getElementById('usageBar');
+            progressBar.style.width = `${percentage}%`;
+            progressBar.setAttribute('aria-valuenow', percentage);
+            
+            if (percentage > 90) {
+                progressBar.style.backgroundColor = '#dc3545';
+            } else if (percentage > 70) {
+                progressBar.style.backgroundColor = '#ffc107';
+            } else {
+                progressBar.style.backgroundColor = '#4854E5';
+            }
+        
+            const textarea = document.getElementById('text');
+            updateCharCount(textarea);
+        
+            document.getElementById('prevKeyBtn').disabled = data.key_index === 1;
+            document.getElementById('nextKeyBtn').disabled = data.key_index === data.total_keys;
+        }
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/get-usage');
+                const data = await response.json();
+                if (data.success) {
+                    updateUsage(data);
+                    loadSavedVoice();
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error fetching usage:', error);
+                alert('Error fetching usage: ' + error.message);
+            }
+        
+            document.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('voiceOptions');
+                const trigger = document.querySelector('.custom-select-trigger');
+                if (!dropdown.contains(event.target) && !trigger.contains(event.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        });
+        
+        document.getElementById('ttsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('spinner');
+            const buttonText = document.getElementById('buttonText');
+            const audioContainer = document.getElementById('audioContainer');
+            const audioPlayer = document.getElementById('audioPlayer');
+        
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+            buttonText.textContent = 'Generating...';
+            
+            audioContainer.classList.add('d-none');
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+        
+            try {
+                const response = await fetch('/generate-speech', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    audioPlayer.src = data.audio_data;
+                    audioContainer.classList.remove('d-none');
+                    updateUsage(data.usage_data);
+                    if (data.usage_data.voices) updateVoiceList(data.usage_data.voices);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating speech: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                spinner.classList.add('d-none');
+                buttonText.textContent = 'Generate';
+            }
+        });
+    </script>
+</body>
+</html>

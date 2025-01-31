@@ -1,0 +1,8 @@
+{
+    "API_KEYS": [
+      "API_KEY_1",
+      "API_KEY_2",
+      "API_KEY_3"
+    ],
+    "current_key_index": 0
+  }
