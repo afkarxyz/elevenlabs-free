@@ -6,14 +6,14 @@ A simple web application built with Flask that allows users to generate speech f
 
 > In this screenshot, I’m using 100 API keys, each with 10,000 credits. When multiplied, I get a total of 1,000,000 free credits.
 
-## Features
+## ✨ Features
 
 - Credit usage tracking
 - Multiple API keys
 - Multiple voice options _(adjust according to your API key; whatever you select on the ElevenLabs website will be displayed)_
 - Download generated audio files
 
-## Local Installation
+## 🖥️ Local Installation
 
 1. Clone the repository:
    ```bash
@@ -37,7 +37,7 @@ A simple web application built with Flask that allows users to generate speech f
 
 5. Access the web interface at `http://127.0.0.1:5000`
 
-## Vercel Deployment
+## 🌐 Vercel Deployment
 
 Click the button below!
 
