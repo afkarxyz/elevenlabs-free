@@ -13,7 +13,7 @@ A simple web application built with Flask that allows users to generate speech f
 - Multiple voice options _(adjust according to your API key; whatever you select on the ElevenLabs website will be displayed)_
 - Download generated audio files
 
-## 🖥️ Local Installation
+## 💻 Local Installation
 
 1. Clone the repository:
    ```bash
