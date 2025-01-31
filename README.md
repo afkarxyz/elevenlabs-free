@@ -18,7 +18,7 @@ A simple web application built with Flask that allows users to generate speech f
 1. Clone the repository:
    ```bash
    git clone https://github.com/afkarxyz/elevenlabs-free.git
-   cd elevenlabs-free/free
+   cd elevenlabs-free/free/local
    ```
 
 2. Install required Python packages:
