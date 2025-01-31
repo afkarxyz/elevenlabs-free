@@ -39,20 +39,9 @@ A simple web application built with Flask that allows users to generate speech f
 
 ## Vercel Deployment
 
-1. **Create a New Repository**
-   - Choose either a public or private repository
-   - Upload all files from the `vercel` folder as shown in the screenshot below
+Click the button below!
 
-![chrome_imrNd9pm2a](https://github.com/user-attachments/assets/eecad0e1-c2cc-4e05-a429-04e4dfb2dd41)
-
-2. **Deploy on Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Deploy your project
-
-3. **Set Environment Variables**
-   - After a successful deployment, configure the necessary environment variables
-     
-#
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/afkarxyz/elevenlabs-free/tree/main/free/vercel)
 
 ### Setting Environment Variables in Vercel
 
