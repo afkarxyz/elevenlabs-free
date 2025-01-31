@@ -15,17 +15,17 @@ A simple web application built with Flask that allows users to generate speech f
 
 ## 🖥️ Local Installation
 
-1. Clone the repository:
+1. Install required Python packages:
+   ```bash
+   pip install flask elevenlabs
+   ```
+   
+2. Clone the repository:
    ```bash
    git clone https://github.com/afkarxyz/elevenlabs-free.git
    cd elevenlabs-free/free/local
    ```
-
-2. Install required Python packages:
-   ```bash
-   pip install flask elevenlabs
-   ```
-
+   
 3. Configure the application:
    - Get your API key from ElevenLabs
    - Replace `API_KEY_1, API_KEY_2, API_KEY_3` in `api_keys.json` with your actual key
