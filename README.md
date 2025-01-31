@@ -10,7 +10,7 @@ A simple web application built with Flask that allows users to generate speech f
 
 - Credit usage tracking
 - Multiple API keys
-- Multiple voice options
+- Multiple voice options _(adjust according to your API key; whatever you select on the ElevenLabs website will be displayed)_
 - Download generated audio files
 
 ## Installation
