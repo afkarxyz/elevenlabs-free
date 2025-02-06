@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4854E5;
-            --hover-color: #3A45D6;
+            --primary-color: #1A1D2A;
+            --hover-color: #2C303E;
             --background-color: #F7F7F9;
             --card-background: #FFFFFF;
         }
@@ -20,7 +20,7 @@
             background-color: var(--background-color);
             color: #1A1D2A;
         }
-
+    
         .arabic-input {
             direction: rtl;
             font-family: 'Noto Naskh Arabic', serif;
@@ -33,14 +33,14 @@
             font-size: 1.1rem;
             line-height: 1.5;
         }
-
+    
         .text-controls {
             display: flex;
             justify-content: flex-end;
             gap: 0.5rem;
             margin-top: 0.5rem;
         }
-
+    
         .text-controls .btn-icon {
             width: 36px;
             height: 36px;
@@ -49,32 +49,38 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: none;
+            border: 1px solid #DEDEE0;
             transition: background-color 0.2s ease;
+            background-color: #F1F3F4;
         }
 
+        .text-controls .btn-icon:hover {
+            background-color: #E5E7E8;
+            border-color: #DEDEE0;
+        }
+    
         .text-controls .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
+            background-color: #F1F3F4;
+            color: #1A1D2A;
         }
-
+    
         .text-controls .btn-primary:hover {
-            background-color: var(--hover-color);
+            background-color: #E5E7E8;
         }
-
+    
         .text-controls .btn-danger {
-            background-color: #dc3545;
-            color: white;
+            background-color: #F1F3F4;
+            color: #1A1D2A;
         }
-
+    
         .text-controls .btn-danger:hover {
-            background-color: #bb2d3b;
+            background-color: #E5E7E8;
         }
-
+    
         .text-controls .btn-icon img {
             width: 16px;
             height: 16px;
-            filter: brightness(0) invert(1);  /* Makes the icons white */
+            filter: none;
         }
         
         .icon {
@@ -120,7 +126,7 @@
         .header-titles h2 {
             font-size: 1rem;
             font-weight: 500;
-            color: #6c757d;
+            color: #6C757D;
             margin: 0;
             line-height: 1;
         }
@@ -155,13 +161,13 @@
         }
         
         .usage-value {
-            color: #6c757d;
+            color: #6C757D;
         }
         
         .progress {
             height: 8px;
             border-radius: 4px;
-            background-color: #e9ecef;
+            background-color: #E9ECEF;
         }
         
         .progress-bar {
@@ -171,7 +177,7 @@
         }
         
         .character-count {
-            color: #6c757d;
+            color: #6C757D;
             font-size: 0.875rem;
             display: flex;
             justify-content: space-between;
@@ -191,7 +197,7 @@
             width: 100%;
             border-radius: 8px;
         }
-
+    
         .history-item .audio-container {
             margin: 1rem 0;
         }
@@ -232,29 +238,48 @@
         }
         
         .btn-primary {
-            background-color: var(--primary-color);
+            background-color: #F1F3F4;
+            color: #1A1D2A;
             border: none;
-            color: #FFFFFF;
             width: 100%;
         }
-        
-        .btn-primary:hover:not(:disabled) {
-            background-color: var(--hover-color);
+    
+        .btn-primary:hover {
+            background-color: #E5E7E8;
         }
-        
+    
         .btn-primary:disabled {
             background-color: var(--primary-color);
             opacity: 0.7;
             cursor: not-allowed;
         }
-        
+    
+        #submitBtn, #saveBtn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+    
+        #submitBtn:hover, #saveBtn:hover {
+            background-color: var(--hover-color);
+        }
+    
+        #submitBtn img.icon, #saveBtn img.icon {
+            filter: brightness(0) invert(1);
+        }
+    
         .btn-danger {
-            background-color: #dc3545;
+            background-color: #F1F3F4;
+            color: #1A1D2A;
             border: none;
         }
-        
+    
         .btn-danger:hover {
-            background-color: #bb2d3b;
+            background-color: #E5E7E8;
+        }
+    
+        .btn-primary img.icon,
+        .btn-danger img.icon {
+            filter: none;
         }
         
         .btn-icon {
@@ -262,15 +287,22 @@
             height: 36px;
             padding: 8px;
             border-radius: 50%;
+            border: 1px solid #DEDEE0;
             display: flex;
             align-items: center;
             justify-content: center;
             aspect-ratio: 1/1;
         }
+
+        .btn-icon:hover {
+            background-color: #E5E7E8;
+            border-color: #DEDEE0;
+        }
         
         .btn-icon img {
             width: 16px;
             height: 16px;
+            filter: none;
         }
         
         #audioContainer {
@@ -408,7 +440,7 @@
         }
         
         .api-key-button:disabled {
-            color: #ccc;
+            color: #CCC;
             cursor: not-allowed;
         }
         
@@ -418,7 +450,7 @@
         }
         
         .nav-tabs .nav-link {
-            color: #6c757d;
+            color: #6C757D;
             border: none;
             padding: 0.75rem 1.5rem;
             font-weight: 500;
@@ -467,7 +499,7 @@
         }
         
         .history-meta {
-            color: #6c757d;
+            color: #6C757D;
             font-size: 0.875rem;
             display: flex;
             flex-direction: column;
@@ -490,7 +522,7 @@
         .history-count {
             font-size: 0.95rem;
             font-weight: 500;
-            color: #6c757d;
+            color: #6C757D;
             margin: 0; 
         }
         
@@ -509,7 +541,7 @@
         
         #historyPosition {
             font-weight: 500;
-            color: #6c757d;
+            color: #6C757D;
             min-width: 40px;
             text-align: center;
         }
@@ -548,7 +580,7 @@
         
         .modal-body-custom {
             margin-bottom: 1.5rem;
-            color: #6c757d;
+            color: #6C757D;
         }
         
         .modal-footer-custom {
@@ -556,27 +588,84 @@
             justify-content: center;
             gap: 1rem;
         }
-        
-        .btn-cancel {
-            background-color: #f8f9fa;
+
+        .modal-footer-custom #confirmNumberBtn {
+            background-color: #F8F9FA;
             color: #1A1D2A;
             border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 1rem;
+            width: 100px;
+        }
+
+        .modal-footer-custom #confirmNumberBtn:hover {
+            background-color: #E9ECEF;
         }
         
-        .btn-cancel:hover {
-            background-color: #e9ecef;
+        .btn-cancel, #alertModalOkBtn {
+            background-color: #F8F9FA;
+            color: #1A1D2A;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0.5rem 1rem;
+            width: 100px;
+        }
+        
+        .btn-cancel:hover, #alertModalOkBtn:hover {
+            background-color: #E9ECEF;
         }
         
         .btn-delete {
-            background-color: #dc3545;
+            background-color: #DC3545;
             color: white;
+            padding: 0.5rem 1rem;
+            width: 100px;
         }
         
         .btn-delete:hover {
-            background-color: #bb2d3b;
+            background-color: #BB2D3B;
             color: white;
         }
-        
+    
+        #clearAllBtn {
+            background-color: #FFFFFF;
+            color: #1A1D2A;
+            border: 1px solid #DEDEE0;
+        }
+    
+        #clearAllBtn:hover {
+            background-color: #E5E7E8;
+        }
+    
+        #clearAllBtn img {
+            filter: none;
+        }
+    
+        .history-actions .btn {
+            background-color: #F1F3F4;
+        }
+    
+        .history-actions .btn:hover {
+            background-color: #E5E7E8;
+        }
+    
+        .history-actions .btn img {
+            filter: none;
+        }
+    
+        #pasteBtn,
+        #clearBtn {
+            background-color: #F1F3F4;
+        }
+    
+        #pasteBtn:hover,
+        #clearBtn:hover {
+            background-color: #E5E7E8;
+        }
+    
+        #pasteBtn img,
+        #clearBtn img {
+            filter: none;
+        }
+    
         @media (min-width: 768px) {
             .container {
                 padding: 2rem;
@@ -606,10 +695,26 @@
                 align-items: center;
                 gap: 1rem;
             }
-
+    
             .history-item .audio-container {
                 flex-direction: column;
             }
+        }
+        
+        #numberInput::-webkit-inner-spin-button,
+        #numberInput::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #numberInput {
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        #apiKeyInfo,
+        #historyPosition {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -620,7 +725,7 @@
                 <h3 id="alertModalTitle" style="margin: 0; font-weight: 600;">Alert</h3>
             </div>
             <div class="modal-body-custom">
-                <p id="alertModalMessage" style="font-size: 0.875rem; color: #6c757d;"></p>
+                <p id="alertModalMessage" style="font-size: 0.875rem; color: #6C757D;"></p>
             </div>
             <div class="modal-footer-custom">
                 <button id="alertModalOkBtn" class="btn btn-primary" style="padding: 0.5rem 1rem;">OK</button>
@@ -633,27 +738,37 @@
             <div class="modal-header-custom">
                 <h3 style="margin: 0; font-weight: 600;">Delete History Item</h3>
             </div>
-            <div class="modal-body-custom">
-                <p style="font-size: 0.875rem; color: #6c757d;">This action cannot be undone.</p>
-            </div>
             <div class="modal-footer-custom">
                 <button id="cancelDeleteBtn" class="btn btn-cancel" style="padding: 0.5rem 1rem;">Cancel</button>
                 <button id="confirmDeleteBtn" class="btn btn-delete" style="padding: 0.5rem 1rem;">Delete</button>
             </div>
         </div>
     </div>
-
+    
     <div id="clearAllConfirmModal" class="modal-custom">
         <div class="modal-content-custom">
             <div class="modal-header-custom">
                 <h3 style="margin: 0; font-weight: 600;">Clear All History</h3>
             </div>
-            <div class="modal-body-custom">
-                <p style="font-size: 0.875rem; color: #6c757d;">This action cannot be undone.</p>
-            </div>
             <div class="modal-footer-custom">
                 <button id="cancelClearAllBtn" class="btn btn-cancel" style="padding: 0.5rem 1rem;">Cancel</button>
                 <button id="confirmClearAllBtn" class="btn btn-delete" style="padding: 0.5rem 1rem;">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this modal HTML right after the clearAllConfirmModal div -->
+    <div id="numberInputModal" class="modal-custom">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h3 id="numberInputTitle" style="margin: 0; font-weight: 600;">Enter Number</h3>
+            </div>
+            <div class="modal-body-custom" style="margin: 1rem 0;">
+                <input type="number" id="numberInput" class="form-control" min="1" style="text-align: center;">
+            </div>
+            <div class="modal-footer-custom">
+                <button id="cancelNumberBtn" class="btn btn-cancel">Cancel</button>
+                <button id="confirmNumberBtn" class="btn btn-primary">Go</button>
             </div>
         </div>
     </div>
@@ -793,7 +908,7 @@
                     </div>
                 </div>
                 <div id="historyList">
-                    <!-- Single history item will be shown here -->
+                    <!-- History Item -->
                 </div>
             </div>
         </div>
@@ -808,7 +923,10 @@
         function updateCharCount(textarea) {
             const count = textarea.value.length;
             const remainingCredits = TOTAL_LIMIT - currentUsage;
-            document.getElementById('charCount').textContent = `${count.toLocaleString()}/${remainingCredits.toLocaleString()}`;
+            const charCountElement = document.getElementById('charCount');
+            
+            const parts = `<span style="color: ${count > remainingCredits ? '#DC3545' : ''}">${count.toLocaleString()}</span>/${remainingCredits.toLocaleString()}`;
+            charCountElement.innerHTML = parts;
         }
 
         function isArabic(text) {
@@ -863,7 +981,6 @@
             select.value = value;
             document.getElementById('selectedVoice').textContent = name;
             document.getElementById('voiceOptions').classList.remove('show');
-            
             const voiceInfo = {
                 value: value,
                 name: name,
@@ -980,11 +1097,11 @@
             progressBar.setAttribute('aria-valuenow', percentage);
             
             if (percentage > 90) {
-                progressBar.style.backgroundColor = '#dc3545';
-            } else if (percentage > 70) {
+                progressBar.style.backgroundColor = '#DC3545';
+            } else if (percentage > 80) {
                 progressBar.style.backgroundColor = '#ffc107';
             } else {
-                progressBar.style.backgroundColor = '#4854E5';
+                progressBar.style.backgroundColor = '#1A1D2A';
             }
         
             const textarea = document.getElementById('text');
@@ -1475,6 +1592,115 @@
             clearBtn.addEventListener('click', function() {
                 textarea.value = '';
                 updateTextDirection(textarea);
+            });
+        });
+
+        let currentContext = '';
+
+        function showNumberInputModal(context, maxNumber) {
+            currentContext = context;
+            const modal = document.getElementById('numberInputModal');
+            const input = document.getElementById('numberInput');
+            const title = document.getElementById('numberInputTitle');
+            const errorMessage = document.createElement('div');
+            errorMessage.id = 'numberInputError';
+            errorMessage.style.color = '#DC3545';
+            errorMessage.style.marginBottom = '10px';
+            errorMessage.style.display = 'none';
+            
+            // Tambahkan elemen error tepat sebelum input
+            input.parentNode.insertBefore(errorMessage, input);
+            
+            title.textContent = context === 'apiKey' ? 'Go to API Key' : 'Go to History Item';
+            input.max = maxNumber;
+            input.value = '';
+            input.placeholder = `Enter a number (1-${maxNumber})`;
+            
+            modal.style.display = 'flex';
+            input.focus();
+        
+            const handleCancel = () => {
+                modal.style.display = 'none';
+                errorMessage.style.display = 'none';
+                document.getElementById('cancelNumberBtn').removeEventListener('click', handleCancel);
+                document.getElementById('confirmNumberBtn').removeEventListener('click', handleConfirm);
+                input.removeEventListener('keyup', handleKeyup);
+            };
+        
+            const handleConfirm = () => {
+                const number = parseInt(input.value);
+                if (number && number >= 1 && number <= maxNumber) {
+                    if (context === 'apiKey') {
+                        goToApiKey(number);
+                    } else {
+                        goToHistoryItem(number);
+                    }
+                    modal.style.display = 'none';
+                    errorMessage.style.display = 'none';
+                } else {
+                    errorMessage.textContent = `Please enter a valid number between 1 and ${maxNumber}`;
+                    errorMessage.style.display = 'block';
+                }
+            };
+        
+            const handleKeyup = (e) => {
+                if (e.key === 'Enter') {
+                    handleConfirm();
+                } else if (e.key === 'Escape') {
+                    handleCancel();
+                }
+            };
+        
+            document.getElementById('cancelNumberBtn').addEventListener('click', handleCancel);
+            document.getElementById('confirmNumberBtn').addEventListener('click', handleConfirm);
+            input.addEventListener('keyup', handleKeyup);
+        }
+
+        async function goToApiKey(number) {
+            try {
+                const response = await fetch('/change-api-key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ index: number - 1 }),
+                });
+                const data = await response.json();
+                if (data.success) {
+                    updateUsage(data.usage_data);
+                    if (data.usage_data.voices) updateVoiceList(data.usage_data.voices);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error changing API key:', error);
+                showCustomAlert('Error changing API key: ' + error.message, 'API Key Error');
+            }
+        }
+
+        function goToHistoryItem(number) {
+            const history = JSON.parse(localStorage.getItem('ttsHistory') || '[]');
+            if (number <= history.length) {
+                currentHistoryIndex = number - 1;
+                renderHistory();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiKeyInfo = document.getElementById('apiKeyInfo');
+            apiKeyInfo.style.cursor = 'pointer';
+            apiKeyInfo.addEventListener('click', function() {
+                const [_, total] = this.textContent.split('/');
+                showNumberInputModal('apiKey', parseInt(total));
+            });
+
+            const historyPosition = document.getElementById('historyPosition');
+            historyPosition.style.cursor = 'pointer';
+            historyPosition.addEventListener('click', function() {
+                const [_, total] = this.textContent.split('/');
+                if (parseInt(total) > 0) {
+                    showNumberInputModal('history', parseInt(total));
+                }
             });
         });
     </script>

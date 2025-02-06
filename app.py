@@ -144,11 +144,17 @@ def generate_speech():
 @app.route('/change-api-key', methods=['POST'])
 def change_api_key():
     global CURRENT_KEY_INDEX
-    direction = request.json.get('direction')
-    if direction == 'next':
-        CURRENT_KEY_INDEX = (CURRENT_KEY_INDEX + 1) % len(API_KEYS)
-    elif direction == 'previous':
-        CURRENT_KEY_INDEX = (CURRENT_KEY_INDEX - 1) % len(API_KEYS)
+    data = request.json
+    
+    if 'index' in data:
+        CURRENT_KEY_INDEX = data['index']
+    else:
+        direction = data.get('direction')
+        if direction == 'next':
+            CURRENT_KEY_INDEX = (CURRENT_KEY_INDEX + 1) % len(API_KEYS)
+        elif direction == 'previous':
+            CURRENT_KEY_INDEX = (CURRENT_KEY_INDEX - 1) % len(API_KEYS)
+    
     usage_data = get_current_usage()
     voices = get_voices()
     usage_data['voices'] = voices
