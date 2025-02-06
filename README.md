@@ -2,7 +2,7 @@
 
 A simple web application built with Flask that allows users to generate speech from text using ElevenLabs' text-to-speech API.
 
-![image](https://github.com/user-attachments/assets/9e317cd4-7f11-4a6e-88ca-b802017b5646)
+![image](https://github.com/user-attachments/assets/267c4795-c81a-4b41-b188-cc8112eb2d2e)
 
 > In this screenshot, I’m using 100 API keys, each with 10,000 credits. When multiplied, I get a total of 1,000,000 free credits.
 
@@ -55,4 +55,3 @@ Click the button below!
 4. Save Changes
 
 ![image](https://github.com/user-attachments/assets/1a4d7cde-1d54-46bc-ba53-e123ef260f96)
-
