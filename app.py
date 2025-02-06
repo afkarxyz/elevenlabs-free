@@ -3,53 +3,30 @@ import json
 import secrets
 import time
 import base64
+import traceback
 from flask import Flask, render_template, request, jsonify
 from elevenlabs import ElevenLabs
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(32)
 
-USAGE_LIMIT = int(os.environ.get('ELEVENLABS_USAGE_LIMIT', 10000))
+USAGE_LIMIT = 10000
 
-def load_api_keys():
-    api_keys_str = os.environ.get('ELEVENLABS_API_KEYS', '')
-    current_key_index = int(os.environ.get('CURRENT_KEY_INDEX', 0))
-    
-    api_keys = [key.strip() for key in api_keys_str.split(',') if key.strip()]
-    
-    current_key_index = min(current_key_index, len(api_keys) - 1)
-    
-    return api_keys, current_key_index
+def get_api_keys():
+    if os.environ.get('VERCEL_ENV'):
+        return os.environ.get('API_KEYS', '').split(','), 0
+    else:
+        api_keys_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'api_keys.json')
+        if os.path.exists(api_keys_file):
+            with open(api_keys_file, 'r') as f:
+                data = json.load(f)
+                return data.get('API_KEYS', []), data.get('current_key_index', 0)
+        return [], 0
 
-def save_api_keys(api_keys, current_index):
-    pass
-
-API_KEYS, CURRENT_KEY_INDEX = load_api_keys()
-
-def get_current_key_index():
-    global CURRENT_KEY_INDEX
-    return CURRENT_KEY_INDEX
-
-def set_current_key_index(index):
-    global CURRENT_KEY_INDEX
-    CURRENT_KEY_INDEX = index
+API_KEYS, CURRENT_KEY_INDEX = get_api_keys()
 
 def get_client():
-    if not API_KEYS:
-        raise ValueError("No API keys available")
-    return ElevenLabs(api_key=API_KEYS[get_current_key_index()])
-
-def rotate_api_key(direction):
-    current_index = get_current_key_index()
-    if direction == 'next':
-        new_index = (current_index + 1) % len(API_KEYS)
-    elif direction == 'previous':
-        new_index = (current_index - 1) % len(API_KEYS)
-    else:
-        return jsonify({'success': False, 'error': 'Invalid direction'})
-    
-    set_current_key_index(new_index)
-    return get_client()
+    return ElevenLabs(api_key=API_KEYS[CURRENT_KEY_INDEX])
 
 def format_label(label):
     if not label:
@@ -85,6 +62,7 @@ def get_voices():
         return voices
     except Exception as e:
         print(f"Error fetching voices: {str(e)}")
+        print(traceback.format_exc())
         return []
 
 def get_current_usage():
@@ -98,37 +76,38 @@ def get_current_usage():
         )
         return {
             'usage': sum(usage.dict()['usage']['All']),
-            'key_index': get_current_key_index() + 1,
+            'key_index': CURRENT_KEY_INDEX + 1,
             'total_keys': len(API_KEYS)
         }
     except Exception as e:
         print(f"Error getting usage: {str(e)}")
-        return {'usage': 0, 'key_index': get_current_key_index() + 1, 'total_keys': len(API_KEYS)}
+        print(traceback.format_exc())
+        return {'usage': 0, 'key_index': CURRENT_KEY_INDEX + 1, 'total_keys': len(API_KEYS)}
 
 @app.route('/')
 def index():
-    voices = get_voices()
-    return render_template('index.html', voices=voices)
+    return render_template('index.html')
 
 @app.route('/get-voices')
 def get_voices_route():
     try:
         voices = get_voices()
+        if not voices:
+            raise Exception("No voices fetched")
         return jsonify({'success': True, 'voices': voices})
     except Exception as e:
+        print(f"Error in get_voices_route: {str(e)}")
+        print(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/get-usage')
 def get_usage():
     try:
         usage_data = get_current_usage()
-        if usage_data['usage'] >= USAGE_LIMIT:
-            rotate_api_key('next')
-            usage_data = get_current_usage()
-            voices = get_voices()
-            usage_data['voices'] = voices
         return jsonify({'success': True, **usage_data})
     except Exception as e:
+        print(f"Error in get_usage: {str(e)}")
+        print(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/generate-speech', methods=['POST'])
@@ -138,16 +117,6 @@ def generate_speech():
     
     try:
         client = get_client()
-        usage_data = get_current_usage()
-        current_usage = usage_data['usage']
-        
-        if current_usage >= USAGE_LIMIT:
-            client = rotate_api_key('next')
-            usage_data = get_current_usage()
-            current_usage = usage_data['usage']
-            if current_usage >= USAGE_LIMIT:
-                return jsonify({'success': False, 'error': 'All API keys have reached their usage limit.'})
-
         audio_stream = client.generate(
             text=text,
             voice=voice_id,
@@ -155,27 +124,31 @@ def generate_speech():
         )
         
         audio_data = b"".join(chunk for chunk in audio_stream)
-        
         audio_base64 = base64.b64encode(audio_data).decode('utf-8')
-        
         audio_data_url = f"data:audio/mpeg;base64,{audio_base64}"
         
-        updated_usage = get_current_usage()
+        usage_data = get_current_usage()
         voices = get_voices()
-        updated_usage['voices'] = voices
+        usage_data['voices'] = voices
         
         return jsonify({
             'success': True, 
             'audio_data': audio_data_url,
-            'usage_data': updated_usage
+            'usage_data': usage_data
         })
     except Exception as e:
+        print(f"Error in generate_speech: {str(e)}")
+        print(traceback.format_exc())
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/change-api-key', methods=['POST'])
 def change_api_key():
+    global CURRENT_KEY_INDEX
     direction = request.json.get('direction')
-    rotate_api_key(direction)
+    if direction == 'next':
+        CURRENT_KEY_INDEX = (CURRENT_KEY_INDEX + 1) % len(API_KEYS)
+    elif direction == 'previous':
+        CURRENT_KEY_INDEX = (CURRENT_KEY_INDEX - 1) % len(API_KEYS)
     usage_data = get_current_usage()
     voices = get_voices()
     usage_data['voices'] = voices

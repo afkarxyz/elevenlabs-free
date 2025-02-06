@@ -6,7 +6,7 @@
     <title>ElevenLabs Free</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #4854E5;
@@ -19,6 +19,62 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--background-color);
             color: #1A1D2A;
+        }
+
+        .arabic-input {
+            direction: rtl;
+            font-family: 'Noto Naskh Arabic', serif;
+            text-align: right;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        textarea.arabic-input {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .text-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .text-controls .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .text-controls .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .text-controls .btn-primary:hover {
+            background-color: var(--hover-color);
+        }
+
+        .text-controls .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .text-controls .btn-danger:hover {
+            background-color: #bb2d3b;
+        }
+
+        .text-controls .btn-icon img {
+            width: 16px;
+            height: 16px;
+            filter: brightness(0) invert(1);  /* Makes the icons white */
         }
         
         .icon {
@@ -128,11 +184,16 @@
             flex-direction: column;
             align-items: stretch;
             gap: 1rem;
+            width: 100%;
         }
         
-        #audioPlayer {
+        #audioPlayer, #historyAudioPlayer {
             width: 100%;
             border-radius: 8px;
+        }
+
+        .history-item .audio-container {
+            margin: 1rem 0;
         }
         
         .form-control, .form-select {
@@ -423,7 +484,7 @@
         .history-meta-icon {
             width: 16px;
             height: 16px;
-            opacity: 0.7;
+            opacity: 0.6;
         }
         
         .history-count {
@@ -526,7 +587,7 @@
             }
         
             .audio-container {
-                gap: 0;
+                gap: 1rem;
                 flex-direction: row;
                 justify-content: space-between;
                 align-items: center;
@@ -534,7 +595,6 @@
         
             #audioPlayer {
                 flex: 1;
-                margin-right: 1rem;
             }
         
             .btn-primary {
@@ -545,6 +605,10 @@
                 flex-direction: row;
                 align-items: center;
                 gap: 1rem;
+            }
+
+            .history-item .audio-container {
+                flex-direction: column;
             }
         }
     </style>
@@ -575,6 +639,21 @@
             <div class="modal-footer-custom">
                 <button id="cancelDeleteBtn" class="btn btn-cancel" style="padding: 0.5rem 1rem;">Cancel</button>
                 <button id="confirmDeleteBtn" class="btn btn-delete" style="padding: 0.5rem 1rem;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="clearAllConfirmModal" class="modal-custom">
+        <div class="modal-content-custom">
+            <div class="modal-header-custom">
+                <h3 style="margin: 0; font-weight: 600;">Clear All History</h3>
+            </div>
+            <div class="modal-body-custom">
+                <p style="font-size: 0.875rem; color: #6c757d;">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer-custom">
+                <button id="cancelClearAllBtn" class="btn btn-cancel" style="padding: 0.5rem 1rem;">Cancel</button>
+                <button id="confirmClearAllBtn" class="btn btn-delete" style="padding: 0.5rem 1rem;">Clear All</button>
             </div>
         </div>
     </div>
@@ -621,7 +700,7 @@
                 <div class="card">
                     <form id="ttsForm">
                         <div class="mb-3">
-                            <label for="text" class="form-label">Enter Text</label>
+                            <label for="text" class="form-label">Input Your Text</label>
                             <textarea 
                                 class="form-control" 
                                 id="text" 
@@ -629,9 +708,18 @@
                                 rows="4" 
                                 required
                                 placeholder="Type or paste your text here..."
-                                oninput="updateCharCount(this)"></textarea>
+                                oninput="updateTextDirection(this)"
+                            ></textarea>
                             <div class="character-count mt-2">
                                 <span>Credit: <span id="charCount">0/0</span></span>
+                                <div class="text-controls">
+                                    <button type="button" class="btn btn-icon btn-primary" id="pasteBtn" title="Paste">
+                                        <img src="{{ url_for('static', filename='images/paste.svg') }}" alt="Paste" id="pasteIcon">
+                                    </button>
+                                    <button type="button" class="btn btn-icon btn-danger" id="clearBtn" title="Clear">
+                                        <img src="{{ url_for('static', filename='images/clear.svg') }}" alt="Clear">
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -692,7 +780,12 @@
             <!-- History Tab -->
             <div class="tab-pane fade" id="history" role="tabpanel">
                 <div class="history-header">
-                    <h3 class="history-count">History: <span id="historyCount">0</span></h3>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <button id="clearAllBtn" class="btn btn-danger btn-icon" onclick="showClearAllConfirmModal()" title="Clear All History" style="display: none;">
+                            <img src="{{ url_for('static', filename='images/clear.svg') }}" alt="Clear All">
+                        </button>
+                        <h3 class="history-count">History: <span id="historyCount">0</span></h3>
+                    </div>
                     <div class="history-navigation">
                         <button class="api-key-button" id="prevHistoryBtn" onclick="changeHistoryItem('previous')" disabled>&lt;</button>
                         <span id="historyPosition">0/0</span>
@@ -707,6 +800,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         let currentUsage = 0;
         const TOTAL_LIMIT = 10000;
@@ -715,6 +809,20 @@
             const count = textarea.value.length;
             const remainingCredits = TOTAL_LIMIT - currentUsage;
             document.getElementById('charCount').textContent = `${count.toLocaleString()}/${remainingCredits.toLocaleString()}`;
+        }
+
+        function isArabic(text) {
+            const arabicPattern = /[\u0600-\u06FF\u0750-\u077F]/;
+            return arabicPattern.test(text);
+        }
+        
+        function updateTextDirection(textarea) {
+            if (isArabic(textarea.value)) {
+                textarea.classList.add('arabic-input');
+            } else {
+                textarea.classList.remove('arabic-input');
+            }
+            updateCharCount(textarea);
         }
         
         async function downloadAudio() {
@@ -884,11 +992,47 @@
         
             document.getElementById('prevKeyBtn').disabled = data.key_index === 1;
             document.getElementById('nextKeyBtn').disabled = data.key_index === data.total_keys;
+            
+            localStorage.setItem('usageData', JSON.stringify(data));
         }
         
-        function saveToHistory(text, voiceName) {
+        async function getAudioSize(audioData) {
+            try {
+                const response = await fetch(audioData);
+                const blob = await response.blob();
+                const sizeInBytes = blob.size;
+                
+                if (sizeInBytes < 1024 * 1024) {
+                    const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+                    return `${sizeInKB}KB`;
+                } else {
+                    const sizeInMB = (sizeInBytes / (1024 * 1024)).toFixed(2);
+                    return `${sizeInMB}MB`;
+                }
+            } catch (error) {
+                console.error('Error calculating audio size:', error);
+                return null;
+            }
+        }
+
+        function saveAudioToLocalStorage(audioData) {
+            try {
+                localStorage.setItem('lastAudioData', audioData);
+            } catch (e) {
+                console.error('Error saving audio data:', e);
+                localStorage.removeItem('lastAudioData');
+                try {
+                    localStorage.setItem('lastAudioData', audioData);
+                } catch (e) {
+                    console.error('Failed to save audio even after clearing:', e);
+                }
+            }
+        }
+        
+        function saveToHistory(text, voiceName, audioData) {
             const history = JSON.parse(localStorage.getItem('ttsHistory') || '[]');
             const timestamp = new Date().toISOString();
+            const isArabicText = isArabic(text);
             
             if (history.length >= 50) {
                 history.pop();
@@ -897,11 +1041,16 @@
             history.unshift({
                 text,
                 voiceName,
-                timestamp
+                timestamp,
+                hasAudio: Boolean(audioData),
+                isArabic: isArabicText
             });
             
             try {
                 localStorage.setItem('ttsHistory', JSON.stringify(history));
+                if (audioData) {
+                    saveAudioToLocalStorage(audioData);
+                }
                 updateHistoryCount();
                 renderHistory();
             } catch (e) {
@@ -910,8 +1059,12 @@
                     localStorage.setItem('ttsHistory', JSON.stringify([{
                         text,
                         voiceName,
-                        timestamp
+                        timestamp,
+                        hasAudio: Boolean(audioData)
                     }]));
+                    if (audioData) {
+                        saveAudioToLocalStorage(audioData);
+                    }
                     updateHistoryCount();
                     renderHistory();
                 }
@@ -919,14 +1072,19 @@
         }
         
         let currentHistoryIndex = 0;
-
+    
         function updateHistoryCount() {
             const history = JSON.parse(localStorage.getItem('ttsHistory') || '[]');
-            document.getElementById('historyCount').textContent = history.length;
-            document.getElementById('historyPosition').textContent = history.length ? `${currentHistoryIndex + 1}/${history.length}` : '0/0';
+            const count = history.length;
+            const clearAllBtn = document.getElementById('clearAllBtn');
             
-            document.getElementById('prevHistoryBtn').disabled = currentHistoryIndex === 0;
-            document.getElementById('nextHistoryBtn').disabled = currentHistoryIndex >= history.length - 1;
+            document.getElementById('historyCount').textContent = count;
+            document.getElementById('historyPosition').textContent = count ? `${currentHistoryIndex + 1}/${count}` : '0/0';
+            
+            document.getElementById('prevHistoryBtn').disabled = currentHistoryIndex === 0 || count === 0;
+            document.getElementById('nextHistoryBtn').disabled = currentHistoryIndex >= count - 1 || count === 0;
+            
+            clearAllBtn.style.display = count >= 2 ? 'flex' : 'none';
         }
         
         function formatTimestamp(timestamp) {
@@ -943,22 +1101,37 @@
             return date.toLocaleString(undefined, options);
         }
                
-        function renderHistory() {
+        function renderEmptyHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '<div class="text-center text-muted">No history items</div>';
+            updateHistoryCount();
+        }
+               
+        async function renderHistory() {
             const historyList = document.getElementById('historyList');
             const history = JSON.parse(localStorage.getItem('ttsHistory') || '[]');
             
             if (history.length === 0) {
-                historyList.innerHTML = '<div class="text-center text-muted">No history items</div>';
+                renderEmptyHistory();
                 return;
             }
         
             const item = history[currentHistoryIndex];
+            const audioData = currentHistoryIndex === 0 ? localStorage.getItem('lastAudioData') : null;
+            const hasAudio = item.hasAudio && audioData && currentHistoryIndex === 0;
+            
+            let audioSize = '';
+            if (hasAudio) {
+                audioSize = await getAudioSize(audioData);
+            }
+            
+            const charCount = item.text.length;
             
             historyList.innerHTML = `
                 <div class="history-item">
                     <div class="history-info">
                         <div>
-                            <div class="history-text" style="white-space: pre-wrap;">${item.text}</div>
+                            <div class="history-text ${item.isArabic ? 'arabic-input' : ''}" style="white-space: pre-wrap;">${item.text}</div>
                             <div class="history-meta">
                                 <div class="history-meta-item">
                                     <img src="{{ url_for('static', filename='images/voice.svg') }}" alt="Voice" class="history-meta-icon">
@@ -968,10 +1141,36 @@
                                     <img src="{{ url_for('static', filename='images/time.svg') }}" alt="Time" class="history-meta-icon">
                                     ${formatTimestamp(item.timestamp)}
                                 </div>
+                                <div class="history-meta-item">
+                                    <img src="{{ url_for('static', filename='images/character.svg') }}" alt="Characters" class="history-meta-icon">
+                                    ${charCount.toLocaleString()}
+                                </div>
+                                ${hasAudio && audioSize ? `
+                                <div class="history-meta-item">
+                                    <img src="{{ url_for('static', filename='images/size.svg') }}" alt="Size" class="history-meta-icon">
+                                    ${audioSize}
+                                </div>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
+                    ${hasAudio ? `
+                        <div class="audio-container">
+                            <audio id="historyAudioPlayer" controls>
+                                <source src="${audioData}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    ` : ''}
                     <div class="history-actions">
+                        ${hasAudio ? `
+                            <button class="btn btn-primary btn-icon" onclick="downloadHistoryAudio()">
+                                <img src="{{ url_for('static', filename='images/save.svg') }}" alt="Save">
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-primary btn-icon" onclick="reuseHistoryText(${currentHistoryIndex})">
+                            <img src="{{ url_for('static', filename='images/reuse.svg') }}" alt="Reuse">
+                        </button>
                         <button class="btn btn-primary btn-icon" onclick="copyHistoryText(${currentHistoryIndex})">
                             <img id="copyIcon" src="{{ url_for('static', filename='images/copy.svg') }}" alt="Copy">
                         </button>
@@ -983,6 +1182,46 @@
             `;
             
             updateHistoryCount();
+        }
+        
+        function downloadHistoryAudio() {
+            const audioData = localStorage.getItem('lastAudioData');
+            if (!audioData) {
+                showCustomAlert('No audio data available', 'Download Error');
+                return;
+            }
+        
+            const history = JSON.parse(localStorage.getItem('ttsHistory') || '[]');
+            if (history.length === 0 || !history[0].voiceName) {
+                showCustomAlert('Voice information not available', 'Download Error');
+                return;
+            }
+        
+            const voiceName = history[0].voiceName;
+            
+            try {
+                const now = new Date();
+                const dateString = `${now.getDate().toString().padStart(2, '0')}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getFullYear()}`;
+                const timeString = `${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
+                
+                const a = document.createElement('a');
+                a.href = audioData;
+                a.download = `ElevenLabs-Free-${voiceName}-${dateString}-${timeString}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (error) {
+                showCustomAlert('Error downloading audio: ' + error.message, 'Download Error');
+            }
+        }
+
+        function reuseHistoryText(index) {
+            const history = JSON.parse(localStorage.getItem('ttsHistory') || '[]');
+            const text = history[index].text;
+            const textarea = document.getElementById('text');
+            textarea.value = text;
+            updateTextDirection(textarea);
+            document.getElementById('dashboard-tab').click();
         }
         
         function changeHistoryItem(direction) {
@@ -1013,41 +1252,81 @@
                     console.error('Failed to copy text:', err);
                 });
         }
-        
-        function showDeleteConfirmModal(index) {
-            const modal = document.getElementById('deleteConfirmModal');
+
+        function showClearAllConfirmModal() {
+            const modal = document.getElementById('clearAllConfirmModal');
             modal.style.display = 'flex';
-
-            const cancelBtn = document.getElementById('cancelDeleteBtn');
-            const confirmBtn = document.getElementById('confirmDeleteBtn');
-
+        
+            const cancelBtn = document.getElementById('cancelClearAllBtn');
+            const confirmBtn = document.getElementById('confirmClearAllBtn');
+        
             const handleCancel = () => {
                 modal.style.display = 'none';
                 cancelBtn.removeEventListener('click', handleCancel);
                 confirmBtn.removeEventListener('click', handleConfirm);
             };
-
+        
+            const handleConfirm = () => {
+                modal.style.display = 'none';
+                clearAllHistory();
+                cancelBtn.removeEventListener('click', handleCancel);
+                confirmBtn.removeEventListener('click', handleConfirm);
+            };
+        
+            cancelBtn.addEventListener('click', handleCancel);
+            confirmBtn.addEventListener('click', handleConfirm);
+        }
+        
+        function clearAllHistory() {
+            localStorage.removeItem('ttsHistory');
+            localStorage.removeItem('lastAudioData');
+            currentHistoryIndex = 0;
+            renderEmptyHistory();
+        }
+        
+        function showDeleteConfirmModal(index) {
+            const modal = document.getElementById('deleteConfirmModal');
+            modal.style.display = 'flex';
+    
+            const cancelBtn = document.getElementById('cancelDeleteBtn');
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+    
+            const handleCancel = () => {
+                modal.style.display = 'none';
+                cancelBtn.removeEventListener('click', handleCancel);
+                confirmBtn.removeEventListener('click', handleConfirm);
+            };
+    
             const handleConfirm = () => {
                 modal.style.display = 'none';
                 deleteHistoryItem(index);
                 cancelBtn.removeEventListener('click', handleCancel);
                 confirmBtn.removeEventListener('click', handleConfirm);
             };
-
+    
             cancelBtn.addEventListener('click', handleCancel);
             confirmBtn.addEventListener('click', handleConfirm);
         }
-
+    
         function deleteHistoryItem(index) {
             const history = JSON.parse(localStorage.getItem('ttsHistory') || '[]');
+            
+            if (index === 0) {
+                localStorage.removeItem('lastAudioData');
+            }
+            
             history.splice(index, 1);
             localStorage.setItem('ttsHistory', JSON.stringify(history));
             
-            if (currentHistoryIndex >= history.length) {
-                currentHistoryIndex = Math.max(0, history.length - 1);
+            if (history.length === 0) {
+                currentHistoryIndex = 0;
+                renderEmptyHistory();
+            } else {
+                if (currentHistoryIndex >= history.length) {
+                    currentHistoryIndex = Math.max(0, history.length - 1);
+                }
+                renderHistory();
             }
-            
-            renderHistory();
         }
         
         function showCustomAlert(message, title = 'Alert') {
@@ -1055,39 +1334,60 @@
             const titleElement = document.getElementById('alertModalTitle');
             const messageElement = document.getElementById('alertModalMessage');
             const okButton = document.getElementById('alertModalOkBtn');
-
+    
             titleElement.textContent = title;
             messageElement.textContent = message;
-
+    
             modal.style.display = 'flex';
-
+    
             const closeModal = () => {
                 modal.style.display = 'none';
                 okButton.removeEventListener('click', closeModal);
             };
-
+    
             okButton.addEventListener('click', closeModal);
         }
-
+    
         window.alert = showCustomAlert;
-
+    
+        async function fetchVoices() {
+            try {
+                const response = await fetch('/get-voices');
+                const data = await response.json();
+                if (data.success) {
+                    updateVoiceList(data.voices);
+                } else {
+                    throw new Error(data.error || 'Failed to fetch voices');
+                }
+            } catch (error) {
+                console.error('Error fetching voices:', error);
+                showCustomAlert('Error fetching voices: ' + error.message, 'Voice List Error');
+            }
+        }
+    
         document.addEventListener('DOMContentLoaded', async () => {
             try {
+                const savedUsageData = localStorage.getItem('usageData');
+                if (savedUsageData) {
+                    updateUsage(JSON.parse(savedUsageData));
+                }
+    
                 const response = await fetch('/get-usage');
                 const data = await response.json();
                 if (data.success) {
                     updateUsage(data);
+                    await fetchVoices();
                     loadSavedVoice();
                     updateHistoryCount();
                     renderHistory();
                 } else {
-                    throw new Error(data.error);
+                    throw new Error(data.error || 'Failed to fetch usage data');
                 }
             } catch (error) {
-                console.error('Error fetching usage:', error);
-                showCustomAlert('Error fetching usage: ' + error.message, 'Error');
+                console.error('Error during initialization:', error);
+                showCustomAlert('Error during initialization: ' + error.message, 'Initialization Error');
             }
-
+    
             document.addEventListener('click', function(event) {
                 const dropdown = document.getElementById('voiceOptions');
                 const trigger = document.querySelector('.custom-select-trigger');
@@ -1107,7 +1407,7 @@
             const buttonText = document.getElementById('buttonText');
             const audioContainer = document.getElementById('audioContainer');
             const audioPlayer = document.getElementById('audioPlayer');
-
+    
             submitBtn.disabled = true;
             spinner.classList.remove('d-none');
             speakIcon.classList.add('d-none');
@@ -1116,7 +1416,7 @@
             audioContainer.classList.add('d-none');
             audioPlayer.pause();
             audioPlayer.currentTime = 0;
-
+    
             try {
                 const response = await fetch('/generate-speech', {
                     method: 'POST',
@@ -1133,13 +1433,14 @@
                     
                     saveToHistory(
                         formData.get('text'),
-                        document.getElementById('selectedVoice').textContent
+                        document.getElementById('selectedVoice').textContent,
+                        data.audio_data
                     );
                 } else {
-                    throw new Error(data.error);
+                    throw new Error(data.error || 'Failed to generate speech');
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error generating speech:', error);
                 showCustomAlert('Error generating speech: ' + error.message, 'Speech Generation Error');
             } finally {
                 submitBtn.disabled = false;
@@ -1147,6 +1448,34 @@
                 speakIcon.classList.remove('d-none');
                 buttonText.textContent = 'Generate';
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const pasteBtn = document.getElementById('pasteBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const textarea = document.getElementById('text');
+            const pasteIcon = document.getElementById('pasteIcon');
+
+            pasteBtn.addEventListener('click', async function() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    textarea.value = text;
+                    updateTextDirection(textarea);
+                    
+                    pasteIcon.src = "{{ url_for('static', filename='images/paste-check.svg') }}";
+                    setTimeout(() => {
+                        pasteIcon.src = "{{ url_for('static', filename='images/paste.svg') }}";
+                    }, 1000);
+                } catch (err) {
+                    console.error('Failed to read clipboard:', err);
+                    showCustomAlert('Failed to read clipboard contents', 'Clipboard Error');
+                }
+            });
+
+            clearBtn.addEventListener('click', function() {
+                textarea.value = '';
+                updateTextDirection(textarea);
+            });
         });
     </script>
 </body>
