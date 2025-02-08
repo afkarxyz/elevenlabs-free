@@ -2,12 +2,11 @@
 
 A simple web application built with Flask that allows users to generate speech from text using ElevenLabs' text-to-speech API.
 
-![image](https://github.com/user-attachments/assets/267c4795-c81a-4b41-b188-cc8112eb2d2e)
-
-> In this screenshot, I’m using 100 API keys, each with 10,000 credits. When multiplied, I get a total of 1,000,000 free credits.
+![image](https://github.com/user-attachments/assets/5070d155-64e7-4c62-8022-e21a1f1045fb)
 
 ## ✨ Features
 
+- Multiple model options 
 - Multiple voice options _(adjust according to your API key; whatever you select on the ElevenLabs website will be displayed)_
 - Download generated audio files
 - Credit usage tracking
@@ -28,30 +27,16 @@ A simple web application built with Flask that allows users to generate speech f
    cd elevenlabs-free
    ```
    
-3. Configure the application:
-   - Get your API key from ElevenLabs
-   - Replace `API_KEY_1, API_KEY_2, API_KEY_3` in `api_keys.json` with your actual key
-
-4. Run the application:
+3. Run the application:
    ```bash
    python app.py
    ```
 
-5. Access the web interface at `http://127.0.0.1:5000`
-
+4. Access the web interface at `http://127.0.0.1:5000`
+5. Enter your API key in the Settings tab
+     
 ## 🌐 Vercel Deployment
 
 Click the button below!
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/afkarxyz/elevenlabs-free/tree/main)
-
-### Setting Environment Variables in Vercel
-
-1. Open Project
-2. Go to Settings > Environment Variables
-3. Add Variables:
-   - `API_KEYS`: `API_KEY_1,API_KEY_2,API_KEY_3`
-   - `VERCEL_ENV`: `production`
-4. Save Changes
-
-![image](https://github.com/user-attachments/assets/1a4d7cde-1d54-46bc-ba53-e123ef260f96)
