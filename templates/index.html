@@ -81,13 +81,13 @@
             width: 90%;
             padding: 20px;
             border-radius: 8px;
-            background-color: #1f2937;
-            color: #ffffff;
+            background-color: #ffffff;
+            color: #111827;
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.2s ease-in-out;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #374151;
+            border: 1px solid #e5e7eb;
             text-align: center;
         }
         .custom-alert.show {
@@ -108,22 +108,31 @@
             max-width: 120px;
         }
         .custom-alert-confirm {
-            background-color: #4b5563;
+            background-color: #DC2626;
             color: #ffffff;
         }
         .custom-alert-confirm:hover {
-            background-color: #6b7280;
+            background-color: #B91C1C;
         }
         .custom-alert-cancel {
-            background-color: #1f2937;
+            background-color: #1F2937;
             color: #ffffff;
-            border: 1px solid #4b5563;
         }
         .custom-alert-cancel:hover {
-            background-color: #374151;
+            background-color: #111827;
         }
         .custom-alert-message {
             margin-bottom: 15px;
+        }
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
         }
         * {
             -webkit-tap-highlight-color: transparent;
@@ -131,11 +140,9 @@
             -webkit-user-select: none;
             user-select: none;
         }
-
         button {
             -webkit-tap-highlight-color: transparent;
         }
-
         button:focus {
             outline: none;
         }
@@ -262,7 +269,7 @@
 
             <!-- History Tab -->
             <div id="history" class="tab-content hidden">
-                <div class="card rounded-lg overflow-hidden mb-4">
+                <div id="historyContent" class="card rounded-lg overflow-hidden mb-4">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                         <div class="flex items-center">
                             <button id="clearAllHistory" class="mr-2 text-gray-600 hover:text-gray-900 hidden">
@@ -270,7 +277,7 @@
                             </button>
                             <h2 class="text-lg font-semibold text-gray-900">History <span id="historyCount" class="text-sm font-normal"></span></h2>
                         </div>
-                        <div class="flex items-center space-x-2">
+                        <div id="historyNavigation" class="flex items-center space-x-2">
                             <button id="prevHistory" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-left"></i></button>
                             <div class="flex items-center">
                                 <input type="text" id="currentHistoryIndex" class="w-10 text-center px-1" />
@@ -279,39 +286,40 @@
                         </div>
                     </div>
                     <div class="p-4">
-                        <div id="historyContent">
-                            <div id="historyItem" class="hidden">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span id="historyTimestamp" class="text-sm text-gray-600"></span>
-                                    <span id="historyCharCount" class="text-sm text-gray-600"></span>
-                                </div>
-                                <div class="mb-4">
-                                    <p id="historyText" class="mb-2 text-gray-700 whitespace-pre-wrap"></p>
-                                    <button id="toggleFullText" class="text-sm text-blue-600 hover:text-blue-800">Show More</button>
-                                </div>
-                                <div class="mb-4">
-                                    <audio controls class="w-full mb-2" id="historyAudio">
-                                        Your browser does not support the audio element.
-                                    </audio>
-                                    <span id="historyAudioSize" class="text-sm text-gray-600"></span>
-                                </div>
-                                <div class="flex justify-center space-x-2">
-                                    <button id="copyTextButton" class="button circle-button">
-                                        <i class="fas fa-clone"></i>
-                                    </button>
-                                    <button id="reuseTextButton" class="button circle-button">
-                                        <i class="fas fa-reply"></i>
-                                    </button>
-                                    <button id="downloadHistoryAudio" class="button circle-button">
-                                        <i class="fas fa-arrow-down-to-arc"></i>
-                                    </button>
-                                    <button id="deleteHistoryButton" class="button circle-button">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
+                        <div id="historyItem" class="hidden">
+                            <div class="flex justify-between items-center mb-2">
+                                <span id="historyTimestamp" class="text-sm text-gray-600"></span>
+                                <span id="historyCharCount" class="text-sm text-gray-600"></span>
+                            </div>
+                            <div class="mb-4">
+                                <p id="historyText" class="mb-2 text-gray-700 whitespace-pre-wrap"></p>
+                                <button id="toggleFullText" class="text-sm text-blue-600 hover:text-blue-800">Show More</button>
+                            </div>
+                            <div class="mb-4">
+                                <audio controls class="w-full mb-2" id="historyAudio">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                <span id="historyAudioSize" class="text-sm text-gray-600"></span>
+                            </div>
+                            <div class="flex justify-center space-x-2">
+                                <button id="copyTextButton" class="button circle-button">
+                                    <i class="fas fa-clone"></i>
+                                </button>
+                                <button id="reuseTextButton" class="button circle-button">
+                                    <i class="fas fa-reply"></i>
+                                </button>
+                                <button id="downloadHistoryAudio" class="button circle-button">
+                                    <i class="fas fa-arrow-down-to-arc"></i>
+                                </button>
+                                <button id="deleteHistoryButton" class="button circle-button">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
+                </div>
+                <div id="noHistoryMessage" class="text-center text-gray-500 py-8 hidden">
+                    <p class="text-lg">No history yet.</p>
                 </div>
             </div>
 
@@ -349,19 +357,24 @@
                 </div>
                 <div class="mt-4">
                     <div class="py-2">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">API Key File Instructions</h3>
-                        <p class="text-sm text-gray-600 mb-2">To import multiple API keys, create a .txt file with one API key per line. For example:</p>
-                        <pre class="bg-gray-200 p-3 rounded text-sm text-gray-800 inline-block">
-API_KEY_1
-API_KEY_2
-API_KEY_3
-                        </pre>
-                        <p class="text-sm text-gray-600 mt-2">Save this file with a .txt extension and use the "Import" button to upload it.</p>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">API Key File Format</h3>
+                        <p class="text-sm text-gray-600 mb-2">To use multiple API keys, create a .txt file with one API key per line. For example:</p>
+                        <div class="bg-gray-200 rounded text-sm text-gray-800 inline-block">
+                          <div class="px-2 py-1">
+                            <div>sk_13b46a...</div>
+                            <div>sk_1ab364...</div>
+                            <div>sk_3b46a1...</div>
+                          </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Save the file with a .txt extension and use the "Import" button to upload it.</p>
                     </div>
                 </div>
             </div>
 
             <div id="customAlert" class="custom-alert hidden"></div>
+            <div id="customAlertOverlay" class="custom-alert-overlay"></div>
+        </div>
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -724,10 +737,14 @@ API_KEY_3
                 const audioContainer = document.getElementById('audioContainer');
                 const audioPlayer = document.getElementById('audioPlayer');
                 const downloadButton = document.getElementById('downloadButton');
+                const generateButton = this.querySelector('button[type="submit"]');
+                const generateButtonText = generateButton.innerHTML;
                 
-                loading.classList.remove('hidden');
+                loading.classList.add('hidden');
                 audioContainer.classList.add('hidden');
                 downloadButton.classList.add('hidden');
+                generateButton.disabled = true;
+                generateButton.innerHTML = '<i class="fad fa-spinner-third fa-spin mr-2"></i> Processing<span class="dots"><merged_code>...</span>';
             
                 try {
                     const response = await fetch(`/generate-audio?text=${encodeURIComponent(text)}&model_id=${encodeURIComponent(modelId)}&voice_id=${encodeURIComponent(voiceId)}`, {
@@ -756,64 +773,48 @@ API_KEY_3
                     console.error('Error:', error);
                     showCustomAlert('Error generating audio. Please check your API key and try again.', 'error');
                 } finally {
-                    loading.classList.add('hidden');
+                    generateButton.disabled = false;
+                    generateButton.innerHTML = generateButtonText;
                 }
             });
 
-            document.getElementById('audioPlayer').addEventListener('error', function(e) {
-                console.error('Audio playback error:',e);
-                showCustomAlert('Error playing audio. Please try again.', 'error');
-            });
-
-            document.getElementById('downloadButton').addEventListener('click', function() {
-                const audioPlayer = document.getElementById('audioPlayer');
-                if (!audioPlayer.src) {
-                    showCustomAlert('No audio available to download', 'error');
-                    return;
+            function animateDots() {
+                const dots = document.querySelector('.dots');
+                if (dots) {
+                    let currentDots = dots.textContent;
+                    dots.textContent = currentDots.length >= 3 ? '.' : currentDots + '.';
+                    setTimeout(animateDots, 500);
                 }
-                fetch(audioPlayer.src)
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const modelId = document.getElementById('modelSelect').value;
-                        const voiceSelect = document.getElementById('voiceSelect');
-                        const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
-                        const date = new Date();
-                        constformattedDate = formatDate(date, true).replace(/[/:]/g, '').replace(' ', '_');
-                        const fileName = `ElevenLabsFree_${getModelName(modelId)}_${voiceName}_${formattedDate}.mp3`;
-                        downloadAudio(blob, fileName);
-                    });
-            });
-
-            function formatDate(date, includeTime = true) {
-                const options = {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                };
-                if (includeTime) {
-                    Object.assign(options, {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                }
-                return new Date(date).toLocaleString('en-GB', options).replace(/\//g, '/').replace(',', '');
             }
 
+            animateDots();
+
             function updateHistoryUI() {
+                const historyContent = document.getElementById('historyContent');
                 const historyItem = document.getElementById('historyItem');
-                const historyText = document.getElementById('historyText');
-                const historyAudio = document.getElementById('historyAudio');
-                const historyTimestamp = document.getElementById('historyTimestamp');
-                const historyCharCount = document.getElementById('historyCharCount');
-                const historyAudioSize = document.getElementById('historyAudioSize');
-                const toggleFullText = document.getElementById('toggleFullText');
+                const historyNavigation = document.getElementById('historyNavigation');
+                const historyCount = document.getElementById('historyCount');
+                const noHistoryMessage = document.getElementById('noHistoryMessage');
+                const clearAllHistoryButton = document.getElementById('clearAllHistory');
                 const prevButton = document.getElementById('prevHistory');
                 const nextButton = document.getElementById('nextHistory');
                 const currentHistoryIndexInput = document.getElementById('currentHistoryIndex');
+                const historyTimestamp = document.getElementById('historyTimestamp');
+                const historyCharCount = document.getElementById('historyCharCount');
+                const historyText = document.getElementById('historyText');
+                const toggleFullText = document.getElementById('toggleFullText');
+                const historyAudio = document.getElementById('historyAudio');
+                const historyAudioSize = document.getElementById('historyAudioSize');
+
 
                 if (historyItems.length > 0 && currentHistoryIndex >= 0) {
+                    historyContent.classList.remove('hidden');
+                    noHistoryMessage.classList.add('hidden');
                     historyItem.classList.remove('hidden');
+                    historyNavigation.classList.remove('hidden');
+                    historyCount.textContent = `(${historyItems.length})`;
+                    clearAllHistoryButton.classList.remove('hidden');
+
                     const item = historyItems[currentHistoryIndex];
                     
                     historyTimestamp.innerHTML = `<i class="fas fa-calendar-clock mr-1"></i>${formatDate(item.timestamp)}`;
@@ -859,35 +860,16 @@ API_KEY_3
                     prevButton.classList.toggle('opacity-50', currentHistoryIndex <= 0);
                     nextButton.classList.toggle('opacity-50', currentHistoryIndex >= historyItems.length - 1);
                 } else {
+                    historyContent.classList.add('hidden');
+                    noHistoryMessage.classList.remove('hidden');
                     historyItem.classList.add('hidden');
+                    historyNavigation.classList.add('hidden');
+                    historyCount.textContent = '';
+                    clearAllHistoryButton.classList.add('hidden');
                     prevButton.classList.add('opacity-50');
                     nextButton.classList.add('opacity-50');
+                    currentHistoryIndexInput.value = '';
                 }
-
-                updateHistoryCount();
-            }
-
-            function saveToHistory(text, audioBlob, modelId) {
-                const transaction = db.transaction([storeName], "readwrite");
-                const objectStore = transaction.objectStore(storeName);
-                const voiceSelect = document.getElementById('voiceSelect');
-                const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
-                const request = objectStore.add({
-                    text: text,
-                    audio: audioBlob,
-                    modelId: modelId,
-                    voiceName: voiceName,
-                    timestamp: new Date().getTime()
-                });
-
-                request.onsuccess = function(event) {
-                    console.log("History item added to the database.");
-                    loadHistoryFromDB();
-                };
-
-                request.onerror = function(event) {
-                    console.error("Error adding history item to the database:", event.target.error);
-                };
             }
 
             function loadHistoryFromDB() {
@@ -905,15 +887,53 @@ API_KEY_3
                         cursor.continue();
                     } else {
                         currentHistoryIndex = historyItems.length > 0 ? 0 : -1;
-                        updateHistoryCount();
                         updateHistoryUI();
-                        updateClearAllButtonVisibility();
                     }
                 };
 
                 request.onerror = function(event) {
                     console.error("Error loading history from the database:", event.target.error);
                 };
+            }
+
+            document.getElementById('audioPlayer').addEventListener('error', function(e) {
+                console.error('Audio playback error:',e);
+                showCustomAlert('Error playing audio. Please try again.', 'error');
+            });
+
+            document.getElementById('downloadButton').addEventListener('click', function() {
+                const audioPlayer = document.getElementById('audioPlayer');
+                if (!audioPlayer.src) {
+                    showCustomAlert('No audio available to download', 'error');
+                    return;
+                }
+                fetch(audioPlayer.src)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const modelId = document.getElementById('modelSelect').value;
+                        const voiceSelect = document.getElementById('voiceSelect');
+                        const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
+                        const date = new Date();
+                        const formattedDate = formatDate(date, true).replace(/[/:]/g, '').replace(' ', '_');
+                        const fileName = `ElevenLabsFree_${getModelName(modelId)}_${voiceName}_${formattedDate}.mp3`;
+                        downloadAudio(blob, fileName);
+                    });
+            });
+
+            function formatDate(date, includeTime = true) {
+                const options = {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                };
+                if (includeTime) {
+                    Object.assign(options, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                }
+                return new Date(date).toLocaleString('en-GB', options).replace(/\//g, '/').replace(',', '');
             }
 
             document.getElementById('prevHistory').addEventListener('click', function() {
@@ -974,11 +994,6 @@ API_KEY_3
                 }
             });
 
-            function updateHistoryCount() {
-                const historyCount = document.getElementById('historyCount');
-                historyCount.textContent = `(${historyItems.length})`;
-            }
-
             function deleteHistoryItem(id) {
                 const transaction = db.transaction([storeName], "readwrite");
                 const objectStore = transaction.objectStore(storeName);
@@ -1003,8 +1018,7 @@ API_KEY_3
                 }
             });
 
-            const clearAllHistoryButton = document.getElementById('clearAllHistory');
-            clearAllHistoryButton.addEventListener('click', function() {
+            document.getElementById('clearAllHistory').addEventListener('click', function() {
                 showCustomConfirm("Are you sure you want to delete all history items?", function() {
                     const transaction = db.transaction([storeName], "readwrite");
                     const objectStore = transaction.objectStore(storeName);
@@ -1023,10 +1037,6 @@ API_KEY_3
                 });
             });
 
-            function updateClearAllButtonVisibility() {
-                const clearAllHistoryButton = document.getElementById('clearAllHistory');
-                clearAllHistoryButton.classList.toggle('hidden', historyItems.length <= 0);
-            }
 
             function getModelName(modelId) {
                 const models = {
@@ -1086,50 +1096,40 @@ API_KEY_3
                 voiceSelect.addEventListener('change', saveSelectedVoice);
             }
 
-            document.getElementById('prevApiKey').addEventListener('click', function() {
-                if (currentApiKeyIndex > 0) {
-                    currentApiKeyIndex--;
-                    localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
-                    updateApiKeyNavigation();
-                    updateApiKeyDisplay();
-                    fetchVoices();
-                    fetchUsageInfo();
-                }
-            });
+            function saveToHistory(text, audioBlob, modelId) {
+                const transaction = db.transaction([storeName], "readwrite");
+                const objectStore = transaction.objectStore(storeName);
+                const voiceSelect = document.getElementById('voiceSelect');
+                const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
+                const request = objectStore.add({
+                    text: text,
+                    audio: audioBlob,
+                    modelId: modelId,
+                    voiceName: voiceName,
+                    timestamp: new Date().getTime()
+                });
 
-            document.getElementById('nextApiKey').addEventListener('click', function() {
-                if (currentApiKeyIndex < apiKeys.length - 1) {
-                    currentApiKeyIndex++;
-                    localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
-                    updateApiKeyNavigation();
-                    updateApiKeyDisplay();
-                    fetchVoices();
-                    fetchUsageInfo();
-                }
-            });
+                request.onsuccess = function(event) {
+                    console.log("History item added to the database.");
+                    loadHistoryFromDB();
+                };
 
-            document.getElementById('currentApiKeyIndex').addEventListener('change', function() {
-                let newIndex = parseInt(this.value) - 1;
-                if (!isNaN(newIndex) && newIndex >= 0 && newIndex < apiKeys.length) {
-                    currentApiKeyIndex = newIndex;
-                    localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
-                    updateApiKeyNavigation();
-                    updateApiKeyDisplay();
-                    fetchVoices();
-                    fetchUsageInfo();
-                } else {
-                    this.value = currentApiKeyIndex + 1;
-                }
-            });
+                request.onerror = function(event) {
+                    console.error("Error adding history item to the database:", event.target.error);
+                };
+            }
 
             function showCustomAlert(message, type = 'info') {
                 const alertElement = document.getElementById('customAlert');
+                const overlayElement = document.getElementById('customAlertOverlay');
                 alertElement.innerHTML = `<div>${message}</div>`;
                 alertElement.classList.remove('hidden', 'custom-alert-success', 'custom-alert-error', 'custom-alert-info');
                 alertElement.classList.add(`custom-alert-${type}`, 'show');
+                overlayElement.style.display = 'block';
     
                 setTimeout(() => {
                     alertElement.classList.remove('show');
+                    overlayElement.style.display = 'none';
                     setTimeout(() => {
                         alertElement.classList.add('hidden');
                     }, 200);
@@ -1138,6 +1138,7 @@ API_KEY_3
 
             function showCustomConfirm(message, onConfirm, onCancel) {
                 const alertElement = document.getElementById('customAlert');
+                const overlayElement = document.getElementById('customAlertOverlay');
                 alertElement.innerHTML = `
                     <div class="custom-alert-message">${message}</div>
                     <div class="custom-alert-buttons">
@@ -1147,12 +1148,14 @@ API_KEY_3
                 `;
                 alertElement.classList.remove('hidden');
                 alertElement.classList.add('show');
+                overlayElement.style.display = 'block';
 
                 const confirmButton = alertElement.querySelector('.custom-alert-confirm');
                 const cancelButton = alertElement.querySelector('.custom-alert-cancel');
 
                 confirmButton.addEventListener('click', () => {
                     alertElement.classList.remove('show');
+                    overlayElement.style.display = 'none';
                     setTimeout(() => {
                         alertElement.classList.add('hidden');
                         onConfirm();
@@ -1161,12 +1164,46 @@ API_KEY_3
 
                 cancelButton.addEventListener('click', () => {
                     alertElement.classList.remove('show');
+                    overlayElement.style.display = 'none';
                     setTimeout(() => {
                         alertElement.classList.add('hidden');
                         if (onCancel) onCancel();
                     }, 200);
                 });
             }
+
+            document.getElementById('prevApiKey').addEventListener('click', function() {
+                if (currentApiKeyIndex > 0) {
+                    currentApiKeyIndex--;
+                    updateApiKeyDisplay();
+                    updateApiKeyNavigation();
+                    fetchVoices();
+                    fetchUsageInfo();
+                }
+            });
+
+            document.getElementById('nextApiKey').addEventListener('click', function() {
+                if (currentApiKeyIndex < apiKeys.length - 1) {
+                    currentApiKeyIndex++;
+                    updateApiKeyDisplay();
+                    updateApiKeyNavigation();
+                    fetchVoices();
+                    fetchUsageInfo();
+                }
+            });
+
+            document.getElementById('currentApiKeyIndex').addEventListener('change', function() {
+                let newIndex = parseInt(this.value) - 1;
+                if (!isNaN(newIndex) && newIndex >= 0 && newIndex < apiKeys.length) {
+                    currentApiKeyIndex = newIndex;
+                    updateApiKeyDisplay();
+                    updateApiKeyNavigation();
+                    fetchVoices();
+                    fetchUsageInfo();
+                } else {
+                    this.value = currentApiKeyIndex + 1;
+                }
+            });
         });
     </script>
 </body>
