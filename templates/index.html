@@ -184,7 +184,7 @@
                     <div class="p-4">
                         <div class="flex justify-between items-center mb-2">
                             <div class="flex items-center">
-                                <i class="fas fa-clock-rotate-left mr-2"></i>
+                                <i class="fas fa-clock-rotate-left mr-2 text-gray-600"></i>
                                 <span id="resetDate" class="text-sm text-gray-600"></span>
                             </div>
                             <div class="flex items-center">
@@ -274,8 +274,6 @@
                             <button id="prevHistory" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-left"></i></button>
                             <div class="flex items-center">
                                 <input type="text" id="currentHistoryIndex" class="w-10 text-center px-1" />
-                                <span class="mx-1">/</span>
-                                <span id="totalHistoryCount" class="w-10 text-center"></span>
                             </div>
                             <button id="nextHistory" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-right"></i></button>
                         </div>
@@ -353,7 +351,7 @@
                     <div class="py-2">
                         <h3 class="text-lg font-semibold text-gray-800 mb-2">API Key File Instructions</h3>
                         <p class="text-sm text-gray-600 mb-2">To import multiple API keys, create a .txt file with one API key per line. For example:</p>
-                        <pre class="bg-gray-200 p-3 rounded text-sm text-gray-800">
+                        <pre class="bg-gray-200 p-3 rounded text-sm text-gray-800 inline-block">
 API_KEY_1
 API_KEY_2
 API_KEY_3
@@ -813,7 +811,6 @@ API_KEY_3
                 const prevButton = document.getElementById('prevHistory');
                 const nextButton = document.getElementById('nextHistory');
                 const currentHistoryIndexInput = document.getElementById('currentHistoryIndex');
-                const totalHistoryCountSpan = document.getElementById('totalHistoryCount');
 
                 if (historyItems.length > 0 && currentHistoryIndex >= 0) {
                     historyItem.classList.remove('hidden');
@@ -858,7 +855,6 @@ API_KEY_3
                         </span>`;
 
                     currentHistoryIndexInput.value = currentHistoryIndex + 1;
-                    totalHistoryCountSpan.textContent = historyItems.length;
 
                     prevButton.classList.toggle('opacity-50', currentHistoryIndex <= 0);
                     nextButton.classList.toggle('opacity-50', currentHistoryIndex >= historyItems.length - 1);
