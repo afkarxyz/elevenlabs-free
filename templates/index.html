@@ -192,7 +192,8 @@
         <div class="max-w-3xl mx-auto">
             <!-- Dashboard Tab -->
             <div id="dashboard" class="tab-content">
-                <div class="card rounded-lg overflow-hidden mb-4">
+                <!-- Usage Card -->
+                <div id="usageCard" class="card rounded-lg overflow-hidden mb-4 hidden">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                         <h2 class="text-lg font-semibold text-gray-900">Usage <span id="usagePercentage" class="text-sm font-normal">(0%)</span></h2>
                         <div id="apiKeyNavigation" class="flex items-center space-x-2">
@@ -223,29 +224,33 @@
                         </div>
                     </div>
                 </div>
+                <!-- Text to Speech Card -->
                 <div class="card rounded-lg overflow-hidden mb-4">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                         <div class="flex items-center">
-                            <button id="clearButton" class="mr-2 text-red-400 hover:text-red-700">
+                            <button id="clearButton" class="mr-2 text-red-400 hover:text-red-700 hidden">
                                 <i class="fas fa-trash-can"></i>
                             </button>
-                        <h2 class="text-lg font-semibold text-gray-900">Text to Speech</h2>
+                            <h2 class="text-lg font-semibold text-gray-900">Text to Speech</h2>
                         </div>
                     </div>
                     <div class="p-4">
                         <form id="ttsForm">
                             <div class="mb-4 relative">
-                                <textarea id="inputText" class="input w-full px-3 py-2 rounded" rows="4" required placeholder="Type or paste your text here..."></textarea>
+                                <textarea id="inputText" class="input w-full px-3 py-2 rounded" rows="4" required disabled
+                                    placeholder="Please enter your API key first"></textarea>
                                 <div class="text-sm text-gray-500 mt-1 flex justify-between items-center">
-                                    <span>Characters: <span id="charCount">0 / 0</span></span>
+                                    <span id="characterCountWrapper" class="hidden">
+                                        Characters: <span id="charCount">0 / 0</span>
+                                    </span>
                                     <div>
-                                        <button type="button" id="pasteButton" class="text-gray-600 hover:text-gray-900">
+                                        <button type="button" id="pasteButton" class="text-gray-600 hover:text-gray-900 hidden">
                                             <i class="fas fa-clipboard"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="mb-4">
+                            <div class="mb-4 hidden" id="modelSelectContainer">
                                 <select id="modelSelect" class="input w-full px-3 py-2 rounded">
                                     <option value="eleven_multilingual_v2">Eleven Multilingual v2</option>
                                     <option value="eleven_turbo_v2_5">Eleven Turbo v2.5</option>
@@ -254,13 +259,13 @@
                                     <option value="eleven_flash_v2">Eleven Flash v2</option>
                                 </select>
                             </div>
-                            <div class="mb-4">
+                            <div class="mb-4 hidden" id="voiceSelectContainer">
                                 <select id="voiceSelect" class="input w-full px-3 py-2 rounded">
                                     <!-- Voice options will be populated dynamically -->
                                 </select>
                             </div>
                             <div class="flex items-center space-x-4">
-                                <button type="submit" class="button px-2 py-2 rounded w-40 flex items-center justify-center">
+                                <button type="submit" class="button px-2 py-2 rounded w-40 flex items-center justify-center" disabled>
                                     <span class="normal-state">
                                         <i class="fas fa-volume mr-2"></i>Generate
                                     </span>
@@ -383,9 +388,9 @@
                         <p class="text-sm text-gray-600 mb-2">To use multiple API keys, create a .txt file with one API key per line. For example:</p>
                         <div class="bg-gray-200 rounded text-sm text-gray-800 inline-block">
                           <div class="px-2 py-1">
-                            <div>sk_13b46a...</div>
-                            <div>sk_1ab364...</div>
-                            <div>sk_3b46a1...</div>
+                            <div>sk_1fd84b25dca6abcd12...</div>
+                            <div>sk_1ba2c48d5fd3dcba21...</div>
+                            <div>sk_1d45a6cf28bdbacd12...</div>                    
                           </div>
                         </div>
                         <p class="text-sm text-gray-600 mt-2">Save the file with a .txt extension and use the "Import" button to upload it.</p>
@@ -424,6 +429,7 @@
                 
                 updateApiKeyDisplay();
                 updateApiKeyNavigation();
+                updateUIBasedOnApiKey();
 
                 const savedModel = localStorage.getItem('elevenLabsSelectedModel');
                 if (savedModel) {
@@ -564,10 +570,10 @@
                         localStorage.removeItem('elevenLabsApiKeys');
                         localStorage.removeItem('currentApiKeyIndex');
                         currentApiKeyIndex = 0;
+                        updateUIBasedOnApiKey();
                         updateApiKeyDisplay();
                         updateApiKeyNavigation();
                         clearUsageInfo();
-                        showCustomAlert('All API Keys have been cleared.', 'info');
                     });
                 } else if (apiKeys.length === 1) {
                     showCustomConfirm("Are you sure you want to clear the API Key?", function() {
@@ -575,10 +581,10 @@
                         localStorage.removeItem('elevenLabsApiKeys');
                         localStorage.removeItem('currentApiKeyIndex');
                         currentApiKeyIndex = 0;
+                        updateUIBasedOnApiKey();
                         updateApiKeyDisplay();
                         updateApiKeyNavigation();
                         clearUsageInfo();
-                        showCustomAlert('API Key has been cleared.', 'info');
                     });
                 }
             });
@@ -607,13 +613,11 @@
                                 currentApiKeyIndex = 0;
                                 localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
                                 
+                                updateUIBasedOnApiKey();
                                 updateApiKeyDisplay();
                                 updateApiKeyNavigation();
                                 fetchVoices();
                                 fetchUsageInfo();
-                                showCustomAlert(`${newKeys.length} API Key(s) imported successfully!`, 'success');
-                            } else {
-                                showCustomAlert('No valid API Keys found in the file. Keys should start with "sk_".', 'error');
                             }
                         };
                         reader.readAsText(file);
@@ -621,6 +625,28 @@
                 };
                 input.click();
             });
+
+            function updateUIBasedOnApiKey() {
+                const hasApiKey = apiKeys.length > 0;
+                const usageCard = document.getElementById('usageCard');
+                const inputText = document.getElementById('inputText');
+                const modelSelectContainer = document.getElementById('modelSelectContainer');
+                const voiceSelectContainer = document.getElementById('voiceSelectContainer');
+                const generateButton = document.querySelector('#ttsForm button[type="submit"]');
+                const clearButton = document.getElementById('clearButton');
+                const pasteButton = document.getElementById('pasteButton');
+                const characterCountWrapper = document.getElementById('characterCountWrapper');
+        
+                usageCard.classList.toggle('hidden', !hasApiKey);
+                inputText.disabled = !hasApiKey;
+                inputText.placeholder = hasApiKey ? 'Type or paste your text here...' : 'Please enter your API key first';
+                modelSelectContainer.classList.toggle('hidden', !hasApiKey);
+                voiceSelectContainer.classList.toggle('hidden', !hasApiKey);
+                generateButton.disabled = !hasApiKey;
+                clearButton.classList.toggle('hidden', !hasApiKey);
+                pasteButton.classList.toggle('hidden', !hasApiKey);
+                characterCountWrapper.classList.toggle('hidden', !hasApiKey);
+            }
 
             function updateApiKeyDisplay() {
                 const apiKeyInput = document.getElementById('apiKey');
@@ -668,10 +694,17 @@
 
             document.getElementById('apiKey').addEventListener('input', function() {
                 if (apiKeys.length <= 1) {
-                    apiKeys[0] = this.value;
-                    localStorage.setItem('elevenLabsApiKeys', JSON.stringify(apiKeys));
-                    fetchVoices();
-                    fetchUsageInfo();
+                    const apiKey = this.value.trim();
+                    if (apiKey.startsWith('sk_')) {
+                        apiKeys[0] = apiKey;
+                        localStorage.setItem('elevenLabsApiKeys', JSON.stringify(apiKeys));
+                        
+                        updateUIBasedOnApiKey();
+                        updateApiKeyDisplay();
+                        updateApiKeyNavigation();
+                        fetchVoices();
+                        fetchUsageInfo();
+                    }
                 }
             });
 
@@ -728,9 +761,12 @@
                 if (apiKey) {
                     apiKeys = [apiKey];
                     localStorage.setItem('elevenLabsApiKeys', JSON.stringify(apiKeys));
+                    localStorage.removeItem('elevenLabsApiKey');
+                    
                     currentApiKeyIndex = 0;
                     localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
                     
+                    updateUIBasedOnApiKey();
                     updateApiKeyDisplay();
                     updateApiKeyNavigation();
                     fetchVoices();
@@ -1051,7 +1087,6 @@
                 if (currentHistoryIndex >= 0 && currentHistoryIndex < historyItems.length) {
                     showCustomConfirm("Are you sure you want to delete this history item?", function() {
                         deleteHistoryItem(historyItems[currentHistoryIndex].id);
-                        showCustomAlert('History item has been deleted.', 'info');
                     });
                 }
             });
@@ -1062,13 +1097,12 @@
                     const transaction = db.transaction([storeName], "readwrite");
                     const objectStore = transaction.objectStore(storeName);
                     const request = objectStore.clear();
-
+            
                     request.onsuccess = function(event) {
                         console.log("All history items deleted from the database.");
                         loadHistoryFromDB();
-                        showCustomAlert('All history items have been deleted.', 'info');
                     };
-
+            
                     request.onerror = function(event) {
                         console.error("Error deleting all history items from the database:", event.target.error);
                         showCustomAlert('Error deleting history items. Please try again.', 'error');
@@ -1216,7 +1250,7 @@
                     overlayElement.classList.remove('show');
                     setTimeout(() => {
                         alertElement.classList.add('hidden');
-                        onConfirm();
+                        if (onConfirm) onConfirm();
                     }, 200);
                 });
             
