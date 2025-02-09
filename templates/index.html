@@ -10,28 +10,32 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #F3F4F6;
             color: #111827;
         }
         .card {
-            background-color: #ffffff;
-            border: 1px solid #e5e7eb;
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
         }
         .input {
-            border: 1px solid #d1d5db;
+            border: 1px solid #D1D5DB;
         }
         .input:focus {
-            border-color: #6b7280;
+            border-color: #6B7280;
             box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
         }
         .button {
             background-color: #111827;
-            color: #ffffff;
-            transition: all 0.2s;
+            color: #FFFFFF;
+            transition: all 0.1s ease;
         }
         .button:hover {
             background-color: #374151;
+        }
+        .button:disabled {
+            background-color: #D1D5DB;
+            cursor: not-allowed;
         }
         .tab {
             border-bottom: 2px solid transparent;
@@ -81,17 +85,34 @@
             width: 90%;
             padding: 20px;
             border-radius: 8px;
-            background-color: #ffffff;
+            background-color: #FFFFFF;
             color: #111827;
-            z-index: 1000;
+            z-index: 1001;
             opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e5e7eb;
+            transition: opacity 0.1s ease-in-out;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
             text-align: center;
         }
         .custom-alert.show {
             opacity: 1;
+        }
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.1s ease-in-out;
+            pointer-events: none;
+        }
+    
+        .custom-alert-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
         }
         .custom-alert-buttons {
             display: flex;
@@ -103,36 +124,26 @@
             padding: 8px 15px;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
+            transition: background-color 0.1s ease-in-out;
             flex: 1;
             max-width: 120px;
         }
         .custom-alert-confirm {
-            background-color: #DC2626;
+            background-color: #DC3545;
             color: #ffffff;
         }
         .custom-alert-confirm:hover {
-            background-color: #B91C1C;
+            background-color: #C13040;
         }
         .custom-alert-cancel {
-            background-color: #1F2937;
+            background-color: #111827;
             color: #ffffff;
         }
         .custom-alert-cancel:hover {
-            background-color: #111827;
+            background-color: #374151;
         }
         .custom-alert-message {
             margin-bottom: 15px;
-        }
-        .custom-alert-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: none;
         }
         * {
             -webkit-tap-highlight-color: transparent;
@@ -145,6 +156,12 @@
         }
         button:focus {
             outline: none;
+        }
+        #currentApiKeyIndex:focus,
+        #currentHistoryIndex:focus {
+            outline: none;
+            border-color: transparent;
+            box-shadow: none;
         }
     </style>
 </head>
@@ -207,13 +224,17 @@
                     </div>
                 </div>
                 <div class="card rounded-lg overflow-hidden mb-4">
-                    <div class="p-4 border-b border-gray-200">
+                    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <div class="flex items-center">
+                            <button id="clearButton" class="mr-2 text-red-400 hover:text-red-700">
+                                <i class="fas fa-trash-can"></i>
+                            </button>
                         <h2 class="text-lg font-semibold text-gray-900">Text to Speech</h2>
+                        </div>
                     </div>
                     <div class="p-4">
                         <form id="ttsForm">
                             <div class="mb-4 relative">
-                                <label for="inputText" class="block text-sm font-medium text-gray-700 mb-2">Input Your Text:</label>
                                 <textarea id="inputText" class="input w-full px-3 py-2 rounded" rows="4" required placeholder="Type or paste your text here..."></textarea>
                                 <div class="text-sm text-gray-500 mt-1 flex justify-between items-center">
                                     <span>Characters: <span id="charCount">0 / 0</span></span>
@@ -221,35 +242,32 @@
                                         <button type="button" id="pasteButton" class="text-gray-600 hover:text-gray-900">
                                             <i class="fas fa-clipboard"></i>
                                         </button>
-                                        <button type="button" id="clearButton" class="text-gray-600 hover:text-gray-900 ml-2">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-4">
-                                <label for="modelSelect" class="block text-sm font-medium text-gray-700 mb-2">Select Model:</label>
                                 <select id="modelSelect" class="input w-full px-3 py-2 rounded">
                                     <option value="eleven_multilingual_v2">Eleven Multilingual v2</option>
-                                    <option value="eleven_flash_v2_5">Eleven Flash v2.5</option>
                                     <option value="eleven_turbo_v2_5">Eleven Turbo v2.5</option>
+                                    <option value="eleven_flash_v2_5">Eleven Flash v2.5</option>
                                     <option value="eleven_turbo_v2">Eleven Turbo v2</option>
                                     <option value="eleven_flash_v2">Eleven Flash v2</option>
                                 </select>
                             </div>
                             <div class="mb-4">
-                                <label for="voiceSelect" class="block text-sm font-medium text-gray-700 mb-2">Select Voice:</label>
                                 <select id="voiceSelect" class="input w-full px-3 py-2 rounded">
                                     <!-- Voice options will be populated dynamically -->
                                 </select>
                             </div>
                             <div class="flex items-center space-x-4">
-                                <button type="submit" class="button px-4 py-2 rounded">
-                                    <i class="fas fa-volume mr-2"></i> Generate
+                                <button type="submit" class="button px-2 py-2 rounded w-40 flex items-center justify-center">
+                                    <span class="normal-state">
+                                        <i class="fas fa-volume mr-2"></i>Generate
+                                    </span>
+                                    <span class="loading-state hidden">
+                                        <i class="fad fa-spinner-third fa-spin mr-2"></i>Processing...
+                                    </span>
                                 </button>
-                                <div id="loading" class="hidden text-gray-600">
-                                    <i class="fad fa-spinner-third fa-spin mr-2"></i> Processing...
-                                </div>
                             </div>
                         </form>
                         
@@ -259,7 +277,7 @@
                             </audio>
                             <div class="flex justify-center">
                                 <button id="downloadButton" class="button px-4 py-2 rounded hidden">
-                                    <i class="fas fa-arrow-down-to-arc mr-2"></i> Download
+                                    <i class="fas fa-arrow-down-to-arc mr-2"></i>Download
                                 </button>
                             </div>
                         </div>
@@ -269,15 +287,20 @@
 
             <!-- History Tab -->
             <div id="history" class="tab-content hidden">
-                <div id="historyContent" class="card rounded-lg overflow-hidden mb-4">
+                <div id="noHistoryMessage" class="text-center py-8 text-gray-500 hidden">
+                    <i class="fat fa-rectangle-history text-4xl mb-4"></i>
+                    <p>No history yet.</p>
+                </div>
+                
+                <div id="historyCard" class="card rounded-lg overflow-hidden mb-4">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                         <div class="flex items-center">
-                            <button id="clearAllHistory" class="mr-2 text-gray-600 hover:text-gray-900 hidden">
-                                <i class="fas fa-trash"></i>
+                            <button id="clearAllHistory" class="mr-2 text-red-400 hover:text-red-700 hidden">
+                                <i class="fas fa-trash-can"></i>
                             </button>
                             <h2 class="text-lg font-semibold text-gray-900">History <span id="historyCount" class="text-sm font-normal"></span></h2>
                         </div>
-                        <div id="historyNavigation" class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2">
                             <button id="prevHistory" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-left"></i></button>
                             <div class="flex items-center">
                                 <input type="text" id="currentHistoryIndex" class="w-10 text-center px-1" />
@@ -286,40 +309,39 @@
                         </div>
                     </div>
                     <div class="p-4">
-                        <div id="historyItem" class="hidden">
-                            <div class="flex justify-between items-center mb-2">
-                                <span id="historyTimestamp" class="text-sm text-gray-600"></span>
-                                <span id="historyCharCount" class="text-sm text-gray-600"></span>
-                            </div>
-                            <div class="mb-4">
-                                <p id="historyText" class="mb-2 text-gray-700 whitespace-pre-wrap"></p>
-                                <button id="toggleFullText" class="text-sm text-blue-600 hover:text-blue-800">Show More</button>
-                            </div>
-                            <div class="mb-4">
-                                <audio controls class="w-full mb-2" id="historyAudio">
-                                    Your browser does not support the audio element.
-                                </audio>
-                                <span id="historyAudioSize" class="text-sm text-gray-600"></span>
-                            </div>
-                            <div class="flex justify-center space-x-2">
-                                <button id="copyTextButton" class="button circle-button">
-                                    <i class="fas fa-clone"></i>
-                                </button>
-                                <button id="reuseTextButton" class="button circle-button">
-                                    <i class="fas fa-reply"></i>
-                                </button>
-                                <button id="downloadHistoryAudio" class="button circle-button">
-                                    <i class="fas fa-arrow-down-to-arc"></i>
-                                </button>
-                                <button id="deleteHistoryButton" class="button circle-button">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                        <div id="historyContent">
+                            <div id="historyItem" class="hidden">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span id="historyTimestamp" class="text-sm text-gray-600"></span>
+                                    <span id="historyCharCount" class="text-sm text-gray-600"></span>
+                                </div>
+                                <div class="mb-4">
+                                    <p id="historyText" class="mb-2 text-gray-700 whitespace-pre-wrap"></p>
+                                    <button id="toggleFullText" class="text-sm text-blue-600 hover:text-blue-800">Show More</button>
+                                </div>
+                                <div class="mb-4">
+                                    <audio controls class="w-full mb-2" id="historyAudio">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                    <span id="historyAudioSize" class="text-sm text-gray-600"></span>
+                                </div>
+                                <div class="flex justify-center space-x-2">
+                                    <button id="copyTextButton" class="button circle-button">
+                                        <i class="fas fa-clone"></i>
+                                    </button>
+                                    <button id="reuseTextButton" class="button circle-button">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                    <button id="downloadHistoryAudio" class="button circle-button">
+                                        <i class="fas fa-arrow-down-to-arc"></i>
+                                    </button>
+                                    <button id="deleteHistoryButton" class="button circle-button">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div id="noHistoryMessage" class="text-center text-gray-500 py-8 hidden">
-                    <p class="text-lg">No history yet.</p>
                 </div>
             </div>
 
@@ -328,8 +350,8 @@
                 <div class="card rounded-lg overflow-hidden mb-4">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                         <div class="flex items-center">
-                            <button id="clearApiKey" class="mr-2 text-gray-600 hover:text-gray-900">
-                                <i class="fas fa-trash"></i>
+                            <button id="clearApiKey" class="mr-2 text-red-400 hover:text-red-700">
+                                <i class="fas fa-trash-can"></i>
                             </button>
                             <h2 class="text-lg font-semibold text-gray-800"><span id="apiKeyLabel">API Key</span> <span id="apiKeyCount" class="text-sm font-normal"></span></h2>
                         </div>
@@ -349,7 +371,7 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <button type="button" id="importApiKey" class="button px-4 py-2 rounded">
-                                    <i class="fas fa-key mr-2"></i> Import
+                                    <i class="fas fa-key mr-2"></i>Import
                                 </button>
                             </div>
                         </form>
@@ -373,8 +395,6 @@
 
             <div id="customAlert" class="custom-alert hidden"></div>
             <div id="customAlertOverlay" class="custom-alert-overlay"></div>
-        </div>
-    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -733,18 +753,18 @@
                 const text = document.getElementById('inputText').value;
                 const modelId = document.getElementById('modelSelect').value;
                 const voiceId = document.getElementById('voiceSelect').value;
-                const loading = document.getElementById('loading');
+                const submitButton = this.querySelector('button[type="submit"]');
+                const normalState = submitButton.querySelector('.normal-state');
+                const loadingState = submitButton.querySelector('.loading-state');
                 const audioContainer = document.getElementById('audioContainer');
                 const audioPlayer = document.getElementById('audioPlayer');
                 const downloadButton = document.getElementById('downloadButton');
-                const generateButton = this.querySelector('button[type="submit"]');
-                const generateButtonText = generateButton.innerHTML;
                 
-                loading.classList.add('hidden');
+                submitButton.disabled = true;
+                normalState.classList.add('hidden');
+                loadingState.classList.remove('hidden');
                 audioContainer.classList.add('hidden');
                 downloadButton.classList.add('hidden');
-                generateButton.disabled = true;
-                generateButton.innerHTML = '<i class="fad fa-spinner-third fa-spin mr-2"></i> Processing<span class="dots"><merged_code>...</span>';
             
                 try {
                     const response = await fetch(`/generate-audio?text=${encodeURIComponent(text)}&model_id=${encodeURIComponent(modelId)}&voice_id=${encodeURIComponent(voiceId)}`, {
@@ -773,48 +793,80 @@
                     console.error('Error:', error);
                     showCustomAlert('Error generating audio. Please check your API key and try again.', 'error');
                 } finally {
-                    generateButton.disabled = false;
-                    generateButton.innerHTML = generateButtonText;
+                    submitButton.disabled = false;
+                    normalState.classList.remove('hidden');
+                    loadingState.classList.add('hidden');
                 }
             });
 
-            function animateDots() {
-                const dots = document.querySelector('.dots');
-                if (dots) {
-                    let currentDots = dots.textContent;
-                    dots.textContent = currentDots.length >= 3 ? '.' : currentDots + '.';
-                    setTimeout(animateDots, 500);
+            document.getElementById('audioPlayer').addEventListener('error', function(e) {
+                console.error('Audio playback error:',e);
+                showCustomAlert('Error playing audio. Please try again.', 'error');
+            });
+
+            document.getElementById('downloadButton').addEventListener('click', function() {
+                const audioPlayer = document.getElementById('audioPlayer');
+                if (!audioPlayer.src) {
+                    showCustomAlert('No audio available to download', 'error');
+                    return;
                 }
+                fetch(audioPlayer.src)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const modelId = document.getElementById('modelSelect').value;
+                        const voiceSelect = document.getElementById('voiceSelect');
+                        const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
+                        const date = new Date();
+                        constformattedDate = formatDate(date, true).replace(/[/:]/g, '').replace(' ', '_');
+                        const fileName = `ElevenLabsFree_${getModelName(modelId)}_${voiceName}_${formattedDate}.mp3`;
+                        downloadAudio(blob, fileName);
+                    });
+            });
+
+            function formatDate(date, includeTime = true) {
+                const options = {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                };
+                if (includeTime) {
+                    Object.assign(options, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                }
+                return new Date(date).toLocaleString('en-GB', options).replace(/\//g, '/').replace(',', '');
             }
 
-            animateDots();
-
             function updateHistoryUI() {
-                const historyContent = document.getElementById('historyContent');
-                const historyItem = document.getElementById('historyItem');
-                const historyNavigation = document.getElementById('historyNavigation');
-                const historyCount = document.getElementById('historyCount');
+                const historyCard = document.getElementById('historyCard');
                 const noHistoryMessage = document.getElementById('noHistoryMessage');
-                const clearAllHistoryButton = document.getElementById('clearAllHistory');
+                const historyItem = document.getElementById('historyItem');
+                const historyText = document.getElementById('historyText');
+                const historyAudio = document.getElementById('historyAudio');
+                const historyTimestamp = document.getElementById('historyTimestamp');
+                const historyCharCount = document.getElementById('historyCharCount');
+                const historyAudioSize = document.getElementById('historyAudioSize');
+                const toggleFullText = document.getElementById('toggleFullText');
                 const prevButton = document.getElementById('prevHistory');
                 const nextButton = document.getElementById('nextHistory');
                 const currentHistoryIndexInput = document.getElementById('currentHistoryIndex');
-                const historyTimestamp = document.getElementById('historyTimestamp');
-                const historyCharCount = document.getElementById('historyCharCount');
-                const historyText = document.getElementById('historyText');
-                const toggleFullText = document.getElementById('toggleFullText');
-                const historyAudio = document.getElementById('historyAudio');
-                const historyAudioSize = document.getElementById('historyAudioSize');
-
-
-                if (historyItems.length > 0 && currentHistoryIndex >= 0) {
-                    historyContent.classList.remove('hidden');
-                    noHistoryMessage.classList.add('hidden');
+            
+                if (historyItems.length === 0) {
+                    historyCard.classList.add('hidden');
+                    noHistoryMessage.classList.remove('hidden');
+                    prevButton.classList.add('opacity-50');
+                    nextButton.classList.add('opacity-50');
+                    updateHistoryCount();
+                    return;
+                }
+            
+                historyCard.classList.remove('hidden');
+                noHistoryMessage.classList.add('hidden');
+            
+                if (currentHistoryIndex >= 0) {
                     historyItem.classList.remove('hidden');
-                    historyNavigation.classList.remove('hidden');
-                    historyCount.textContent = `(${historyItems.length})`;
-                    clearAllHistoryButton.classList.remove('hidden');
-
                     const item = historyItems[currentHistoryIndex];
                     
                     historyTimestamp.innerHTML = `<i class="fas fa-calendar-clock mr-1"></i>${formatDate(item.timestamp)}`;
@@ -854,22 +906,41 @@
                             <i class="fas fa-microphone-lines mr-1"></i>${getModelName(item.modelId)}<br>
                             <i class="fas fa-user-headset mr-1"></i>${item.voiceName}
                         </span>`;
-
+            
                     currentHistoryIndexInput.value = currentHistoryIndex + 1;
-
                     prevButton.classList.toggle('opacity-50', currentHistoryIndex <= 0);
                     nextButton.classList.toggle('opacity-50', currentHistoryIndex >= historyItems.length - 1);
                 } else {
-                    historyContent.classList.add('hidden');
-                    noHistoryMessage.classList.remove('hidden');
                     historyItem.classList.add('hidden');
-                    historyNavigation.classList.add('hidden');
-                    historyCount.textContent = '';
-                    clearAllHistoryButton.classList.add('hidden');
                     prevButton.classList.add('opacity-50');
                     nextButton.classList.add('opacity-50');
-                    currentHistoryIndexInput.value = '';
                 }
+            
+                updateHistoryCount();
+                updateClearAllButtonVisibility();
+            }
+
+            function saveToHistory(text, audioBlob, modelId) {
+                const transaction = db.transaction([storeName], "readwrite");
+                const objectStore = transaction.objectStore(storeName);
+                const voiceSelect = document.getElementById('voiceSelect');
+                const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
+                const request = objectStore.add({
+                    text: text,
+                    audio: audioBlob,
+                    modelId: modelId,
+                    voiceName: voiceName,
+                    timestamp: new Date().getTime()
+                });
+
+                request.onsuccess = function(event) {
+                    console.log("History item added to the database.");
+                    loadHistoryFromDB();
+                };
+
+                request.onerror = function(event) {
+                    console.error("Error adding history item to the database:", event.target.error);
+                };
             }
 
             function loadHistoryFromDB() {
@@ -887,53 +958,15 @@
                         cursor.continue();
                     } else {
                         currentHistoryIndex = historyItems.length > 0 ? 0 : -1;
+                        updateHistoryCount();
                         updateHistoryUI();
+                        updateClearAllButtonVisibility();
                     }
                 };
 
                 request.onerror = function(event) {
                     console.error("Error loading history from the database:", event.target.error);
                 };
-            }
-
-            document.getElementById('audioPlayer').addEventListener('error', function(e) {
-                console.error('Audio playback error:',e);
-                showCustomAlert('Error playing audio. Please try again.', 'error');
-            });
-
-            document.getElementById('downloadButton').addEventListener('click', function() {
-                const audioPlayer = document.getElementById('audioPlayer');
-                if (!audioPlayer.src) {
-                    showCustomAlert('No audio available to download', 'error');
-                    return;
-                }
-                fetch(audioPlayer.src)
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const modelId = document.getElementById('modelSelect').value;
-                        const voiceSelect = document.getElementById('voiceSelect');
-                        const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
-                        const date = new Date();
-                        const formattedDate = formatDate(date, true).replace(/[/:]/g, '').replace(' ', '_');
-                        const fileName = `ElevenLabsFree_${getModelName(modelId)}_${voiceName}_${formattedDate}.mp3`;
-                        downloadAudio(blob, fileName);
-                    });
-            });
-
-            function formatDate(date, includeTime = true) {
-                const options = {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                };
-                if (includeTime) {
-                    Object.assign(options, {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                }
-                return new Date(date).toLocaleString('en-GB', options).replace(/\//g, '/').replace(',', '');
             }
 
             document.getElementById('prevHistory').addEventListener('click', function() {
@@ -994,6 +1027,11 @@
                 }
             });
 
+            function updateHistoryCount() {
+                const historyCount = document.getElementById('historyCount');
+                historyCount.textContent = `(${historyItems.length})`;
+            }
+
             function deleteHistoryItem(id) {
                 const transaction = db.transaction([storeName], "readwrite");
                 const objectStore = transaction.objectStore(storeName);
@@ -1018,7 +1056,8 @@
                 }
             });
 
-            document.getElementById('clearAllHistory').addEventListener('click', function() {
+            const clearAllHistoryButton = document.getElementById('clearAllHistory');
+            clearAllHistoryButton.addEventListener('click', function() {
                 showCustomConfirm("Are you sure you want to delete all history items?", function() {
                     const transaction = db.transaction([storeName], "readwrite");
                     const objectStore = transaction.objectStore(storeName);
@@ -1037,12 +1076,16 @@
                 });
             });
 
+            function updateClearAllButtonVisibility() {
+                const clearAllHistoryButton = document.getElementById('clearAllHistory');
+                clearAllHistoryButton.classList.toggle('hidden', historyItems.length <= 0);
+            }
 
             function getModelName(modelId) {
                 const models = {
                     'eleven_multilingual_v2': 'Eleven Multilingual v2',
-                    'eleven_flash_v2_5': 'Eleven Flash v2.5',
                     'eleven_turbo_v2_5': 'Eleven Turbo v2.5',
+                    'eleven_flash_v2_5': 'Eleven Flash v2.5',
                     'eleven_turbo_v2': 'Eleven Turbo v2',
                     'eleven_flash_v2': 'Eleven Flash v2'
                 };
@@ -1096,87 +1139,12 @@
                 voiceSelect.addEventListener('change', saveSelectedVoice);
             }
 
-            function saveToHistory(text, audioBlob, modelId) {
-                const transaction = db.transaction([storeName], "readwrite");
-                const objectStore = transaction.objectStore(storeName);
-                const voiceSelect = document.getElementById('voiceSelect');
-                const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
-                const request = objectStore.add({
-                    text: text,
-                    audio: audioBlob,
-                    modelId: modelId,
-                    voiceName: voiceName,
-                    timestamp: new Date().getTime()
-                });
-
-                request.onsuccess = function(event) {
-                    console.log("History item added to the database.");
-                    loadHistoryFromDB();
-                };
-
-                request.onerror = function(event) {
-                    console.error("Error adding history item to the database:", event.target.error);
-                };
-            }
-
-            function showCustomAlert(message, type = 'info') {
-                const alertElement = document.getElementById('customAlert');
-                const overlayElement = document.getElementById('customAlertOverlay');
-                alertElement.innerHTML = `<div>${message}</div>`;
-                alertElement.classList.remove('hidden', 'custom-alert-success', 'custom-alert-error', 'custom-alert-info');
-                alertElement.classList.add(`custom-alert-${type}`, 'show');
-                overlayElement.style.display = 'block';
-    
-                setTimeout(() => {
-                    alertElement.classList.remove('show');
-                    overlayElement.style.display = 'none';
-                    setTimeout(() => {
-                        alertElement.classList.add('hidden');
-                    }, 200);
-                }, 2000);
-            }
-
-            function showCustomConfirm(message, onConfirm, onCancel) {
-                const alertElement = document.getElementById('customAlert');
-                const overlayElement = document.getElementById('customAlertOverlay');
-                alertElement.innerHTML = `
-                    <div class="custom-alert-message">${message}</div>
-                    <div class="custom-alert-buttons">
-                        <button class="custom-alert-button custom-alert-cancel">Cancel</button>
-                        <button class="custom-alert-button custom-alert-confirm">Confirm</button>
-                    </div>
-                `;
-                alertElement.classList.remove('hidden');
-                alertElement.classList.add('show');
-                overlayElement.style.display = 'block';
-
-                const confirmButton = alertElement.querySelector('.custom-alert-confirm');
-                const cancelButton = alertElement.querySelector('.custom-alert-cancel');
-
-                confirmButton.addEventListener('click', () => {
-                    alertElement.classList.remove('show');
-                    overlayElement.style.display = 'none';
-                    setTimeout(() => {
-                        alertElement.classList.add('hidden');
-                        onConfirm();
-                    }, 200);
-                });
-
-                cancelButton.addEventListener('click', () => {
-                    alertElement.classList.remove('show');
-                    overlayElement.style.display = 'none';
-                    setTimeout(() => {
-                        alertElement.classList.add('hidden');
-                        if (onCancel) onCancel();
-                    }, 200);
-                });
-            }
-
             document.getElementById('prevApiKey').addEventListener('click', function() {
                 if (currentApiKeyIndex > 0) {
                     currentApiKeyIndex--;
-                    updateApiKeyDisplay();
+                    localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
                     updateApiKeyNavigation();
+                    updateApiKeyDisplay();
                     fetchVoices();
                     fetchUsageInfo();
                 }
@@ -1185,8 +1153,9 @@
             document.getElementById('nextApiKey').addEventListener('click', function() {
                 if (currentApiKeyIndex < apiKeys.length - 1) {
                     currentApiKeyIndex++;
-                    updateApiKeyDisplay();
+                    localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
                     updateApiKeyNavigation();
+                    updateApiKeyDisplay();
                     fetchVoices();
                     fetchUsageInfo();
                 }
@@ -1196,14 +1165,70 @@
                 let newIndex = parseInt(this.value) - 1;
                 if (!isNaN(newIndex) && newIndex >= 0 && newIndex < apiKeys.length) {
                     currentApiKeyIndex = newIndex;
-                    updateApiKeyDisplay();
+                    localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
                     updateApiKeyNavigation();
+                    updateApiKeyDisplay();
                     fetchVoices();
                     fetchUsageInfo();
                 } else {
                     this.value = currentApiKeyIndex + 1;
                 }
             });
+
+            function showCustomAlert(message, type = 'info') {
+                const alertElement = document.getElementById('customAlert');
+                const overlayElement = document.getElementById('customAlertOverlay');
+                
+                alertElement.innerHTML = `<div>${message}</div>`;
+                alertElement.classList.remove('hidden', 'custom-alert-success', 'custom-alert-error', 'custom-alert-info');
+                alertElement.classList.add(`custom-alert-${type}`, 'show');
+                overlayElement.classList.add('show');
+            
+                setTimeout(() => {
+                    alertElement.classList.remove('show');
+                    overlayElement.classList.remove('show');
+                    setTimeout(() => {
+                        alertElement.classList.add('hidden');
+                    }, 200);
+                }, 1000);
+            }
+
+            function showCustomConfirm(message, onConfirm, onCancel) {
+                const alertElement = document.getElementById('customAlert');
+                const overlayElement = document.getElementById('customAlertOverlay');
+                
+                alertElement.innerHTML = `
+                    <div class="custom-alert-message">${message}</div>
+                    <div class="custom-alert-buttons">
+                        <button class="custom-alert-button custom-alert-cancel">Cancel</button>
+                        <button class="custom-alert-button custom-alert-confirm">Confirm</button>
+                    </div>
+                `;
+                alertElement.classList.remove('hidden');
+                alertElement.classList.add('show');
+                overlayElement.classList.add('show');
+            
+                const confirmButton = alertElement.querySelector('.custom-alert-confirm');
+                const cancelButton = alertElement.querySelector('.custom-alert-cancel');
+            
+                confirmButton.addEventListener('click', () => {
+                    alertElement.classList.remove('show');
+                    overlayElement.classList.remove('show');
+                    setTimeout(() => {
+                        alertElement.classList.add('hidden');
+                        onConfirm();
+                    }, 200);
+                });
+            
+                cancelButton.addEventListener('click', () => {
+                    alertElement.classList.remove('show');
+                    overlayElement.classList.remove('show');
+                    setTimeout(() => {
+                        alertElement.classList.add('hidden');
+                        if (onCancel) onCancel();
+                    }, 200);
+                });
+            }
         });
     </script>
 </body>
