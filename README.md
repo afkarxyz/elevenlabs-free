@@ -2,8 +2,6 @@
 
 A simple web application built with Flask that allows users to generate speech from text using ElevenLabs' text-to-speech API.
 
-![image](https://github.com/user-attachments/assets/5070d155-64e7-4c62-8022-e21a1f1045fb)
-
 ## ✨ Features
 
 - Multiple model options 
@@ -12,7 +10,16 @@ A simple web application built with Flask that allows users to generate speech f
 - Credit usage tracking
 - Multiple API keys
 - Responsive UI
+  
+## 🖼️ Screenshots
 
+![image](https://github.com/user-attachments/assets/2192a87e-0b39-49bb-af1d-0fc7fc18f532)
+
+![image](https://github.com/user-attachments/assets/b0199d5f-64c2-4770-b0d9-95d9f8d913db)
+
+![image](https://github.com/user-attachments/assets/fe7100b0-d9c4-4c99-9bb6-f4708d85bc0b)
+
+![image](https://github.com/user-attachments/assets/3d40f76d-a754-429c-9adf-4a30a9cd0c34)
 
 ## 🖥️ Local Installation
 
