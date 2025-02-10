@@ -37,9 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     
         const inputText = document.getElementById('inputText');
-        const charCount = document.getElementById('charCount');
     
         inputText.addEventListener('input', updateCharCount);
+        inputText.setAttribute('dir', 'auto');
     
         document.getElementById('pasteButton').addEventListener('click', function() {
             navigator.clipboard.readText().then(function(clipText) {
@@ -88,6 +88,14 @@ document.addEventListener('DOMContentLoaded', function() {
         charCount.innerHTML = '';
         charCount.appendChild(inputLengthSpan);
         charCount.appendChild(document.createTextNode(` / ${formatNumber(remainingCredit)}`));
+
+        if (isRTL(inputText.value)) {
+            inputText.style.direction = 'rtl';
+            inputText.style.textAlign = 'right';
+        } else {
+            inputText.style.direction = 'ltr';
+            inputText.style.textAlign = 'left';
+        }
     }
 
     function fetchVoices() {
@@ -460,7 +468,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const voiceSelect = document.getElementById('voiceSelect');
                 const voiceName = voiceSelect.options[voiceSelect.selectedIndex].text.split(' (')[0];
                 const date = new Date();
-                constformattedDate = formatDate(date, true).replace(/[/:]/g, '').replace(' ', '_');
+                const formattedDate = formatDate(date, true).replace(/[/:]/g, '').replace(' ', '_');
                 const fileName = `ElevenLabsFree_${getModelName(modelId)}_${voiceName}_${formattedDate}.mp3`;
                 downloadAudio(blob, fileName);
             });
@@ -518,7 +526,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const fullText = item.text;
             const limitedText = fullText.length > 500 ? fullText.slice(0, 497) + '...' : fullText;
+            
             historyText.textContent = limitedText;
+            if (isRTL(limitedText)) {
+                historyText.style.direction = 'rtl';
+                historyText.style.textAlign = 'right';
+            } else {
+                historyText.style.direction = 'ltr';
+                historyText.style.textAlign = 'left';
+            }
             
             if (fullText.length > 500) {
                 toggleFullText.classList.remove('hidden');
@@ -526,9 +542,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 toggleFullText.onclick = function() {
                     if (historyText.textContent.length <= 500) {
                         historyText.textContent = fullText;
+                        if (isRTL(fullText)) {
+                            historyText.style.direction = 'rtl';
+                            historyText.style.textAlign = 'right';
+                        }
                         toggleFullText.textContent = 'Show Less';
                     } else {
                         historyText.textContent = limitedText;
+                        if (isRTL(limitedText)) {
+                            historyText.style.direction = 'rtl';
+                            historyText.style.textAlign = 'right';
+                        }
                         toggleFullText.textContent = 'Show More';
                     }
                 };
@@ -734,11 +758,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleModelSelect(modelId) {
         localStorage.setItem('elevenLabsSelectedModel', modelId);
-    }
-
-    function saveSelectedVoice() {
-        const voiceSelect = document.getElementById('voiceSelect');
-        localStorage.setItem('elevenLabsSelectedVoice', voiceSelect.value);
     }
 
     function toTitleCase(str) {
@@ -1024,4 +1043,9 @@ document.addEventListener('DOMContentLoaded', function() {
             modelOverlay.classList.remove('show');
         });
     });
+
+    function isRTL(s) {
+        const rtlChars = /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/;
+        return rtlChars.test(s);
+    }
 });
