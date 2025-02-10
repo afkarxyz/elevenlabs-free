@@ -548,36 +548,48 @@ document.addEventListener('DOMContentLoaded', function() {
             historyCharCount.innerHTML = `<i class="fas fa-font mr-1"></i>${formatNumber(item.text.length)}`;
             
             const fullText = item.text;
-            const limitedText = fullText.length > 500 ? fullText.slice(0, 497) + '...' : fullText;
+            const limitedText = fullText.length > 300 ? fullText.slice(0, 297) + '...' : fullText;
             
-            historyText.textContent = limitedText;
-            if (isRTL(limitedText)) {
-                historyText.style.direction = 'rtl';
-                historyText.style.textAlign = 'right';
-            } else {
-                historyText.style.direction = 'ltr';
-                historyText.style.textAlign = 'left';
+            let isFullTextShown = false;
+            
+            function updateTextDisplay() {
+                if (isFullTextShown) {
+                    historyText.textContent = fullText;
+                    toggleFullText.textContent = 'Show Less';
+                    if (isRTL(fullText)) {
+                        historyText.style.direction = 'rtl';
+                        historyText.style.textAlign = 'right';
+                    } else {
+                        historyText.style.direction = 'ltr';
+                        historyText.style.textAlign = 'left';
+                    }
+                } else {
+                    historyText.textContent = limitedText;
+                    toggleFullText.textContent = 'Show More';
+                    if (isRTL(limitedText)) {
+                        historyText.style.direction = 'rtl';
+                        historyText.style.textAlign = 'right';
+                    } else {
+                        historyText.style.direction = 'ltr';
+                        historyText.style.textAlign = 'left';
+                    }
+                }
             }
             
-            if (fullText.length > 500) {
+            updateTextDisplay();
+            
+            if (fullText.length > 300) {
                 toggleFullText.classList.remove('hidden');
-                toggleFullText.textContent = 'Show More';
+                
                 toggleFullText.onclick = function() {
-                    if (historyText.textContent.length <= 500) {
-                        historyText.textContent = fullText;
-                        if (isRTL(fullText)) {
-                            historyText.style.direction = 'rtl';
-                            historyText.style.textAlign = 'right';
-                        }
-                        toggleFullText.textContent = 'Show Less';
-                    } else {
-                        historyText.textContent = limitedText;
-                        if (isRTL(limitedText)) {
-                            historyText.style.direction = 'rtl';
-                            historyText.style.textAlign = 'right';
-                        }
-                        toggleFullText.textContent = 'Show More';
-                    }
+                    isFullTextShown = !isFullTextShown;
+                    updateTextDisplay();
+                };
+                
+                historyText.style.cursor = 'pointer';
+                historyText.onclick = function() {
+                    isFullTextShown = !isFullTextShown;
+                    updateTextDisplay();
                 };
             } else {
                 toggleFullText.classList.add('hidden');
