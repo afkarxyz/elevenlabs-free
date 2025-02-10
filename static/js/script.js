@@ -259,26 +259,24 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateApiKeyDisplay() {
         const apiKeyInput = document.getElementById('apiKey');
         const apiKeyCount = document.getElementById('apiKeyCount');
-        const apiKeyLabel = document.getElementById('apiKeyLabel');
+        const apiKeyLabelText = document.getElementById('apiKeyLabelText');
+        const toggleApiKey = document.getElementById('toggleApiKey');
         
-        if (apiKeys.length === 0) {
-            apiKeyInput.value = '';
+        if (apiKeys.length === 0 || apiKeys.length === 1) {
+            apiKeyInput.value = apiKeys.length === 1 ? apiKeys[0] : '';
             apiKeyInput.disabled = false;
             apiKeyInput.placeholder = 'Enter your ElevenLabs API key';
             apiKeyCount.textContent = '';
-            apiKeyLabel.textContent = 'API Key';
-        } else if (apiKeys.length === 1) {
-            apiKeyInput.value = apiKeys[0];
-            apiKeyInput.disabled = false;
-            apiKeyInput.placeholder = 'Enter your ElevenLabs API key';
-            apiKeyCount.textContent = '';
-            apiKeyLabel.textContent = 'API Key';
+            apiKeyLabelText.style.display = 'block';
+            apiKeyLabelText.textContent = 'ElevenLabs API Key:';
+            toggleApiKey.style.display = 'block';
         } else {
             apiKeyInput.value = '';
             apiKeyInput.disabled = true;
             apiKeyInput.placeholder = 'Currently using multiple API keys';
-            apiKeyCount.textContent = `(${apiKeys.length})`;
-            apiKeyLabel.textContent = 'API Keys';
+            apiKeyCount.textContent = `(${apiKeys.length} Keys)`;
+            apiKeyLabelText.style.display = 'none';
+            toggleApiKey.style.display = 'none';
         }
     }
 
@@ -359,8 +357,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function clearUsageInfo() {
-        updateUsageInfo(0, 0, 0);
-        document.getElementById('voiceSelect').innerHTML = '';
+        const usageBar = document.getElementById('usageBar');
+        if (usageBar) {
+            usageBar.style.width = '0%';
+            usageBar.classList.remove('usage-danger', 'usage-warning');
+        }
+    
+        const characterCountElement = document.getElementById('characterCount');
+        if (characterCountElement) {
+            characterCountElement.textContent = '0 / 0';
+        }
+    
+        const resetDateElement = document.getElementById('resetDate');
+        if (resetDateElement) {
+            resetDateElement.textContent = '-';
+        }
+    
+        const usagePercentage = document.getElementById('usagePercentage');
+        if (usagePercentage) {
+            usagePercentage.textContent = '(0%)';
+        }
+    
+        const voiceSelect = document.getElementById('voiceSelect');
+        if (voiceSelect) {
+            voiceSelect.innerHTML = '';
+        }
+    
+        updateCharCount();
     }
 
     document.getElementById('apiKeyForm').addEventListener('submit', function(e) {

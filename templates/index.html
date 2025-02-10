@@ -6,6 +6,7 @@
     <title>ElevenLabs Free</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.3.2/css/flag-icons.min.css" rel="stylesheet">
     <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
     <style>
         body {
@@ -567,14 +568,15 @@
                             <button id="clearApiKey" class="mr-2 text-red-400 hover:text-red-700">
                                 <i class="fas fa-trash-can"></i>
                             </button>
-                            <h2 class="text-lg font-semibold text-gray-800"><span id="apiKeyLabel">API Key</span> <span id="apiKeyCount" class="text-sm font-normal"></span></h2>
+                            <h2 class="text-lg font-semibold text-gray-800"><span id="apiKeyLabel">API Configuration</span> <span id="apiKeyCount" class="text-sm font-normal"></span></h2>
                         </div>
                     </div>
                     <div class="p-4">
                         <form id="apiKeyForm">
                             <div class="mb-4">
                                 <label for="apiKey" class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                                    <span class="flex-grow">ElevenLabs API Key:</span>
+                                    <span class="flex-grow" id="apiKeyLabelText">ElevenLabs API Key:</span>
+                                    <span id="apiKeyCount" class="text-sm text-gray-500 mr-2"></span>
                                     <button type="button" class="text-gray-600 hover:text-gray-900 ml-2" id="toggleApiKey">
                                         <i class="fas fa-eye-slash"></i>
                                     </button>
@@ -597,12 +599,72 @@
                         <p class="text-sm text-gray-600 mb-2">To use multiple API keys, create a .txt file with one API key per line. For example:</p>
                         <div class="bg-gray-200 rounded text-sm text-gray-800 inline-block">
                           <div class="px-2 py-1">
-                            <div>sk_1fd84b25dca6abcd12...</div>
-                            <div>sk_1ba2c48d5fd3dcba21...</div>
-                            <div>sk_1d45a6cf28bdbacd12...</div>                    
+                            <div>sk_1fd84b25...dca2abcd16</div>
+                            <div>sk_1ba2c48d...1fd3dcba25</div>
+                            <div>sk_1d45a6cf...28bdbacd12</div>         
                           </div>
                         </div>
                         <p class="text-sm text-gray-600 mt-2">Save the file with a .txt extension and use the "Import" button to upload it.</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="py-2">
+                        <details class="bg-white rounded-lg border border-gray-200">
+                            <summary class="px-4 py-3 cursor-pointer text-lg font-semibold text-gray-800 flex items-center justify-between">
+                                Language Support
+                                <i class="fas fa-chevron-down text-gray-600"></i>
+                            </summary>
+                            <div class="px-4 py-3 border-t border-gray-200">
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-gray-800 mb-2">29 Languages <span class="font-normal">(Eleven Multilingual v2)</span></h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                        <div><span class="fi fi-us mr-2"></span> <span class="fi fi-gb mr-2"></span> <span class="fi fi-au mr-2"></span> <span class="fi fi-ca mr-2"></span>English</div>
+                                        <div><span class="fi fi-jp mr-2"></span>Japanese</div>
+                                        <div><span class="fi fi-cn mr-2"></span>Chinese</div>
+                                        <div><span class="fi fi-de mr-2"></span>German</div>
+                                        <div><span class="fi fi-in mr-2"></span>Hindi</div>
+                                        <div><span class="fi fi-fr mr-2"></span> <span class="fi fi-ca mr-2"></span>French</div>
+                                        <div><span class="fi fi-kr mr-2"></span>Korean</div>
+                                        <div><span class="fi fi-br mr-2"></span> <span class="fi fi-pt mr-2"></span>Portuguese</div>
+                                        <div><span class="fi fi-it mr-2"></span>Italian</div>
+                                        <div><span class="fi fi-es mr-2"></span> <span class="fi fi-mx mr-2"></span>Spanish</div>
+                                        <div><span class="fi fi-id mr-2"></span>Indonesian</div>
+                                        <div><span class="fi fi-nl mr-2"></span>Dutch</div>
+                                        <div><span class="fi fi-tr mr-2"></span>Turkish</div>
+                                        <div><span class="fi fi-ph mr-2"></span>Filipino</div>
+                                        <div><span class="fi fi-pl mr-2"></span>Polish</div>
+                                        <div><span class="fi fi-se mr-2"></span>Swedish</div>
+                                        <div><span class="fi fi-bg mr-2"></span>Bulgarian</div>
+                                        <div><span class="fi fi-ro mr-2"></span>Romanian</div>
+                                        <div><span class="fi fi-sa mr-2"></span> <span class="fi fi-ae mr-2"></span>Arabic</div>
+                                        <div><span class="fi fi-cz mr-2"></span>Czech</div>
+                                        <div><span class="fi fi-gr mr-2"></span>Greek</div>
+                                        <div><span class="fi fi-fi mr-2"></span>Finnish</div>
+                                        <div><span class="fi fi-hr mr-2"></span>Croatian</div>
+                                        <div><span class="fi fi-my mr-2"></span>Malay</div>
+                                        <div><span class="fi fi-sk mr-2"></span>Slovak</div>
+                                        <div><span class="fi fi-dk mr-2"></span>Danish</div>
+                                        <div><span class="fi fi-in mr-2"></span>Tamil</div>
+                                        <div><span class="fi fi-ua mr-2"></span>Ukrainian</div>
+                                        <div><span class="fi fi-ru mr-2"></span>Russian</div>
+                                    </div>
+                                </div>
+                                               
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-gray-800 mb-2">32 Languages <span class="font-normal">(Eleven Turbo/Flash v2.5)</span></h4>
+                                    <div class="bg-gray-200 rounded text-sm text-gray-800 inline-block mb-4">
+                                        <div class="px-2 py-1">
+                                            <div>Additional Languages</div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                        <div><span class="fi fi-hu mr-2"></span>Hungarian</div>
+                                        <div><span class="fi fi-no mr-2"></span>Norwegian</div>
+                                        <div><span class="fi fi-vn mr-2"></span>Vietnamese</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
                     </div>
                 </div>
             </div>
