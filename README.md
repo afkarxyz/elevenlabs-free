@@ -15,9 +15,9 @@ A simple web application built with Flask that allows users to generate speech f
 
 ![image](https://github.com/user-attachments/assets/2192a87e-0b39-49bb-af1d-0fc7fc18f532)
 
-![image](https://github.com/user-attachments/assets/b0199d5f-64c2-4770-b0d9-95d9f8d913db)
+![image](https://github.com/user-attachments/assets/90482a52-5996-4ada-bfd5-556ebf23eb22)
 
-![image](https://github.com/user-attachments/assets/017e6dee-f214-481c-8e6a-d13210dcbcfa)
+![image](https://github.com/user-attachments/assets/fc018158-28c0-4a0f-817d-8c527d352c99)
 
 ![image](https://github.com/user-attachments/assets/3d40f76d-a754-429c-9adf-4a30a9cd0c34)
 
