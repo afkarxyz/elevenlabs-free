@@ -4,11 +4,12 @@ A simple web application built with Flask that allows users to generate speech f
 
 ## ✨ Features
 
-- Multiple model options 
-- Multiple voice options _(adjust according to your API key; whatever you select on the ElevenLabs website will be displayed)_
 - Download generated audio files
+- Multiple model options 
+- Multiple voice options
 - Credit usage tracking
 - Multiple API keys
+- API Management
 - Responsive UI
   
 ## 🖼️ Screenshots
@@ -17,7 +18,11 @@ A simple web application built with Flask that allows users to generate speech f
 
 ![image](https://github.com/user-attachments/assets/90482a52-5996-4ada-bfd5-556ebf23eb22)
 
-![image](https://github.com/user-attachments/assets/fc018158-28c0-4a0f-817d-8c527d352c99)
+![image](https://github.com/user-attachments/assets/8a5bff22-7991-4d72-853f-c93bf63e1345)
+
+![image](https://github.com/user-attachments/assets/e3564c64-6f3f-4371-8960-5f692fc27498)
+
+![image](https://github.com/user-attachments/assets/6def8850-a415-4a13-8ae0-41ebe4b2f87f)
 
 ![image](https://github.com/user-attachments/assets/3d40f76d-a754-429c-9adf-4a30a9cd0c34)
 
