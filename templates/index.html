@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElevenLabs Free</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.3.2/css/flag-icons.min.css" rel="stylesheet">
+    <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background-color: #F3F4F6;
+            color: #111827;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .input {
+            border: 1px solid #D1D5DB;
+        }
+        .input:focus {
+            border-color: #6B7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+        }
+        .button {
+            background-color: #111827;
+            color: #FFFFFF;
+            transition: all 0.1s ease;
+        }
+        .button:hover {
+            background-color: #374151;
+        }
+        .button:disabled {
+            background-color: #D1D5DB;
+            cursor: not-allowed;
+        }
+        .tab {
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            border-bottom-color: #111827;
+        }
+        .circle-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .usage-warning {
+            background-color: #F59E0B;
+        }
+        .usage-danger {
+            background-color: #DC3545;
+        }
+        .text-red-400 {
+            color: #DC3545;
+        }
+        #voiceSelect option {
+            white-space: normal;
+            word-wrap: break-word;
+            max-width: 100%;
+            padding: 5px;
+        }
+        @media (min-width: 640px) {
+            .mobile-info {
+                display: none;
+            }
+        }
+        @media (max-width: 639px) {
+            .desktop-info {
+                display: none;
+            }
+        }
+        .custom-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 300px;
+            width: 90%;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #FFFFFF;
+            color: #111827;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.1s ease-in-out;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            text-align: center;
+        }
+        .custom-alert.show {
+            opacity: 1;
+        }
+        .custom-alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.1s ease-in-out;
+            pointer-events: none;
+        }
+    
+        .custom-alert-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .custom-alert-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .custom-alert-button {
+            margin: 0 5px;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.1s ease-in-out;
+            flex: 1;
+            max-width: 120px;
+        }
+        .custom-alert-confirm {
+            background-color: #DC3545;
+            color: #ffffff;
+        }
+        .custom-alert-confirm:hover {
+            background-color: #C13040;
+        }
+        .custom-alert-cancel {
+            background-color: #111827;
+            color: #ffffff;
+        }
+        .custom-alert-cancel:hover {
+            background-color: #374151;
+        }
+        .custom-alert-message {
+            margin-bottom: 15px;
+        }
+        .model-button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: white;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+        }                
+        .model-button:hover {
+            border-color: #6B7280;
+        }               
+        .model-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 300px;
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1001;
+            display: none;
+            padding: 0.5rem;
+            overflow: hidden;
+        }               
+        .model-popup.show {
+            display: block;
+        }     
+        .model-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.1s ease-in-out;
+            pointer-events: none;
+        }       
+        .model-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }  
+        .model-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            background-color: white;
+            border-radius: 0.375rem;
+            margin-bottom: 0.25rem;
+            transition: background-color 0.15s ease;
+        }   
+        .model-option:last-child {
+            margin-bottom: 0;
+        }       
+        .model-option:hover {
+            background-color: #F3F4F6;
+        }        
+        .model-name {
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 0.25rem;
+        }        
+        .model-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: #E5E7EB;
+            color: #374151;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+        .voice-button {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: white;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            text-align: left;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+        .voice-button:hover {
+            border-color: #6B7280;
+        }
+        .voice-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            padding-right: 10px;
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            display: none;
+            padding: 1rem;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #D1D5DB transparent;
+        }
+        .voice-popup::-webkit-scrollbar {
+            width: 6px;
+        }
+        .voice-popup::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .voice-popup::-webkit-scrollbar-thumb {
+            background-color: #D1D5DB;  
+            border-radius: 3px;  
+        }
+        .voice-popup::-webkit-scrollbar-thumb:hover {
+            background-color: #9CA3AF;  
+        }
+        .voice-popup.show {
+            display: block;
+        }
+        .voice-option {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            background-color: white;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.15s ease;
+        }
+        .voice-option:hover {
+            background-color: #F3F4F6;
+        }
+        .voice-name {
+            font-weight: 500;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+        .voice-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        } 
+        .voice-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+        .voice-search {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+        button:focus {
+            outline: none;
+        }
+        #currentApiKeyIndex:focus,
+        #currentHistoryIndex:focus {
+            outline: none;
+            border-color: transparent;
+            box-shadow: none;
+        }
+        .voice-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .voice-category {
+            border-top: 1px solid #E5E7EB;
+            padding-top: 1rem;
+        }
+        .category-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <header class="bg-white border-b border-gray-200 p-4">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+                <img src="{{ url_for('static', filename='images/favicon.svg') }}" alt="ElevenLabs Logo" class="w-8 h-8 mr-2">
+                <a href="https://github.com/afkarxyz/elevenlabs-free" target="_blank" class="hover:text-gray-700">
+                    ElevenLabs
+                </a>
+                <span class="text-sm font-normal text-gray-500 ml-1 mt-1">Free</span>
+            </h1>
+        </div>
+    </header>
+
+    <nav class="bg-white border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-4">
+                <button class="tab active py-4 px-2 text-sm font-medium" data-tab="dashboard">Dashboard</button>
+                <button class="tab py-4 px-2 text-sm font-medium" data-tab="history">History</button>
+                <button class="tab py-4 px-2 text-sm font-medium" data-tab="settings">Settings</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto py-8 px-4">
+        <div class="max-w-3xl mx-auto">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content">
+                <!-- Usage Card -->
+                <div id="usageCard" class="card rounded-lg overflow-hidden mb-4 hidden">
+                    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900">Usage <span id="usagePercentage" class="text-sm font-normal">(0%)</span></h2>
+                        <div id="apiKeyNavigation" class="flex items-center space-x-2">
+                            <button id="prevApiKey" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-left"></i></button>
+                            <div class="flex items-center">
+                                <input type="text" id="currentApiKeyIndex" class="w-10 text-center px-1" />
+                                <span class="mx-1">/</span>
+                                <span id="totalApiKeys" class="w-10 text-center"></span>
+                            </div>
+                            <button id="nextApiKey" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center">
+                                <i class="fas fa-clock-rotate-left mr-2 text-gray-600"></i>
+                                <span id="resetDate" class="text-sm text-gray-600"></span>
+                            </div>
+                            <div class="flex items-center">
+                                <span id="characterCount" class="text-sm text-gray-600 mr-2">0 / 0</span>
+                                <i class="fas fa-coins text-yellow-500"></i>
+                            </div>
+                        </div>
+                        <div class="relative pt-1">
+                            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                                <div id="usageBar" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-black" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Text to Speech Card -->
+                <div class="card rounded-lg overflow-hidden mb-4">
+                    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <div class="flex items-center">
+                            <button id="clearButton" class="mr-2 text-red-400 hover:text-red-700 hidden">
+                                <i class="fas fa-trash-can"></i>
+                            </button>
+                            <h2 class="text-lg font-semibold text-gray-900">Text to Speech</h2>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <form id="ttsForm">
+                            <div class="mb-4 relative">
+                                <textarea id="inputText" class="input w-full px-3 py-2 rounded" rows="4" required disabled
+                                    placeholder="Please enter your API key first"></textarea>
+                                <div class="text-sm text-gray-500 mt-1 flex justify-between items-center">
+                                    <span id="characterCountWrapper" class="hidden">
+                                        Characters: <span id="charCount">0 / 0</span>
+                                    </span>
+                                    <div>
+                                        <button type="button" id="pasteButton" class="text-gray-600 hover:text-gray-900 hidden">
+                                            <i class="fas fa-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4 hidden" id="modelSelectContainer">
+                                <button type="button" class="model-button" id="modelSelectButton">
+                                    <i class="fas fa-microphone-lines mr-2 text-gray-600"></i>
+                                    <span id="selectedModelName">Select a model</span>
+                                </button>
+                                <div class="model-popup" id="modelPopup">
+                                    <div class="model-option" data-value="eleven_multilingual_v2">
+                                        <div class="model-name">Eleven Multilingual v2</div>
+                                        <span class="model-tag">29 Languages</span>
+                                    </div>
+                                    <div class="model-option" data-value="eleven_turbo_v2_5">
+                                        <div class="model-name">Eleven Turbo v2.5</div>
+                                        <span class="model-tag">32 Languages</span>
+                                    </div>
+                                    <div class="model-option" data-value="eleven_flash_v2_5">
+                                        <div class="model-name">Eleven Flash v2.5</div>
+                                        <span class="model-tag">32 Languages</span>
+                                    </div>
+                                    <div class="model-option" data-value="eleven_turbo_v2">
+                                        <div class="model-name">Eleven Turbo v2</div>
+                                        <span class="model-tag">English Only</span>
+                                    </div>
+                                    <div class="model-option" data-value="eleven_flash_v2">
+                                        <div class="model-name">Eleven Flash v2</div>
+                                        <span class="model-tag">English Only</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4 hidden" id="voiceSelectContainer">
+                                <button type="button" class="voice-button" id="voiceSelectButton">
+                                    <i class="fas fa-user-headset mr-2 text-gray-600"></i>
+                                    <span id="selectedVoiceName">Select a voice</span>
+                                </button>
+                                <div class="voice-popup" id="voicePopup">
+                                    <input type="text" class="voice-search" id="voiceSearch" placeholder="Search voices...">
+                                    <div class="voice-categories">
+                                        <div class="voice-category" id="defaultCategory">
+                                            <h3 class="category-title">Default</h3>
+                                            <div class="voice-options"></div>
+                                        </div>
+                                        <div class="voice-category" id="libraryCategory">
+                                            <h3 class="category-title">Library</h3>
+                                            <div class="voice-options"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <button type="submit" class="button px-2 py-2 rounded w-40 flex items-center justify-center" disabled>
+                                    <span class="normal-state">
+                                        <i class="fas fa-volume mr-2"></i>Generate
+                                    </span>
+                                    <span class="loading-state hidden">
+                                        <i class="fad fa-spinner-third fa-spin mr-2"></i>Processing...
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div id="audioContainer" class="mt-6 hidden">
+                            <audio controls class="w-full mb-4" id="audioPlayer">
+                                Your browser does not support the audio element.
+                            </audio>
+                            <div class="flex justify-center">
+                                <button id="downloadButton" class="button px-4 py-2 rounded hidden">
+                                    <i class="fas fa-arrow-down-to-arc mr-2"></i>Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Tab -->
+            <div id="history" class="tab-content hidden">
+                <div id="noHistoryMessage" class="text-center py-8 text-gray-500 hidden">
+                    <i class="fat fa-rectangle-history text-4xl mb-4"></i>
+                    <p>No history yet.</p>
+                </div>
+                
+                <div id="historyCard" class="card rounded-lg overflow-hidden mb-4">
+                    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <div class="flex items-center">
+                            <button id="clearAllHistory" class="mr-2 text-red-400 hover:text-red-700 hidden">
+                                <i class="fas fa-trash-can"></i>
+                            </button>
+                            <h2 class="text-lg font-semibold text-gray-900">History <span id="historyCount" class="text-sm font-normal"></span></h2>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="prevHistory" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-left"></i></button>
+                            <div class="flex items-center">
+                                <input type="text" id="currentHistoryIndex" class="w-10 text-center px-1" />
+                            </div>
+                            <button id="nextHistory" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div id="historyContent">
+                            <div id="historyItem" class="hidden">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span id="historyTimestamp" class="text-sm text-gray-600"></span>
+                                    <span id="historyCharCount" class="text-sm text-gray-600"></span>
+                                </div>
+                                <div class="mb-4">
+                                    <p id="historyText" class="mb-2 text-gray-700 whitespace-pre-wrap"></p>
+                                    <button id="toggleFullText" class="text-sm text-blue-600 hover:text-blue-800">Show More</button>
+                                </div>
+                                <div class="mb-4">
+                                    <audio controls class="w-full mb-4" id="historyAudio">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                    <span id="historyAudioSize" class="text-sm text-gray-600"></span>
+                                </div>
+                                <div class="flex justify-center space-x-2">
+                                    <button id="copyTextButton" class="button circle-button">
+                                        <i class="fas fa-clone"></i>
+                                    </button>
+                                    <button id="reuseTextButton" class="button circle-button">
+                                        <i class="fas fa-reply"></i>
+                                    </button>
+                                    <button id="downloadHistoryAudio" class="button circle-button">
+                                        <i class="fas fa-arrow-down-to-arc"></i>
+                                    </button>
+                                    <button id="deleteHistoryButton" class="button circle-button">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings" class="tab-content hidden">
+                <div class="card rounded-lg overflow-hidden mb-4">
+                    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <div class="flex items-center">
+                            <button id="clearApiKey" class="mr-2 text-red-400 hover:text-red-700">
+                                <i class="fas fa-trash-can"></i>
+                            </button>
+                            <h2 class="text-lg font-semibold text-gray-800"><span id="apiKeyLabel">API Configuration</span> <span id="apiKeyCount" class="text-sm font-normal"></span></h2>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <form id="apiKeyForm">
+                            <div class="mb-4">
+                                <label for="apiKey" class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                                    <span class="flex-grow" id="apiKeyLabelText">ElevenLabs API Key:</span>
+                                    <span id="apiKeyCount" class="text-sm text-gray-500 mr-2"></span>
+                                    <button type="button" class="text-gray-600 hover:text-gray-900 ml-2" id="toggleApiKey">
+                                        <i class="fas fa-eye-slash"></i>
+                                    </button>
+                                </label>
+                                <div class="relative">
+                                    <input type="password" id="apiKey" class="input w-full px-3 py-2 rounded" placeholder="Enter your ElevenLabs API key">
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <button type="button" id="importApiKey" class="button px-4 py-2 rounded w-28">
+                                    <i class="fas fa-key mr-2"></i>Import
+                                </button>
+                                <button type="button" id="editApiButton" class="button px-4 py-2 rounded w-28 ml-2">
+                                    <i class="fas fa-gear mr-2"></i>Edit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="py-2">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">API Key File Format</h3>
+                        <p class="text-sm text-gray-600 mb-2">To use multiple API keys, create a .txt file with one API key per line. For example:</p>
+                        <div class="bg-gray-200 rounded text-sm text-gray-800 inline-block">
+                          <div class="px-2 py-1">
+                            <div>sk_1fd84b25...dca2abcd16</div>
+                            <div>sk_1ba2c48d...1fd3dcba25</div>
+                            <div>sk_1d45a6cf...28bdbacd12</div>         
+                          </div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">Save the file with a .txt extension and use the "Import" button to upload it.</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="py-2">
+                        <details class="bg-white rounded-lg border border-gray-200">
+                            <summary class="px-4 py-3 cursor-pointer text-lg font-semibold text-gray-800 flex items-center justify-between">
+                                Language Support
+                                <i class="fal fa-globe text-gray-600"></i>
+                            </summary>
+                            <div class="px-4 py-3 border-t border-gray-200">
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-gray-800 mb-2">29 Languages <span class="font-normal">(Eleven Multilingual v2)</span></h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                        <div><span class="fi fi-sa mr-2"></span> <span class="fi fi-ae mr-2"></span>Arabic</div>
+                                        <div><span class="fi fi-bg mr-2"></span>Bulgarian</div>
+                                        <div><span class="fi fi-cn mr-2"></span>Chinese</div>
+                                        <div><span class="fi fi-hr mr-2"></span>Croatian</div>
+                                        <div><span class="fi fi-cz mr-2"></span>Czech</div>
+                                        <div><span class="fi fi-dk mr-2"></span>Danish</div>
+                                        <div><span class="fi fi-nl mr-2"></span>Dutch</div>
+                                        <div><span class="fi fi-us mr-2"></span> <span class="fi fi-gb mr-2"></span> <span class="fi fi-au mr-2"></span> <span class="fi fi-ca mr-2"></span>English</div>
+                                        <div><span class="fi fi-ph mr-2"></span>Filipino</div>
+                                        <div><span class="fi fi-fi mr-2"></span>Finnish</div>
+                                        <div><span class="fi fi-fr mr-2"></span> <span class="fi fi-ca mr-2"></span>French</div>
+                                        <div><span class="fi fi-de mr-2"></span>German</div>
+                                        <div><span class="fi fi-gr mr-2"></span>Greek</div>
+                                        <div><span class="fi fi-in mr-2"></span>Hindi</div>
+                                        <div><span class="fi fi-id mr-2"></span>Indonesian</div>
+                                        <div><span class="fi fi-it mr-2"></span>Italian</div>
+                                        <div><span class="fi fi-jp mr-2"></span>Japanese</div>
+                                        <div><span class="fi fi-kr mr-2"></span>Korean</div>
+                                        <div><span class="fi fi-my mr-2"></span>Malay</div>
+                                        <div><span class="fi fi-pl mr-2"></span>Polish</div>
+                                        <div><span class="fi fi-br mr-2"></span> <span class="fi fi-pt mr-2"></span>Portuguese</div>
+                                        <div><span class="fi fi-ro mr-2"></span>Romanian</div>
+                                        <div><span class="fi fi-ru mr-2"></span>Russian</div>
+                                        <div><span class="fi fi-sk mr-2"></span>Slovak</div>
+                                        <div><span class="fi fi-es mr-2"></span> <span class="fi fi-mx mr-2"></span>Spanish</div>
+                                        <div><span class="fi fi-se mr-2"></span>Swedish</div>
+                                        <div><span class="fi fi-in mr-2"></span>Tamil</div>
+                                        <div><span class="fi fi-tr mr-2"></span>Turkish</div>
+                                        <div><span class="fi fi-ua mr-2"></span>Ukrainian</div>
+                                    </div>
+                                </div>
+                                               
+                                <div class="mb-4">
+                                    <h4 class="font-semibold text-gray-800 mb-2">32 Languages <span class="font-normal">(Eleven Turbo/Flash v2.5)</span></h4>
+                                    <div class="bg-gray-200 rounded text-sm text-gray-800 inline-block mb-4">
+                                        <div class="px-2 py-1">
+                                            <div>Additional Languages</div>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                        <div><span class="fi fi-hu mr-2"></span>Hungarian</div>
+                                        <div><span class="fi fi-no mr-2"></span>Norwegian</div>
+                                        <div><span class="fi fi-vn mr-2"></span>Vietnamese</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+
+            <div id="customAlert" class="custom-alert hidden"></div>
+            <div id="customAlertOverlay" class="custom-alert-overlay"></div>
+            <div id="modelOverlay" class="model-overlay"></div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const editApiButton = document.getElementById('editApiButton');
+            if (editApiButton) {
+                editApiButton.addEventListener('click', function() {
+                    window.location.href = '/api';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

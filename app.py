@@ -1,0 +1,216 @@
+from flask import Flask, Response, render_template, request, jsonify
+from elevenlabs import ElevenLabs
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api')
+def api():
+    return render_template('api.html')
+
+@app.route('/generate-audio')
+def generate_audio():
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key:
+        return Response('API key is required', status=401)
+
+    text = request.args.get('text')
+    model_id = request.args.get('model_id')
+    voice_id = request.args.get('voice_id')
+    
+    if not text or not model_id or not voice_id:
+        return Response('Missing required parameters', status=400)
+    
+    try:
+        client = ElevenLabs(api_key=api_key)
+        
+        audio_generator = client.text_to_speech.convert(
+            voice_id=voice_id,
+            output_format="mp3_44100_128",
+            text=text,
+            model_id=model_id,
+        )
+        
+        audio_bytes = b''.join(audio_generator)
+        
+        return Response(
+            audio_bytes,
+            mimetype="audio/mpeg",
+            headers={
+                "Cache-Control": "no-cache",
+                "Access-Control-Allow-Origin": "*"
+            }
+        )
+    except Exception as e:
+        return Response(str(e), status=400)
+
+@app.route('/get-usage-info')
+def get_usage_info():
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key:
+        return jsonify({'error': 'API key is required'}), 401
+
+    try:
+        client = ElevenLabs(api_key=api_key)
+        subscription = client.user.get_subscription()
+        
+        return jsonify({
+            'character_count': subscription.character_count,
+            'character_limit': subscription.character_limit,
+            'next_character_count_reset_unix': subscription.next_character_count_reset_unix
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/get-voices')
+def get_voices():
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key:
+        return jsonify({'error': 'API key is required'}), 401
+
+    referer = request.headers.get('Referer', '')
+    is_api_page = '/api' in referer
+
+    try:
+        client = ElevenLabs(api_key=api_key)
+        voices = client.voices.get_all()
+        voice_data = [
+            {
+                "id": voice.voice_id,
+                "name": voice.name,
+                "preview_url": voice.preview_url,
+                "labels": voice.labels,
+                "category": voice.category,
+                "description": voice.description,
+                "created_at_unix": voice.created_at_unix
+            }
+            for voice in voices.voices
+            if not is_api_page or (is_api_page and voice.category != "premade")
+        ]
+        return jsonify(voice_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/search-voices')
+def search_voices():
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key:
+        return jsonify({'error': 'API key is required'}), 401
+
+    gender = request.args.get('gender', '')
+    page = request.args.get('page', '0')
+    sort = request.args.get('sort', 'most_used')
+    language = request.args.get('language', '')
+
+    sort_mapping = {
+        'most_used': 'cloned_by_count',
+        'latest': 'created_date',
+        'trending': 'trending'
+    }
+    
+    api_sort = sort_mapping.get(sort, 'cloned_by_count')
+    
+    api_params = {
+        'page': int(page),
+        'gender': gender or None,
+        'sort': api_sort
+    }
+    
+    if language and language.lower() != 'any':
+        api_params['language'] = language
+
+    try:
+        client = ElevenLabs(api_key=api_key)
+        response = client.voices.get_shared(**api_params)
+        
+        voice_data = []
+        for voice in response.voices:
+            if hasattr(voice, 'settings') and hasattr(voice.settings, 'free_users_allowed'):
+                if not voice.settings.free_users_allowed:
+                    continue
+
+            labels = {
+                "accent": getattr(voice, 'accent', ''),
+                "gender": getattr(voice, 'gender', ''),
+                "age": getattr(voice, 'age', ''),
+                "descriptive": getattr(voice, 'descriptive', ''),
+                "use_case": getattr(voice, 'use_case', '')
+            }
+            
+            labels = {k: v for k, v in labels.items() if v}
+            
+            voice_info = {
+                "public_owner_id": voice.public_owner_id,
+                "voice_id": voice.voice_id,
+                "date_unix": voice.date_unix,
+                "name": voice.name,
+                "preview_url": voice.preview_url,
+                "cloned_by_count": voice.cloned_by_count,
+                "description": getattr(voice, 'description', ''),
+                "category": getattr(voice, 'category', ''),
+                "labels": labels,
+                "free_users_allowed": getattr(voice.settings, 'free_users_allowed', True) if hasattr(voice, 'settings') else True
+            }
+            
+            voice_data.append(voice_info)
+        
+        return jsonify(voice_data)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/delete-voice', methods=['DELETE'])
+def delete_voice():
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key:
+        return jsonify({'error': 'API key is required'}), 401
+        
+    voice_id = request.args.get('voice_id')
+    if not voice_id:
+        return jsonify({'error': 'Voice ID is required'}), 400
+
+    try:
+        client = ElevenLabs(api_key=api_key)
+        client.voices.delete(voice_id=voice_id)
+        return jsonify({'message': f'Voice {voice_id} deleted successfully'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/add-voice', methods=['POST'])
+def add_voice():
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key:
+        return jsonify({'error': 'API key is required'}), 401
+        
+    data = request.json
+    if not data:
+        return jsonify({'error': 'Request body is required'}), 400
+        
+    public_user_id = data.get('public_user_id')
+    voice_id = data.get('voice_id')
+    new_name = data.get('new_name')
+    
+    if not all([public_user_id, voice_id, new_name]):
+        return jsonify({'error': 'Missing required parameters'}), 400
+
+    try:
+        client = ElevenLabs(api_key=api_key)
+        response = client.voices.add_sharing_voice(
+            public_user_id=public_user_id,
+            voice_id=voice_id,
+            new_name=new_name
+        )
+        result = {
+            'success': True,
+            'message': 'Voice added successfully',
+            'voice_id': voice_id,
+            'name': new_name
+        }
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+if __name__ == '__main__':
+    app.run(debug=True)
