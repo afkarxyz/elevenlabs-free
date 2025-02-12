@@ -14,15 +14,19 @@ A simple web application built with Flask that allows users to generate speech f
   
 ## 🖼️ Screenshots
 
-![image](https://github.com/user-attachments/assets/2192a87e-0b39-49bb-af1d-0fc7fc18f532)
+![image](https://github.com/user-attachments/assets/48c9c998-39c0-4ea6-a46c-de489271597d)
 
-![image](https://github.com/user-attachments/assets/90482a52-5996-4ada-bfd5-556ebf23eb22)
+![image](https://github.com/user-attachments/assets/f6ffab32-f058-4100-97dc-573b0569ff5d)
 
-![image](https://github.com/user-attachments/assets/8a5bff22-7991-4d72-853f-c93bf63e1345)
+![image](https://github.com/user-attachments/assets/b7f8beed-9a67-4590-b5ca-50222af70acd)
 
-![image](https://github.com/user-attachments/assets/e3564c64-6f3f-4371-8960-5f692fc27498)
+## 🔑 API Management
 
-![image](https://github.com/user-attachments/assets/6def8850-a415-4a13-8ae0-41ebe4b2f87f)
+![image](https://github.com/user-attachments/assets/4c6cf8cf-2cd3-4bd0-8cd6-e8ab6b6449f1)
+
+![image](https://github.com/user-attachments/assets/38cf1181-c7ac-4709-8a01-b94af87c1f01)
+
+## 📱 Mobile Version
 
 ![image](https://github.com/user-attachments/assets/3d40f76d-a754-429c-9adf-4a30a9cd0c34)
 
