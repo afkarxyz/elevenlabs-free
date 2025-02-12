@@ -48,27 +48,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const isApiPage = window.location.pathname.includes("/api")
     if (isApiPage) {
-      getUserVoices()
-      setupTabNavigation()
-      setupGenderToggle()
-      setupSearchButton()
-      setupLoadMoreButton()
-      setupSortButton()
-      setupLanguageButton()
+        const clearAllBtn = document.getElementById("clearAllVoices");
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener("click", clearAllVoices);
+        }
 
-      const selectedSort = document.getElementById("selectedSort")
-      if (selectedSort) {
-        selectedSort.textContent = formatString(currentSort)
-      }
+        getUserVoices()
+        setupTabNavigation()
+        setupGenderToggle()
+        setupSearchButton()
+        setupLoadMoreButton()
+        setupSortButton()
+        setupLanguageButton()
 
-      const selectedLanguage = document.getElementById("selectedLanguage")
-      if (selectedLanguage) {
-        selectedLanguage.textContent = currentLanguage.label
-      }
+        const selectedSort = document.getElementById("selectedSort")
+        if (selectedSort) {
+            selectedSort.textContent = formatString(currentSort)
+        }
 
-      if (currentGender) {
-        updateToggleState(currentGender)
-      }
+        const selectedLanguage = document.getElementById("selectedLanguage")
+        if (selectedLanguage) {
+            selectedLanguage.textContent = currentLanguage.label
+        }
+
+        if (currentGender) {
+            updateToggleState(currentGender)
+        }
     }
   }
 
@@ -395,97 +400,81 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function displayUserVoices(voices) {
-    const voiceList = document.getElementById("userVoiceList")
-    if (!voiceList) return
-
-    voiceList.innerHTML = ""
+    const voiceList = document.getElementById("userVoiceList");
+    const voicesTitle = document.getElementById("voicesTitle");
+    
+    if (!voiceList) return;
+    
+    if (voicesTitle) {
+        voicesTitle.textContent = voices.length > 1 ? "Your Voices" : "Your Voice";
+    }
+    
+    voiceList.innerHTML = "";
 
     if (voices.length === 0) {
-      voiceList.innerHTML = '<div class="p-4 text-gray-500">No voices found.</div>'
-      return
+        voiceList.innerHTML = '<div class="p-4 text-gray-500">No voices found.</div>'
+        return
     }
 
-    voices.forEach((voice, index) => {
-      const listItem = document.createElement("div")
-      listItem.className = "p-4 border-b border-gray-200"
+    voices.forEach(voice => {
+        const listItem = document.createElement("div")
+        listItem.className = "p-4 border-b border-gray-200"
 
-      const itemNumber = index + 1
+        let tagsHtml = ""
+        if (voice.labels) {
+            const tagOrder = ["gender", "age", "accent", "descriptive", "use_case"]
+            const tagStyles = {
+                gender: "bg-blue-100 text-blue-800",
+                age: "bg-green-100 text-green-800",
+                accent: "bg-yellow-100 text-yellow-800",
+                descriptive: "bg-pink-100 text-pink-800",
+                use_case: "bg-indigo-100 text-indigo-800",
+            }
 
-      let tagsHtml = ""
-      if (voice.labels) {
-        const tagOrder = ["gender", "age", "accent", "descriptive", "use_case"]
-        const tagStyles = {
-          gender: "bg-blue-100 text-blue-800",
-          age: "bg-green-100 text-green-800",
-          accent: "bg-yellow-100 text-yellow-800",
-          descriptive: "bg-pink-100 text-pink-800",
-          use_case: "bg-indigo-100 text-indigo-800",
+            tagOrder.forEach((tag) => {
+                if (voice.labels[tag]) {
+                    const value = voice.labels[tag]
+                    const formattedValue = formatString(value)
+                    tagsHtml += `
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 ${tagStyles[tag]}">
+                            ${formattedValue}
+                        </span>`
+                }
+            })
         }
 
-        tagOrder.forEach((tag) => {
-          if (voice.labels[tag]) {
-            const value = voice.labels[tag]
-            const formattedValue = formatString(value)
-            tagsHtml += `
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 ${tagStyles[tag]}">
-                    ${formattedValue}
-                </span>`
-          }
-        })
-      }
-
-      const date = new Date(voice.created_at_unix * 1000)
-      const formattedDate = date
-        .toLocaleString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        })
-        .replace(",", "")
-
-      listItem.innerHTML = `
-              <div class="flex items-center justify-between">
-                  <div class="flex-1">
-                      <div class="flex items-center justify-between">
-                          <p class="text-sm font-medium text-gray-900">
-                            <span class="text-gray-500 mr-2">${itemNumber}.</span>${voice.name}
-                          </p>
-                          ${voice.category ? `<span class="text-xs text-gray-500">${formatString(voice.category)}</span>` : ""}
-                      </div>
-                      ${voice.description ? `<p class="text-sm text-gray-600 mt-1">${voice.description}</p>` : ""}
-                      <div class="mt-2 flex flex-wrap gap-2">
-                          ${tagsHtml}
-                      </div>
-                      <div class="mt-2 flex items-center text-sm text-gray-500 space-x-4">
-                          <span class="flex items-center">
-                              <i class="fas fa-calendar-clock mr-1"></i>
-                              ${formattedDate}
-                          </span>
-                      </div>
-                      ${
+        listItem.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-medium text-gray-900">${voice.name}</p>
+                        ${voice.category ? `<span class="text-xs text-gray-500">${formatString(voice.category)}</span>` : ""}
+                    </div>
+                    ${voice.description ? `<p class="text-sm text-gray-600 mt-1">${voice.description}</p>` : ""}
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        ${tagsHtml}
+                    </div>
+                    ${
                         voice.preview_url
-                          ? `
-                          <div class="mt-2 audio-controls flex items-center gap-2">
-                              <audio controls class="flex-grow">
-                                  <source src="${voice.preview_url}" type="audio/mpeg">
-                                  Your browser does not support the audio element.
-                              </audio>
-                              <button 
-                                  class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" 
-                                  data-voice-id="${voice.id}">
-                                  <i class="fas fa-trash-alt"></i>
-                              </button>
-                          </div>
-                      `
-                          : ""
-                      }
-                  </div>
-              </div>
-          `
-      voiceList.appendChild(listItem)
+                            ? `
+                            <div class="mt-2 audio-controls flex items-center gap-2">
+                                <audio controls class="flex-grow">
+                                    <source src="${voice.preview_url}" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                <button 
+                                    class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" 
+                                    data-voice-id="${voice.id}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        `
+                            : ""
+                    }
+                </div>
+            </div>
+        `
+        voiceList.appendChild(listItem)
     })
 
     attachDeleteListeners()
@@ -557,6 +546,38 @@ document.addEventListener("DOMContentLoaded", () => {
         })
       })
     })
+  }
+
+  async function clearAllVoices() {
+    const voiceList = document.getElementById("userVoiceList");
+    const voices = voiceList.querySelectorAll(".deleteVoiceBtn");
+    
+    if (voices.length === 0) {
+        showCustomAlert("No voices to clear", 'info');
+        return;
+    }
+
+    showCustomConfirm(`Are you sure you want to delete all ${voices.length} voices?`, async () => {
+        try {
+            const deletePromises = Array.from(voices).map(voiceBtn => {
+                const voiceId = voiceBtn.getAttribute("data-voice-id");
+                return fetch(`/delete-voice?voice_id=${voiceId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-API-KEY": apiKeys[currentApiKeyIndex],
+                        "Content-Type": "application/json",
+                    },
+                });
+            });
+
+            await Promise.all(deletePromises);
+            getUserVoices();
+            showCustomAlert("All voices have been deleted successfully", 'info');
+        } catch (error) {
+            console.error("Error clearing voices:", error);
+            showCustomAlert("Failed to clear all voices. Error: " + error.message, 'error');
+        }
+    });
   }
 
   function switchToTab(tabId) {

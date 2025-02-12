@@ -342,7 +342,15 @@
                 <div class="card rounded-lg overflow-hidden mb-6">
                     <div class="p-4 border-b border-gray-200">
                         <h2 class="text-lg font-semibold text-gray-900 flex items-center justify-between">
-                            <span>Your Voices <span id="apiKeyCount" class="text-sm font-normal"></span></span>
+                            <div class="flex items-center">
+                                <button id="clearAllVoices" class="text-red-600 hover:text-red-700 mr-2" title="Clear All Voices">
+                                    <i class="fas fa-trash-can"></i>
+                                </button>
+                                <span>
+                                    <span id="voicesTitle">Your Voice</span> 
+                                    <span id="apiKeyCount" class="text-sm font-normal"></span>
+                                </span>
+                            </div>
                             <div id="apiKeyNavigation" class="flex items-center space-x-2 ml-auto">
                                 <button id="prevApiKey" class="text-gray-600 hover:text-gray-900"><i class="fas fa-chevron-left"></i></button>
                                 <input type="text" id="currentApiKeyIndex" class="w-10 text-center px-1 border-none" />
@@ -360,7 +368,7 @@
             <div id="library" class="tab-content hidden">
                 <div class="card rounded-lg overflow-hidden mb-6">
                     <div class="p-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Search Voices</h2>
+                        <h2 class="text-lg font-semibold text-gray-900">Shared Voices</h2>
                     </div>
                     <div class="p-4">
                         <div class="mb-4">
@@ -409,7 +417,7 @@
                     </div>
                     <div class="flex justify-center p-4 border-t border-gray-200">
                         <button type="button" id="loadMoreBtn" class="button hidden">
-                            <i class="fas fa-plus mr-2"></i>Load More
+                            <i class="fas fa-circle-plus mr-2"></i>Load More
                         </button>
                     </div>
                 </div>

@@ -84,8 +84,7 @@ def get_voices():
                 "preview_url": voice.preview_url,
                 "labels": voice.labels,
                 "category": voice.category,
-                "description": voice.description,
-                "created_at_unix": voice.created_at_unix
+                "description": voice.description
             }
             for voice in voices.voices
             if not is_api_page or (is_api_page and voice.category != "premade")

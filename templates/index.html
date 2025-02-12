@@ -429,7 +429,7 @@
                             <div class="mb-4 hidden" id="modelSelectContainer">
                                 <button type="button" class="model-button" id="modelSelectButton">
                                     <i class="fas fa-microphone-lines mr-2 text-gray-600"></i>
-                                    <span id="selectedModelName">Select a model</span>
+                                    <span id="selectedModelName">Select Model</span>
                                 </button>
                                 <div class="model-popup" id="modelPopup">
                                     <div class="model-option" data-value="eleven_multilingual_v2">
@@ -457,7 +457,7 @@
                             <div class="mb-4 hidden" id="voiceSelectContainer">
                                 <button type="button" class="voice-button" id="voiceSelectButton">
                                     <i class="fas fa-user-headset mr-2 text-gray-600"></i>
-                                    <span id="selectedVoiceName">Select a voice</span>
+                                    <span id="selectedVoiceName">Select Voice</span>
                                 </button>
                                 <div class="voice-popup" id="voicePopup">
                                     <input type="text" class="voice-search" id="voiceSearch" placeholder="Search voices...">
@@ -550,7 +550,7 @@
                                         <i class="fas fa-arrow-down-to-arc"></i>
                                     </button>
                                     <button id="deleteHistoryButton" class="button circle-button">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash-can"></i>
                                     </button>
                                 </div>
                             </div>
@@ -585,11 +585,11 @@
                                 </div>
                             </div>
                             <div class="flex items-center">
-                                <button type="button" id="importApiKey" class="button px-4 py-2 rounded w-28">
+                                <button type="button" id="importApiKey" class="button px-4 py-2 rounded w-30">
                                     <i class="fas fa-key mr-2"></i>Import
                                 </button>
-                                <button type="button" id="editApiButton" class="button px-4 py-2 rounded w-28 ml-2">
-                                    <i class="fas fa-gear mr-2"></i>Edit
+                                <button type="button" id="manageApiButton" class="button px-4 py-2 rounded w-30 ml-2">
+                                    <i class="fas fa-gear mr-2"></i>Manage
                                 </button>
                             </div>
                         </form>
@@ -679,9 +679,9 @@
     <script src="{{ url_for('static', filename='js/api.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const editApiButton = document.getElementById('editApiButton');
-            if (editApiButton) {
-                editApiButton.addEventListener('click', function() {
+            const manageApiButton = document.getElementById('manageApiButton');
+            if (manageApiButton) {
+                manageApiButton.addEventListener('click', function() {
                     window.location.href = '/api';
                 });
             }

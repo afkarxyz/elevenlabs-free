@@ -245,7 +245,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const clearButton = document.getElementById('clearButton');
         const pasteButton = document.getElementById('pasteButton');
         const characterCountWrapper = document.getElementById('characterCountWrapper');
-
+        const manageApiButton = document.getElementById('manageApiButton');
+    
         usageCard.classList.toggle('hidden', !hasApiKey);
         inputText.disabled = !hasApiKey;
         inputText.placeholder = hasApiKey ? 'Type or paste your text here...' : 'Please enter your API key first';
@@ -255,6 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clearButton.classList.toggle('hidden', !hasApiKey);
         pasteButton.classList.toggle('hidden', !hasApiKey);
         characterCountWrapper.classList.toggle('hidden', !hasApiKey);
+        manageApiButton.classList.toggle('hidden', !hasApiKey);
     }
 
     function updateApiKeyDisplay() {
@@ -817,6 +819,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function populateVoiceSelect(voices) {
         const defaultCategory = document.querySelector('#defaultCategory .voice-options');
         const libraryCategory = document.querySelector('#libraryCategory .voice-options');
+        const libraryCategoryContainer = document.querySelector('#libraryCategory');
         
         if (!defaultCategory || !libraryCategory) {
             console.error('Voice category elements not found');
@@ -840,6 +843,8 @@ document.addEventListener('DOMContentLoaded', function() {
             description: "bg-pink-100 text-pink-800",
             usecase: "bg-indigo-100 text-indigo-800"
         };
+        
+        let hasLibraryVoices = false;
         
         voices.forEach(voice => {
             if (!voice || !voice.id) {
@@ -884,8 +889,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 defaultCategory.appendChild(option);
             } else {
                 libraryCategory.appendChild(option);
+                hasLibraryVoices = true;
             }
         });
+    
+        if (libraryCategoryContainer) {
+            libraryCategoryContainer.style.display = hasLibraryVoices ? 'block' : 'none';
+        }
     
         setupVoiceSelection();
     }
