@@ -127,10 +127,6 @@ def search_voices():
         
         voice_data = []
         for voice in response.voices:
-            if hasattr(voice, 'settings') and hasattr(voice.settings, 'free_users_allowed'):
-                if not voice.settings.free_users_allowed:
-                    continue
-
             labels = {
                 "accent": getattr(voice, 'accent', ''),
                 "gender": getattr(voice, 'gender', ''),
@@ -151,7 +147,7 @@ def search_voices():
                 "description": getattr(voice, 'description', ''),
                 "category": getattr(voice, 'category', ''),
                 "labels": labels,
-                "free_users_allowed": getattr(voice.settings, 'free_users_allowed', True) if hasattr(voice, 'settings') else True
+                "free_users_allowed": voice.free_users_allowed if hasattr(voice, 'free_users_allowed') else True
             }
             
             voice_data.append(voice_info)
