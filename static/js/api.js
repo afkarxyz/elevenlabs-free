@@ -1,18 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
   let apiKeys = []
   let currentApiKeyIndex = 0
-  let currentGender = localStorage.getItem("currentGender") || "all"
+  let currentGender = localStorage.getItem('currentGender') || 'all'
   let currentLanguage = (() => {
     try {
-      return JSON.parse(localStorage.getItem("currentLanguage")) || { code: "", label: "Any Language" }
+      return JSON.parse(localStorage.getItem('currentLanguage')) || { code: '', label: 'Any Language' }
     } catch (e) {
-      console.error("Error parsing currentLanguage from localStorage:", e)
-      return { code: "", label: "Any Language" }
+      console.error('Error parsing currentLanguage from localStorage:', e)
+      return { code: '', label: 'Any Language' }
     }
   })()
-  let currentSort = localStorage.getItem("currentSort") || "trending"
+  let currentSort = localStorage.getItem('currentSort') || 'trending'
   let currentPage = 0
   let totalLoadedItems = 0
+  let currentSearch = ''
 
   function updateToggleState(selectedGender) {
     const toggleOptions = document.querySelectorAll(".toggle-option")
@@ -40,40 +41,41 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initializeApp() {
-    apiKeys = JSON.parse(localStorage.getItem("elevenLabsApiKeys") || "[]")
-    currentApiKeyIndex = Number.parseInt(localStorage.getItem("currentApiKeyIndex") || "0")
+    apiKeys = JSON.parse(localStorage.getItem('elevenLabsApiKeys') || '[]')
+    currentApiKeyIndex = Number.parseInt(localStorage.getItem('currentApiKeyIndex') || '0')
 
     updateApiKeyDisplay()
     updateApiKeyNavigation()
 
-    const isApiPage = window.location.pathname.includes("/api")
+    const isApiPage = window.location.pathname.includes('/api')
     if (isApiPage) {
-        const clearAllBtn = document.getElementById("clearAllVoices");
-        if (clearAllBtn) {
-            clearAllBtn.addEventListener("click", clearAllVoices);
-        }
+      const clearAllBtn = document.getElementById('clearAllVoices')
+      if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', clearAllVoices)
+      }
 
-        getUserVoices()
-        setupTabNavigation()
-        setupGenderToggle()
-        setupSearchButton()
-        setupLoadMoreButton()
-        setupSortButton()
-        setupLanguageButton()
+      getUserVoices()
+      setupTabNavigation()
+      setupGenderToggle()
+      setupSearchInput()
+      setupSearchButton()
+      setupLoadMoreButton()
+      setupSortButton()
+      setupLanguageButton()
 
-        const selectedSort = document.getElementById("selectedSort")
-        if (selectedSort) {
-            selectedSort.textContent = formatString(currentSort)
-        }
+      const selectedSort = document.getElementById('selectedSort')
+      if (selectedSort) {
+        selectedSort.textContent = formatString(currentSort)
+      }
 
-        const selectedLanguage = document.getElementById("selectedLanguage")
-        if (selectedLanguage) {
-            selectedLanguage.textContent = currentLanguage.label
-        }
+      const selectedLanguage = document.getElementById('selectedLanguage')
+      if (selectedLanguage) {
+        selectedLanguage.textContent = currentLanguage.label
+      }
 
-        if (currentGender) {
-            updateToggleState(currentGender)
-        }
+      if (currentGender) {
+        updateToggleState(currentGender)
+      }
     }
   }
 
@@ -164,11 +166,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setupSearchButton() {
-    const searchVoicesBtn = document.getElementById("searchVoicesBtn")
+    const searchVoicesBtn = document.getElementById('searchVoicesBtn')
 
     if (!searchVoicesBtn) return
 
-    searchVoicesBtn.addEventListener("click", async () => {
+    searchVoicesBtn.addEventListener('click', async () => {
       currentPage = 0
       totalLoadedItems = 0
       try {
@@ -178,11 +180,12 @@ document.addEventListener("DOMContentLoaded", () => {
           currentPage,
           currentSort,
           currentLanguage,
+          currentSearch
         )
         displaySearchResults(voices, true)
       } catch (error) {
-        console.error("Error searching voices:", error)
-        showCustomAlert("Failed to search voices. Error: " + error.message, 'error');
+        console.error('Error searching voices:', error)
+        showCustomAlert('Failed to search voices. Error: ' + error.message, 'error')
       }
     })
   }
@@ -480,29 +483,59 @@ document.addEventListener("DOMContentLoaded", () => {
     attachDeleteListeners()
   }
 
-  async function searchVoices(apiKey, gender = "all", page = 0, sort = "trending", language = "") {
+  function setupSearchInput() {
+    const searchInput = document.getElementById('searchInput')
+    const clearSearchBtn = document.getElementById('clearSearchBtn')
+    
+    if (!searchInput || !clearSearchBtn) return
+
+    searchInput.addEventListener('input', function() {
+      currentSearch = this.value
+      clearSearchBtn.style.display = this.value ? 'block' : 'none'
+    })
+
+    clearSearchBtn.addEventListener('click', function() {
+      searchInput.value = ''
+      currentSearch = ''
+      this.style.display = 'none'
+    })
+
+    searchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('searchVoicesBtn').click()
+      }
+    })
+  }
+
+  async function searchVoices(apiKey, gender = 'all', page = 0, sort = 'trending', language = '', search = '') {
     try {
-      const genderParam = gender === "all" ? "" : gender
+      const genderParam = gender === 'all' ? '' : gender
       let url = `/search-voices?gender=${genderParam}&page=${page}&sort=${sort}`
 
-      if (language.code && language.code.toLowerCase() !== "any") {
+      if (language.code && language.code.toLowerCase() !== 'any') {
         url += `&language=${language.code}`
+      }
+
+      if (search) {
+        url += `&search=${encodeURIComponent(search.trim())}`
       }
 
       const response = await fetch(url, {
         headers: {
-          "X-API-KEY": apiKey,
-          "Content-Type": "application/json",
+          'X-API-KEY': apiKey,
+          'Content-Type': 'application/json',
         },
       })
+
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
       }
+
       const voices = await response.json()
       return voices.filter((voice) => voice.free_users_allowed !== false)
     } catch (error) {
-      console.error("Error in searchVoices:", error)
+      console.error('Error in searchVoices:', error)
       throw error
     }
   }

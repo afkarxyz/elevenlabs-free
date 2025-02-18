@@ -103,6 +103,7 @@ def search_voices():
     page = request.args.get('page', '0')
     sort = request.args.get('sort', 'most_used')
     language = request.args.get('language', '')
+    search_query = request.args.get('search', '')
 
     sort_mapping = {
         'most_used': 'cloned_by_count',
@@ -120,6 +121,9 @@ def search_voices():
     
     if language and language.lower() != 'any':
         api_params['language'] = language
+        
+    if search_query:
+        api_params['search'] = search_query.strip()
 
     try:
         client = ElevenLabs(api_key=api_key)
