@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             apiKeyInput.value = '';
             apiKeyInput.disabled = true;
-            apiKeyInput.placeholder = 'Currently using multiple API keys';
+            apiKeyInput.placeholder = `Currently using API key ${currentApiKeyIndex + 1} of ${apiKeys.length}`;
             apiKeyCount.textContent = `(${apiKeys.length} Keys)`;
             apiKeyLabelText.style.display = 'none';
             toggleApiKey.style.display = 'none';
@@ -1009,6 +1009,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isNaN(newIndex) && newIndex >= 0 && newIndex < apiKeys.length) {
             currentApiKeyIndex = newIndex;
             localStorage.setItem('currentApiKeyIndex', currentApiKeyIndex);
+            
             updateApiKeyNavigation();
             updateApiKeyDisplay();
             fetchVoices();
