@@ -26,6 +26,9 @@ A simple web application built with Flask that allows users to generate speech f
 
 ![image](https://github.com/user-attachments/assets/a7b364af-99a1-4029-84a2-dadddc56fbc0)
 
+> [!Note]
+> Please fill in the search field if you want to search for a specific voice. If you want to display the full list of voices, leave it empty.
+
 ## 📱 Mobile Version
 
 ![image](https://github.com/user-attachments/assets/3d40f76d-a754-429c-9adf-4a30a9cd0c34)
