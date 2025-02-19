@@ -2,6 +2,11 @@
 
 A simple web application built with Flask that allows users to generate speech from text using ElevenLabs' text-to-speech API.
 
+> [!Warning]
+> Generating more than **5000 characters** at once may result in **failure**.
+> For better success rates, **generate in smaller batches**.  
+> If the generation **fails**, your **credits will still be used** without producing any audio.
+
 ## ✨ Features
 
 - Download generated audio files
