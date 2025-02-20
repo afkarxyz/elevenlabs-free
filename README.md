@@ -2,11 +2,6 @@
 
 A simple web application built with Flask that allows users to generate speech from text using ElevenLabs' text-to-speech API.
 
-> [!Warning]
-> Generating more than **5000 characters** at once may result in **failure**.
-> For better success rates, **generate in smaller batches**.  
-> If the generation **fails**, your **credits will still be used** without producing any audio.
-
 ## ✨ Features
 
 - Download generated audio files
@@ -16,7 +11,13 @@ A simple web application built with Flask that allows users to generate speech f
 - Multiple API keys
 - API Management
 - Responsive UI
-  
+
+## 🚧 Warning
+
+- Generating more than **5000 characters** at once may result in **failure**.
+- For better success rates, **generate in smaller batches**.  
+- If the generation **fails**, your **credits will still be used** without producing any audio.
+
 ## 🖼️ Screenshots
 
 ![image](https://github.com/user-attachments/assets/48c9c998-39c0-4ea6-a46c-de489271597d)
@@ -27,12 +28,14 @@ A simple web application built with Flask that allows users to generate speech f
 
 ## 🔑 API Management
 
-![image](https://github.com/user-attachments/assets/4c6cf8cf-2cd3-4bd0-8cd6-e8ab6b6449f1)
-
-![image](https://github.com/user-attachments/assets/a7b364af-99a1-4029-84a2-dadddc56fbc0)
+You can add voices from the library or remove existing voices from your account.
 
 > [!Note]
 > Please fill in the search field if you want to search for a specific voice. If you want to display the full list of voices, leave it empty.
+
+![image](https://github.com/user-attachments/assets/4c6cf8cf-2cd3-4bd0-8cd6-e8ab6b6449f1)
+
+![image](https://github.com/user-attachments/assets/a7b364af-99a1-4029-84a2-dadddc56fbc0)
 
 ## 📱 Mobile Version
 
