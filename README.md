@@ -62,8 +62,8 @@ You can add voices from the library or remove existing voices from your account.
 4. Access the web interface at `http://127.0.0.1:5000`
 5. Enter your API key in the Settings tab
      
-## <img src="https://vercel.com/vc-ap-vercel-marketing/_next/static/media/vercel-logotype-dark.01246f11.svg" width="96" alt="Vercel"> Deployment
+## <img src="https://vercel.com/vc-ap-vercel-marketing/_next/static/media/vercel-logotype-dark.01246f11.svg" width="100" alt="Vercel">
 
-Click the button below!
+Click the button below to deploy!
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/afkarxyz/elevenlabs-free/tree/main)
