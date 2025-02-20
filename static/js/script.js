@@ -76,24 +76,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const charCount = document.getElementById('charCount');
         const inputLength = inputText.value.length;
         const [usedCredit, totalCredit] = document.getElementById('characterCount').textContent.split('/').map(s => parseInt(s.trim().replace(/,/g, '')));
-        const currentModel = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2';
+        const remainingCredit = totalCredit - usedCredit;
         
-        let remainingCredit = totalCredit - usedCredit;
+        const selectedModel = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2';
         
-        if (currentModel !== 'eleven_multilingual_v2') {
-            remainingCredit = remainingCredit * 2;
+        let adjustedRemainingCredit = remainingCredit;
+        if (selectedModel !== 'eleven_multilingual_v2') {
+            adjustedRemainingCredit = remainingCredit * 2;
         }
         
         const inputLengthSpan = document.createElement('span');
         inputLengthSpan.textContent = formatNumber(inputLength);
         
-        if (inputLength > remainingCredit) {
+        if (inputLength > adjustedRemainingCredit) {
             inputLengthSpan.classList.add('text-red-400');
         }
         
         charCount.innerHTML = '';
         charCount.appendChild(inputLengthSpan);
-        charCount.appendChild(document.createTextNode(` / ${formatNumber(remainingCredit)}`));
+        charCount.appendChild(document.createTextNode(` / ${formatNumber(adjustedRemainingCredit)}`));
     
         if (isRTL(inputText.value)) {
             inputText.style.direction = 'rtl';
@@ -339,35 +340,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const usageBar = document.getElementById('usageBar');
         const characterCountElement = document.getElementById('characterCount');
         const resetDateElement = document.getElementById('resetDate');
-        const currentModel = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2';
-    
+
         const usagePercentage = (characterCount / characterLimit) * 100;
         usageBar.style.width = `${usagePercentage}%`;
-    
+
         document.getElementById('usagePercentage').textContent = `(${usagePercentage.toFixed(0)}%)`;
-    
-        let effectivePercentage = usagePercentage;
-        if (currentModel !== 'eleven_multilingual_v2') {
-            effectivePercentage = effectivePercentage / 2;
-        }
-    
-        if (effectivePercentage >= 90) {
+
+        if (usagePercentage >= 90) {
             usageBar.classList.add('usage-danger');
             usageBar.classList.remove('usage-warning');
-        } else if (effectivePercentage >= 80) {
+        } else if (usagePercentage >= 80) {
             usageBar.classList.add('usage-warning');
             usageBar.classList.remove('usage-danger');
         } else {
             usageBar.classList.remove('usage-danger', 'usage-warning');
         }
-    
+
         const formattedCharCount = formatNumber(characterCount);
         const formattedCharLimit = formatNumber(characterLimit);
         characterCountElement.textContent = `${formattedCharCount} / ${formattedCharLimit}`;
-    
+
         const resetDate = formatDate(nextReset * 1000);
         resetDateElement.textContent = `${resetDate}`;
-    
+
         updateCharCount();
     }
 
@@ -476,8 +471,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
             saveToHistory(text, audioBlob, modelId, voiceName);
     
-            fetchUsageInfo();
-    
         } catch (error) {
             console.error('Error:', error);
             showCustomAlert('Error generating audio. Please check your API key and try again.', 'error');
@@ -485,6 +478,8 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.disabled = false;
             normalState.classList.remove('hidden');
             loadingState.classList.add('hidden');
+            fetchUsageInfo(); 
+            updateCharCount(); 
         }
     });
 
@@ -1103,13 +1098,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const modelId = option.dataset.value;
             const modelName = option.querySelector('.model-name').textContent;
             
-            modelPopup.classList.remove('show');
-            modelOverlay.classList.remove('show');
-            
             selectedModelName.textContent = modelName;
             handleModelSelect(modelId);
-            
-            updateCharCount();
+            updateCharCount(); 
+            modelPopup.classList.remove('show');
+            modelOverlay.classList.remove('show');
         });
     });
 
