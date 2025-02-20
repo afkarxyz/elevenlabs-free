@@ -62,7 +62,7 @@ You can add voices from the library or remove existing voices from your account.
 4. Access the web interface at `http://127.0.0.1:5000`
 5. Enter your API key in the Settings tab
      
-## 🌐 Vercel Deployment
+## <img src="https://vercel.com/vc-ap-vercel-marketing/_next/static/media/vercel-logotype-dark.01246f11.svg" width="96" alt="Vercel"> Deployment
 
 Click the button below!
 
