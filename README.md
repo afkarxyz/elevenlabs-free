@@ -20,11 +20,12 @@ A simple web application built with Flask that allows users to generate speech f
 
 ## 🖼️ Screenshots
 
-![image](https://github.com/user-attachments/assets/48c9c998-39c0-4ea6-a46c-de489271597d)
+![image](https://github.com/user-attachments/assets/506d9b8f-acd7-477f-be8c-a0eb92f84da0)
 
-![image](https://github.com/user-attachments/assets/f6ffab32-f058-4100-97dc-573b0569ff5d)
+![image](https://github.com/user-attachments/assets/b52c4493-3aa0-401c-b9fe-2871e561d964)
 
-![image](https://github.com/user-attachments/assets/b7f8beed-9a67-4590-b5ca-50222af70acd)
+![image](https://github.com/user-attachments/assets/fc57a6a9-44a2-4a3b-9766-6e7483ea7b67)
+
 
 ## 🔑 API Management
 
@@ -33,9 +34,10 @@ You can add voices from the library or remove existing voices from your account.
 > [!Note]
 > Please fill in the search field if you want to search for a specific voice. If you want to display the full list of voices, leave it empty.
 
-![image](https://github.com/user-attachments/assets/4c6cf8cf-2cd3-4bd0-8cd6-e8ab6b6449f1)
+![image](https://github.com/user-attachments/assets/35e870f1-8efa-4198-a43b-97075ca6c53c)
 
-![image](https://github.com/user-attachments/assets/a7b364af-99a1-4029-84a2-dadddc56fbc0)
+![image](https://github.com/user-attachments/assets/dcf0a0ba-b7be-44f9-9454-dceada462cd2)
+
 
 ## 📱 Mobile Version
 
