@@ -1,19 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
   let apiKeys = []
   let currentApiKeyIndex = 0
-  let currentGender = localStorage.getItem('currentGender') || 'all'
+  let currentGender = localStorage.getItem("currentGender") || "all"
   let currentLanguage = (() => {
     try {
-      return JSON.parse(localStorage.getItem('currentLanguage')) || { code: '', label: 'Any Language' }
+      return JSON.parse(localStorage.getItem("currentLanguage")) || { code: "", label: "Any Language" }
     } catch (e) {
-      console.error('Error parsing currentLanguage from localStorage:', e)
-      return { code: '', label: 'Any Language' }
+      console.error("Error parsing currentLanguage from localStorage:", e)
+      return { code: "", label: "Any Language" }
     }
   })()
-  let currentSort = localStorage.getItem('currentSort') || 'trending'
+  let currentSort = localStorage.getItem("currentSort") || "trending"
   let currentPage = 0
   let totalLoadedItems = 0
-  let currentSearch = ''
+  let currentSearch = ""
 
   function updateToggleState(selectedGender) {
     const toggleOptions = document.querySelectorAll(".toggle-option")
@@ -41,17 +41,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initializeApp() {
-    apiKeys = JSON.parse(localStorage.getItem('elevenLabsApiKeys') || '[]')
-    currentApiKeyIndex = Number.parseInt(localStorage.getItem('currentApiKeyIndex') || '0')
+    apiKeys = JSON.parse(localStorage.getItem("elevenLabsApiKeys") || "[]")
+    currentApiKeyIndex = Number.parseInt(localStorage.getItem("currentApiKeyIndex") || "0")
 
     updateApiKeyDisplay()
     updateApiKeyNavigation()
 
-    const isApiPage = window.location.pathname.includes('/api')
+    const isApiPage = window.location.pathname.includes("/api")
     if (isApiPage) {
-      const clearAllBtn = document.getElementById('clearAllVoices')
+      const clearAllBtn = document.getElementById("clearAllVoices")
       if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', clearAllVoices)
+        clearAllBtn.addEventListener("click", clearAllVoices)
       }
 
       getUserVoices()
@@ -63,12 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
       setupSortButton()
       setupLanguageButton()
 
-      const selectedSort = document.getElementById('selectedSort')
+      const selectedSort = document.getElementById("selectedSort")
       if (selectedSort) {
         selectedSort.textContent = formatString(currentSort)
       }
 
-      const selectedLanguage = document.getElementById('selectedLanguage')
+      const selectedLanguage = document.getElementById("selectedLanguage")
       if (selectedLanguage) {
         selectedLanguage.textContent = currentLanguage.label
       }
@@ -166,11 +166,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function setupSearchButton() {
-    const searchVoicesBtn = document.getElementById('searchVoicesBtn')
+    const searchVoicesBtn = document.getElementById("searchVoicesBtn")
 
     if (!searchVoicesBtn) return
 
-    searchVoicesBtn.addEventListener('click', async () => {
+    searchVoicesBtn.addEventListener("click", async () => {
       currentPage = 0
       totalLoadedItems = 0
       try {
@@ -180,12 +180,12 @@ document.addEventListener("DOMContentLoaded", () => {
           currentPage,
           currentSort,
           currentLanguage,
-          currentSearch
+          currentSearch,
         )
         displaySearchResults(voices, true)
       } catch (error) {
-        console.error('Error searching voices:', error)
-        showCustomAlert('Failed to search voices. Error: ' + error.message, 'error')
+        console.error("Error searching voices:", error)
+        showCustomAlert("Failed to search voices. Error: " + error.message, "error")
       }
     })
   }
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         displaySearchResults(voices, false)
       } catch (error) {
         console.error("Error loading more voices:", error)
-        showCustomAlert("Failed to load more voices. Error: " + error.message, 'error');
+        showCustomAlert("Failed to load more voices. Error: " + error.message, "error")
       }
     })
   }
@@ -279,8 +279,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function formatString(str) {
     return str
       .split(/[\s_*]+/)
-      .map(word => {
-        if (word.toLowerCase() === 'ai' || word.toLowerCase() === 'tts') {
+      .map((word) => {
+        if (word.toLowerCase() === "ai" || word.toLowerCase() === "tts") {
           return word.toUpperCase()
         }
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -292,6 +292,34 @@ document.addEventListener("DOMContentLoaded", () => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   }
 
+  function formatTimeAgo(timestamp) {
+    const now = new Date()
+    const date = new Date(timestamp * 1000)
+    const diffInSeconds = Math.floor((now - date) / 1000)
+
+    const years = Math.floor(diffInSeconds / (60 * 60 * 24 * 365))
+    const months = Math.floor(diffInSeconds / (60 * 60 * 24 * 30))
+    const days = Math.floor(diffInSeconds / (60 * 60 * 24))
+    const hours = Math.floor(diffInSeconds / (60 * 60))
+    const minutes = Math.floor(diffInSeconds / 60)
+
+    if (years > 0) {
+      const remainingMonths = Math.floor((diffInSeconds % (60 * 60 * 24 * 365)) / (60 * 60 * 24 * 30))
+      return `${years}y ${remainingMonths}m ago`
+    } else if (months > 0) {
+      const remainingDays = Math.floor((diffInSeconds % (60 * 60 * 24 * 30)) / (60 * 60 * 24))
+      return `${months}m ${remainingDays}d ago`
+    } else if (days > 0) {
+      const remainingHours = Math.floor((diffInSeconds % (60 * 60 * 24)) / (60 * 60))
+      return `${days}d ${remainingHours}h ago`
+    } else if (hours > 0) {
+      const remainingMinutes = Math.floor((diffInSeconds % (60 * 60)) / 60)
+      return `${hours}h ${remainingMinutes}m ago`
+    } else {
+      return `${minutes}m ago`
+    }
+  }
+
   function displaySearchResults(voices, clearExisting = true) {
     const searchResultsDiv = document.getElementById("searchResults")
     const voiceList = document.getElementById("voiceList")
@@ -299,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (clearExisting) {
       voiceList.innerHTML = ""
-      totalLoadedItems = 0 
+      totalLoadedItems = 0
     }
 
     if (voices.length === 0 && clearExisting) {
@@ -349,50 +377,52 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .replace(",", "")
 
+      const timeAgo = formatTimeAgo(voice.date_unix)
+
       listItem.innerHTML = `
-          <div class="flex items-center justify-between">
-              <div class="flex-1">
-                  <div class="flex items-center justify-between">
-                      <p class="text-sm font-medium text-gray-900">
-                        <span class="text-gray-500 mr-2">${itemNumber}.</span>${voice.name}
-                      </p>
-                      ${voice.category ? `<span class="text-xs text-gray-500">${formatString(voice.category)}</span>` : ""}
-                  </div>
-                  ${voice.description ? `<p class="text-sm text-gray-600 mt-1">${voice.description}</p>` : ""}
-                  <div class="mt-2 flex flex-wrap gap-2">
-                      ${tagsHtml}
-                  </div>
-                  <div class="mt-2 flex items-center text-sm text-gray-500 space-x-4">
-                      <span class="flex items-center">
-                          <i class="fas fa-calendar-clock mr-1"></i>
-                          ${formattedDate}
-                      </span>
-                      <span class="flex items-center">
-                          <i class="fas fa-users mr-1"></i>
-                          ${formatNumber(voice.cloned_by_count)}
-                      </span>
-                  </div>
-                  ${
-                    voice.preview_url
-                      ? `
-                      <div class="mt-2 audio-controls">
-                          <audio controls>
-                              <source src="${voice.preview_url}" type="audio/mpeg">
-                              Your browser does not support the audio element.
-                          </audio>
-                          <button class="addVoiceBtn bg-green-600 text-white rounded hover:bg-green-700" 
-                              data-voice-id="${voice.voice_id}" 
-                              data-public-user-id="${voice.public_owner_id}"
-                              data-voice-name="${voice.name}">
-                              <i class="fas fa-plus"></i>
-                          </button>
-                      </div>
-                  `
-                      : ""
-                  }
-              </div>
-          </div>
-      `
+    <div class="flex items-center justify-between">
+        <div class="flex-1">
+            <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-900">
+                  <span class="text-gray-500 mr-2">${itemNumber}.</span>${voice.name}
+                </p>
+                ${voice.category ? `<span class="text-xs text-gray-500">${formatString(voice.category)}</span>` : ""}
+            </div>
+            ${voice.description ? `<p class="text-sm text-gray-600 mt-1">${voice.description}</p>` : ""}
+            <div class="mt-2 flex flex-wrap gap-2">
+                ${tagsHtml}
+            </div>
+            <div class="mt-2 flex items-center text-sm text-gray-500 space-x-4">
+                <span class="flex items-center">
+                    <i class="fas fa-calendar-clock mr-2"></i>
+                    ${formattedDate} <i class="fas fa-clock mx-2"></i> ${timeAgo}
+                </span>
+                <span class="flex items-center">
+                    <i class="fas fa-users mr-2"></i>
+                    ${formatNumber(voice.cloned_by_count)}
+                </span>
+            </div>
+            ${
+              voice.preview_url
+                ? `
+                <div class="mt-2 audio-controls">
+                    <audio controls>
+                        <source src="${voice.preview_url}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <button class="addVoiceBtn bg-green-600 text-white rounded hover:bg-green-700" 
+                        data-voice-id="${voice.voice_id}" 
+                        data-public-user-id="${voice.public_owner_id}"
+                        data-voice-name="${voice.name}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            `
+                : ""
+            }
+        </div>
+    </div>
+`
       voiceList.appendChild(listItem)
     })
 
@@ -403,50 +433,66 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function displayUserVoices(voices) {
-    const voiceList = document.getElementById("userVoiceList");
-    const voicesTitle = document.getElementById("voicesTitle");
-    
-    if (!voiceList) return;
-    
+    const voiceList = document.getElementById("userVoiceList")
+    const voicesTitle = document.getElementById("voicesTitle")
+
+    if (!voiceList) return
+
     if (voicesTitle) {
-        voicesTitle.textContent = voices.length > 1 ? "Your Voices" : "Your Voice";
+      voicesTitle.textContent = voices.length > 1 ? "Your Voices" : "Your Voice"
     }
-    
-    voiceList.innerHTML = "";
+
+    voiceList.innerHTML = ""
 
     if (voices.length === 0) {
-        voiceList.innerHTML = '<div class="p-4 text-gray-500">No voices found.</div>'
-        return
+      voiceList.innerHTML = '<div class="p-4 text-gray-500">No voices found.</div>'
+      return
     }
 
-    voices.forEach(voice => {
-        const listItem = document.createElement("div")
-        listItem.className = "p-4 border-b border-gray-200"
+    voices.forEach((voice) => {
+      const listItem = document.createElement("div")
+      listItem.className = "p-4 border-b border-gray-200"
 
-        let tagsHtml = ""
-        if (voice.labels) {
-            const tagOrder = ["gender", "age", "accent", "descriptive", "use_case"]
-            const tagStyles = {
-                gender: "bg-blue-100 text-blue-800",
-                age: "bg-green-100 text-green-800",
-                accent: "bg-yellow-100 text-yellow-800",
-                descriptive: "bg-pink-100 text-pink-800",
-                use_case: "bg-indigo-100 text-indigo-800",
-            }
+      let tagsHtml = ""
+      if (voice.labels) {
+        const tagOrder = ["gender", "age", "accent", "descriptive", "use_case"]
+        const tagStyles = {
+          gender: "bg-blue-100 text-blue-800",
+          age: "bg-green-100 text-green-800",
+          accent: "bg-yellow-100 text-yellow-800",
+          descriptive: "bg-pink-100 text-pink-800",
+          use_case: "bg-indigo-100 text-indigo-800",
+        }
 
-            tagOrder.forEach((tag) => {
-                if (voice.labels[tag]) {
-                    const value = voice.labels[tag]
-                    const formattedValue = formatString(value)
-                    tagsHtml += `
+        tagOrder.forEach((tag) => {
+          if (voice.labels[tag]) {
+            const value = voice.labels[tag]
+            const formattedValue = formatString(value)
+            tagsHtml += `
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 ${tagStyles[tag]}">
                             ${formattedValue}
                         </span>`
-                }
-            })
-        }
+          }
+        })
+      }
 
-        listItem.innerHTML = `
+      let voiceAgeHtml = ""
+      if (voice.labels && voice.labels.age) {
+        voiceAgeHtml = `
+        <span class="flex items-center ml-3">
+            <i class="fas fa-user-clock mr-2"></i>
+            ${formatString(voice.labels.age)}
+        </span>
+    `
+      }
+
+      let timeAgoHtml = ""
+      if (voice.date_unix) {
+        const timeAgo = formatTimeAgo(voice.date_unix)
+        timeAgoHtml = `<i class="fas fa-clock mx-2"></i> ${timeAgo}`
+      }
+
+      listItem.innerHTML = `
             <div class="flex items-center justify-between">
                 <div class="flex-1">
                     <div class="flex items-center justify-between">
@@ -457,9 +503,25 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="mt-2 flex flex-wrap gap-2">
                         ${tagsHtml}
                     </div>
+                    <div class="mt-2 flex items-center text-sm text-gray-500 space-x-4">
+                        <span class="flex items-center">
+                            <i class="fas fa-calendar-clock mr-2"></i>
+                            ${new Date(voice.date_unix * 1000)
+                              .toLocaleString("en-GB", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit",
+                              })
+                              .replace(",", "")} ${timeAgoHtml}
+                        </span>
+                        ${voiceAgeHtml}
+                    </div>
                     ${
-                        voice.preview_url
-                            ? `
+                      voice.preview_url
+                        ? `
                             <div class="mt-2 audio-controls flex items-center gap-2">
                                 <audio controls class="flex-grow">
                                     <source src="${voice.preview_url}" type="audio/mpeg">
@@ -472,47 +534,47 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </button>
                             </div>
                         `
-                            : ""
+                        : ""
                     }
                 </div>
             </div>
         `
-        voiceList.appendChild(listItem)
+      voiceList.appendChild(listItem)
     })
 
     attachDeleteListeners()
   }
 
   function setupSearchInput() {
-    const searchInput = document.getElementById('searchInput')
-    const clearSearchBtn = document.getElementById('clearSearchBtn')
-    
+    const searchInput = document.getElementById("searchInput")
+    const clearSearchBtn = document.getElementById("clearSearchBtn")
+
     if (!searchInput || !clearSearchBtn) return
 
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener("input", function () {
       currentSearch = this.value
-      clearSearchBtn.style.display = this.value ? 'block' : 'none'
+      clearSearchBtn.style.display = this.value ? "block" : "none"
     })
 
-    clearSearchBtn.addEventListener('click', function() {
-      searchInput.value = ''
-      currentSearch = ''
-      this.style.display = 'none'
+    clearSearchBtn.addEventListener("click", function () {
+      searchInput.value = ""
+      currentSearch = ""
+      this.style.display = "none"
     })
 
-    searchInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        document.getElementById('searchVoicesBtn').click()
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        document.getElementById("searchVoicesBtn").click()
       }
     })
   }
 
-  async function searchVoices(apiKey, gender = 'all', page = 0, sort = 'trending', language = '', search = '') {
+  async function searchVoices(apiKey, gender = "all", page = 0, sort = "trending", language = "", search = "") {
     try {
-      const genderParam = gender === 'all' ? '' : gender
+      const genderParam = gender === "all" ? "" : gender
       let url = `/search-voices?gender=${genderParam}&page=${page}&sort=${sort}`
 
-      if (language.code && language.code.toLowerCase() !== 'any') {
+      if (language.code && language.code.toLowerCase() !== "any") {
         url += `&language=${language.code}`
       }
 
@@ -522,8 +584,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const response = await fetch(url, {
         headers: {
-          'X-API-KEY': apiKey,
-          'Content-Type': 'application/json',
+          "X-API-KEY": apiKey,
+          "Content-Type": "application/json",
         },
       })
 
@@ -535,25 +597,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const voices = await response.json()
       return voices.filter((voice) => voice.free_users_allowed !== false)
     } catch (error) {
-      console.error('Error in searchVoices:', error)
+      console.error("Error in searchVoices:", error)
       throw error
     }
   }
 
   function attachAddVoiceListeners() {
     document.querySelectorAll(".addVoiceBtn").forEach((button) => {
-        button.addEventListener("click", function() {
-            const voiceId = this.getAttribute("data-voice-id");
-            const publicUserId = this.getAttribute("data-public-user-id");
-            const defaultName = this.getAttribute("data-voice-name");
-            
-            showVoiceNamePopup(defaultName, (newName) => {
-                if (newName) {
-                    addVoice(apiKeys[currentApiKeyIndex], publicUserId, voiceId, newName);
-                }
-            });
-        });
-    });
+      button.addEventListener("click", function () {
+        const voiceId = this.getAttribute("data-voice-id")
+        const publicUserId = this.getAttribute("data-public-user-id")
+        const defaultName = this.getAttribute("data-voice-name")
+
+        showVoiceNamePopup(defaultName, (newName) => {
+          if (newName) {
+            addVoice(apiKeys[currentApiKeyIndex], publicUserId, voiceId, newName)
+          }
+        })
+      })
+    })
   }
 
   function attachDeleteListeners() {
@@ -574,7 +636,7 @@ document.addEventListener("DOMContentLoaded", () => {
             getUserVoices()
           } catch (error) {
             console.error("Error deleting voice:", error)
-            showCustomAlert("Failed to delete voice. Error: " + error.message, 'error')
+            showCustomAlert("Failed to delete voice. Error: " + error.message, "error")
           }
         })
       })
@@ -582,35 +644,35 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function clearAllVoices() {
-    const voiceList = document.getElementById("userVoiceList");
-    const voices = voiceList.querySelectorAll(".deleteVoiceBtn");
-    
+    const voiceList = document.getElementById("userVoiceList")
+    const voices = voiceList.querySelectorAll(".deleteVoiceBtn")
+
     if (voices.length === 0) {
-        showCustomAlert("No voices to clear", 'info');
-        return;
+      showCustomAlert("No voices to clear", "info")
+      return
     }
 
     showCustomConfirm(`Are you sure you want to delete all ${voices.length} voices?`, async () => {
-        try {
-            const deletePromises = Array.from(voices).map(voiceBtn => {
-                const voiceId = voiceBtn.getAttribute("data-voice-id");
-                return fetch(`/delete-voice?voice_id=${voiceId}`, {
-                    method: "DELETE",
-                    headers: {
-                        "X-API-KEY": apiKeys[currentApiKeyIndex],
-                        "Content-Type": "application/json",
-                    },
-                });
-            });
+      try {
+        const deletePromises = Array.from(voices).map((voiceBtn) => {
+          const voiceId = voiceBtn.getAttribute("data-voice-id")
+          return fetch(`/delete-voice?voice_id=${voiceId}`, {
+            method: "DELETE",
+            headers: {
+              "X-API-KEY": apiKeys[currentApiKeyIndex],
+              "Content-Type": "application/json",
+            },
+          })
+        })
 
-            await Promise.all(deletePromises);
-            getUserVoices();
-            showCustomAlert("All voices have been deleted successfully", 'info');
-        } catch (error) {
-            console.error("Error clearing voices:", error);
-            showCustomAlert("Failed to clear all voices. Error: " + error.message, 'error');
-        }
-    });
+        await Promise.all(deletePromises)
+        getUserVoices()
+        showCustomAlert("All voices have been deleted successfully", "info")
+      } catch (error) {
+        console.error("Error clearing voices:", error)
+        showCustomAlert("Failed to clear all voices. Error: " + error.message, "error")
+      }
+    })
   }
 
   function switchToTab(tabId) {
@@ -653,7 +715,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("Error adding voice:", error)
-      showCustomAlert("Failed to add voice. Error: " + error.message, 'error');
+      showCustomAlert("Failed to add voice. Error: " + error.message, "error")
     }
   }
 
@@ -688,106 +750,106 @@ document.addEventListener("DOMContentLoaded", () => {
   })
 
   function showVoiceNamePopup(defaultName, onConfirm) {
-    const popupElement = document.getElementById('voiceNamePopup');
-    const overlayElement = document.getElementById('customAlertOverlay');
-    const inputElement = document.getElementById('voiceNameInput');
-    
-    inputElement.value = defaultName;
-    
-    popupElement.classList.remove('hidden');
-    popupElement.classList.add('show', 'voice-name-popup');
-    overlayElement.classList.add('show');
-    
-    setTimeout(() => inputElement.focus(), 100);
-    
-    const confirmButton = popupElement.querySelector('.custom-alert-confirm');
-    const cancelButton = popupElement.querySelector('.custom-alert-cancel');
-    
-    const newConfirmButton = confirmButton.cloneNode(true);
-    const newCancelButton = cancelButton.cloneNode(true);
-    confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton);
-    cancelButton.parentNode.replaceChild(newCancelButton, cancelButton);
-    
-    newConfirmButton.addEventListener('click', () => {
-        const newName = inputElement.value.trim();
-        if (newName) {
-            popupElement.classList.remove('show');
-            overlayElement.classList.remove('show');
-            setTimeout(() => {
-                popupElement.classList.add('hidden');
-                onConfirm(newName);
-            }, 200);
-        }
-    });
-    
-    newCancelButton.addEventListener('click', () => {
-        popupElement.classList.remove('show');
-        overlayElement.classList.remove('show');
+    const popupElement = document.getElementById("voiceNamePopup")
+    const overlayElement = document.getElementById("customAlertOverlay")
+    const inputElement = document.getElementById("voiceNameInput")
+
+    inputElement.value = defaultName
+
+    popupElement.classList.remove("hidden")
+    popupElement.classList.add("show", "voice-name-popup")
+    overlayElement.classList.add("show")
+
+    setTimeout(() => inputElement.focus(), 100)
+
+    const confirmButton = popupElement.querySelector(".custom-alert-confirm")
+    const cancelButton = popupElement.querySelector(".custom-alert-cancel")
+
+    const newConfirmButton = confirmButton.cloneNode(true)
+    const newCancelButton = cancelButton.cloneNode(true)
+    confirmButton.parentNode.replaceChild(newConfirmButton, confirmButton)
+    cancelButton.parentNode.replaceChild(newCancelButton, cancelButton)
+
+    newConfirmButton.addEventListener("click", () => {
+      const newName = inputElement.value.trim()
+      if (newName) {
+        popupElement.classList.remove("show")
+        overlayElement.classList.remove("show")
         setTimeout(() => {
-            popupElement.classList.add('hidden');
-        }, 200);
-    });
-    
-    inputElement.addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-            newConfirmButton.click();
-        }
-    });
+          popupElement.classList.add("hidden")
+          onConfirm(newName)
+        }, 200)
+      }
+    })
+
+    newCancelButton.addEventListener("click", () => {
+      popupElement.classList.remove("show")
+      overlayElement.classList.remove("show")
+      setTimeout(() => {
+        popupElement.classList.add("hidden")
+      }, 200)
+    })
+
+    inputElement.addEventListener("keyup", (event) => {
+      if (event.key === "Enter") {
+        newConfirmButton.click()
+      }
+    })
   }
 
-  function showCustomAlert(message, type = 'info') {
-    const alertElement = document.getElementById('customAlert');
-    const overlayElement = document.getElementById('customAlertOverlay');
-    
-    alertElement.innerHTML = `<div>${message}</div>`;
-    alertElement.classList.remove('hidden', 'custom-alert-success', 'custom-alert-error', 'custom-alert-info');
-    alertElement.classList.add(`custom-alert-${type}`, 'show');
-    overlayElement.classList.add('show');
+  function showCustomAlert(message, type = "info") {
+    const alertElement = document.getElementById("customAlert")
+    const overlayElement = document.getElementById("customAlertOverlay")
+
+    alertElement.innerHTML = `<div>${message}</div>`
+    alertElement.classList.remove("hidden", "custom-alert-success", "custom-alert-error", "custom-alert-info")
+    alertElement.classList.add(`custom-alert-${type}`, "show")
+    overlayElement.classList.add("show")
 
     setTimeout(() => {
-        alertElement.classList.remove('show');
-        overlayElement.classList.remove('show');
-        setTimeout(() => {
-            alertElement.classList.add('hidden');
-        }, 200);
-    }, 1000);
+      alertElement.classList.remove("show")
+      overlayElement.classList.remove("show")
+      setTimeout(() => {
+        alertElement.classList.add("hidden")
+      }, 200)
+    }, 1000)
   }
 
   function showCustomConfirm(message, onConfirm, onCancel) {
-    const alertElement = document.getElementById('customAlert');
-    const overlayElement = document.getElementById('customAlertOverlay');
-    
+    const alertElement = document.getElementById("customAlert")
+    const overlayElement = document.getElementById("customAlertOverlay")
+
     alertElement.innerHTML = `
         <div class="custom-alert-message">${message}</div>
         <div class="custom-alert-buttons">
             <button class="custom-alert-button custom-alert-cancel">Cancel</button>
             <button class="custom-alert-button custom-alert-confirm">Confirm</button>
         </div>
-    `;
-    alertElement.classList.remove('hidden');
-    alertElement.classList.add('show');
-    overlayElement.classList.add('show');
+    `
+    alertElement.classList.remove("hidden")
+    alertElement.classList.add("show")
+    overlayElement.classList.add("show")
 
-    const confirmButton = alertElement.querySelector('.custom-alert-confirm');
-    const cancelButton = alertElement.querySelector('.custom-alert-cancel');
+    const confirmButton = alertElement.querySelector(".custom-alert-confirm")
+    const cancelButton = alertElement.querySelector(".custom-alert-cancel")
 
-    confirmButton.addEventListener('click', () => {
-        alertElement.classList.remove('show');
-        overlayElement.classList.remove('show');
-        setTimeout(() => {
-            alertElement.classList.add('hidden');
-            if (onConfirm) onConfirm();
-        }, 200);
-    });
+    confirmButton.addEventListener("click", () => {
+      alertElement.classList.remove("show")
+      overlayElement.classList.remove("show")
+      setTimeout(() => {
+        alertElement.classList.add("hidden")
+        if (onConfirm) onConfirm()
+      }, 200)
+    })
 
-    cancelButton.addEventListener('click', () => {
-        alertElement.classList.remove('show');
-        overlayElement.classList.remove('show');
-        setTimeout(() => {
-            alertElement.classList.add('hidden');
-            if (onCancel) onCancel();
-        }, 200);
-    });
+    cancelButton.addEventListener("click", () => {
+      alertElement.classList.remove("show")
+      overlayElement.classList.remove("show")
+      setTimeout(() => {
+        alertElement.classList.add("hidden")
+        if (onCancel) onCancel()
+      }, 200)
+    })
   }
 
   initializeApp()
