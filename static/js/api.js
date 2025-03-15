@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentPage = 0
   let totalLoadedItems = 0
   let currentSearch = ""
+  let currentlyPlayingAudio = null
 
   function updateToggleState(selectedGender) {
     const toggleOptions = document.querySelectorAll(".toggle-option")
@@ -62,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setupLoadMoreButton()
       setupSortButton()
       setupLanguageButton()
+      setupAudioPlayManagement()
 
       const selectedSort = document.getElementById("selectedSort")
       if (selectedSort) {
@@ -77,6 +79,17 @@ document.addEventListener("DOMContentLoaded", () => {
         updateToggleState(currentGender)
       }
     }
+  }
+
+  function setupAudioPlayManagement() {
+    document.addEventListener('play', function(e) {
+      if (e.target.tagName.toLowerCase() === 'audio') {
+        if (currentlyPlayingAudio && currentlyPlayingAudio !== e.target) {
+          currentlyPlayingAudio.pause();
+        }
+        currentlyPlayingAudio = e.target;
+      }
+    }, true);
   }
 
   function updateApiKeyDisplay() {
@@ -394,11 +407,15 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="mt-2 flex items-center text-sm text-gray-500 space-x-4">
                 <span class="flex items-center">
-                    <i class="fas fa-calendar-clock mr-2"></i>
-                    ${formattedDate} <i class="fas fa-clock mx-2"></i> ${timeAgo}
+                    <i class="fas fa-calendar-clock mr-1"></i>
+                    ${formattedDate} 
                 </span>
                 <span class="flex items-center">
-                    <i class="fas fa-users mr-2"></i>
+                    <i class="fas fa-clock mr-1"></i> 
+                    ${timeAgo}
+                </span>
+                <span class="flex items-center">
+                    <i class="fas fa-users mr-1"></i>
                     ${formatNumber(voice.cloned_by_count)}
                 </span>
             </div>
@@ -469,76 +486,44 @@ document.addEventListener("DOMContentLoaded", () => {
             const value = voice.labels[tag]
             const formattedValue = formatString(value)
             tagsHtml += `
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 ${tagStyles[tag]}">
-                            ${formattedValue}
-                        </span>`
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 ${tagStyles[tag]}">
+                          ${formattedValue}
+                      </span>`
           }
         })
       }
 
-      let voiceAgeHtml = ""
-      if (voice.labels && voice.labels.age) {
-        voiceAgeHtml = `
-        <span class="flex items-center ml-3">
-            <i class="fas fa-user-clock mr-2"></i>
-            ${formatString(voice.labels.age)}
-        </span>
-    `
-      }
-
-      let timeAgoHtml = ""
-      if (voice.date_unix) {
-        const timeAgo = formatTimeAgo(voice.date_unix)
-        timeAgoHtml = `<i class="fas fa-clock mx-2"></i> ${timeAgo}`
-      }
-
       listItem.innerHTML = `
-            <div class="flex items-center justify-between">
-                <div class="flex-1">
-                    <div class="flex items-center justify-between">
-                        <p class="text-sm font-medium text-gray-900">${voice.name}</p>
-                        ${voice.category ? `<span class="text-xs text-gray-500">${formatString(voice.category)}</span>` : ""}
-                    </div>
-                    ${voice.description ? `<p class="text-sm text-gray-600 mt-1">${voice.description}</p>` : ""}
-                    <div class="mt-2 flex flex-wrap gap-2">
-                        ${tagsHtml}
-                    </div>
-                    <div class="mt-2 flex items-center text-sm text-gray-500 space-x-4">
-                        <span class="flex items-center">
-                            <i class="fas fa-calendar-clock mr-2"></i>
-                            ${new Date(voice.date_unix * 1000)
-                              .toLocaleString("en-GB", {
-                                day: "2-digit",
-                                month: "2-digit",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                second: "2-digit",
-                              })
-                              .replace(",", "")} ${timeAgoHtml}
-                        </span>
-                        ${voiceAgeHtml}
-                    </div>
-                    ${
-                      voice.preview_url
-                        ? `
-                            <div class="mt-2 audio-controls flex items-center gap-2">
-                                <audio controls class="flex-grow">
-                                    <source src="${voice.preview_url}" type="audio/mpeg">
-                                    Your browser does not support the audio element.
-                                </audio>
-                                <button 
-                                    class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" 
-                                    data-voice-id="${voice.id}">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </div>
-                        `
-                        : ""
-                    }
-                </div>
-            </div>
-        `
+          <div class="flex items-center justify-between">
+              <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                      <p class="text-sm font-medium text-gray-900">${voice.name}</p>
+                      ${voice.category ? `<span class="text-xs text-gray-500">${formatString(voice.category)}</span>` : ""}
+                  </div>
+                  ${voice.description ? `<p class="text-sm text-gray-600 mt-1">${voice.description}</p>` : ""}
+                  <div class="mt-2 flex flex-wrap gap-2">
+                      ${tagsHtml}
+                  </div>
+                  ${
+                    voice.preview_url
+                      ? `
+                          <div class="mt-2 audio-controls flex items-center gap-2">
+                              <audio controls class="flex-grow">
+                                  <source src="${voice.preview_url}" type="audio/mpeg">
+                                  Your browser does not support the audio element.
+                              </audio>
+                              <button 
+                                  class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" 
+                                  data-voice-id="${voice.id}">
+                                  <i class="fas fa-trash-alt"></i>
+                              </button>
+                          </div>
+                      `
+                      : ""
+                  }
+              </div>
+          </div>
+      `
       voiceList.appendChild(listItem)
     })
 
