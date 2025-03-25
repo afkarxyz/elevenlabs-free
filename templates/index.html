@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ElevenLabs Free</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.3.2/css/flag-icons.min.css" rel="stylesheet">
     <link href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
@@ -57,9 +57,6 @@
         }
         .usage-danger {
             background-color: #DC3545;
-        }
-        .text-red-400 {
-            color: #DC3545;
         }
         #voiceSelect option {
             white-space: normal;
@@ -395,7 +392,7 @@
                 <div class="card rounded-lg overflow-hidden mb-4">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                         <div class="flex items-center">
-                            <button id="clearButton" class="mr-2 text-red-400 hover:text-red-700 hidden">
+                            <button id="clearButton" class="mr-2 text-red-600 hover:text-red-700 hidden">
                                 <i class="fas fa-trash-can"></i>
                             </button>
                             <h2 class="text-lg font-semibold text-gray-900">Text to Speech</h2>
@@ -512,7 +509,7 @@
                 <div id="historyCard" class="card rounded-lg overflow-hidden mb-4">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                         <div class="flex items-center">
-                            <button id="clearAllHistory" class="mr-2 text-red-400 hover:text-red-700 hidden">
+                            <button id="clearAllHistory" class="mr-2 text-red-600 hover:text-red-700 hidden">
                                 <i class="fas fa-trash-can"></i>
                             </button>
                             <h2 class="text-lg font-semibold text-gray-900">History <span id="historyCount" class="text-sm font-normal"></span></h2>
@@ -567,7 +564,7 @@
                 <div class="card rounded-lg overflow-hidden mb-4">
                     <div class="p-4 border-b border-gray-200 flex justify-between items-center">
                         <div class="flex items-center">
-                            <button id="clearApiKey" class="mr-2 text-red-400 hover:text-red-700">
+                            <button id="clearApiKey" class="mr-2 text-red-600 hover:text-red-700">
                                 <i class="fas fa-trash-can"></i>
                             </button>
                             <h2 class="text-lg font-semibold text-gray-800"><span id="apiKeyLabel">API Configuration</span> <span id="apiKeyCount" class="text-sm font-normal"></span></h2>
