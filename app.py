@@ -69,7 +69,7 @@ def get_usage_info():
 
     try:
         client = ElevenLabs(api_key=api_key)
-        subscription = client.user.get_subscription()
+        subscription = client.user.subscription.get()
         
         return jsonify({
             'character_count': subscription.character_count,
