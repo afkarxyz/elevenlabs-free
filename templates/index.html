@@ -51,12 +51,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        .usage-warning {
-            background-color: #F59E0B;
+        }        .usage-warning {
+            background-color: #f59e0b !important;
         }
         .usage-danger {
-            background-color: #DC3545;
+            background-color: #dc2626 !important;
         }
         #voiceSelect option {
             white-space: normal;
@@ -462,7 +461,7 @@
                             </div>
                             <div class="flex items-center">
                                 <span id="characterCount" class="text-sm text-gray-600 mr-2">0 / 0</span>
-                                <i class="fas fa-coins text-yellow-500"></i>
+                                <i class="fas fa-coins text-amber-500"></i>
                             </div>
                         </div>
                         <div class="relative pt-1">
@@ -767,7 +766,7 @@
             <div id="customAlertOverlay" class="custom-alert-overlay"></div>
             <div id="modelOverlay" class="model-overlay"></div>
 
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
     <script src="{{ url_for('static', filename='js/api.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

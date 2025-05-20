@@ -19,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let apiKeys = [];
     let currentApiKeyIndex = 0;
 
+    let lastCharacterCount = 0;
+    let lastCharacterLimit = 0;
+    let lastNextReset = 0;
+
     function initializeApp() {
         apiKeys = JSON.parse(localStorage.getItem('elevenLabsApiKeys') || '[]');
         currentApiKeyIndex = parseInt(localStorage.getItem('currentApiKeyIndex') || '0');
@@ -78,12 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const [usedCredit, totalCredit] = document.getElementById('characterCount').textContent.split('/').map(s => parseInt(s.trim().replace(/,/g, '')));
         const remainingCredit = totalCredit - usedCredit;
         
-        const selectedModel = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2';
-        
-        let adjustedRemainingCredit = remainingCredit;
-        if (selectedModel !== 'eleven_multilingual_v2') {
-            adjustedRemainingCredit = remainingCredit * 2;
-        }
+        const adjustedRemainingCredit = remainingCredit;
         
         const inputLengthSpan = document.createElement('span');
         inputLengthSpan.textContent = formatNumber(inputLength);
@@ -141,6 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
+            lastCharacterCount = data.character_count;
+            lastCharacterLimit = data.character_limit;
+            lastNextReset = data.next_character_count_reset_unix;
             updateUsageInfo(data.character_count, data.character_limit, data.next_character_count_reset_unix);
         })
         .catch(error => {
@@ -378,8 +380,16 @@ document.addEventListener('DOMContentLoaded', function() {
             usageBar.classList.remove('usage-danger', 'usage-warning');
         }
 
-        const formattedCharCount = formatNumber(characterCount);
-        const formattedCharLimit = formatNumber(characterLimit);
+        const selectedModel = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2';
+        let displayCharacterCount = characterCount;
+        let displayCharacterLimit = characterLimit;
+        if (selectedModel.includes('turbo') || selectedModel.includes('flash')) {
+            displayCharacterCount *= 2;
+            displayCharacterLimit *= 2;
+        }
+
+        const formattedCharCount = formatNumber(displayCharacterCount);
+        const formattedCharLimit = formatNumber(displayCharacterLimit);
         characterCountElement.textContent = `${formattedCharCount} / ${formattedCharLimit}`;
 
         const resetDate = formatDate(nextReset * 1000);
@@ -1124,6 +1134,7 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedModelName.textContent = modelName;
             handleModelSelect(modelId);
             updateCharCount(); 
+            updateUsageInfo(lastCharacterCount, lastCharacterLimit, lastNextReset);
             modelPopup.classList.remove('show');
             modelOverlay.classList.remove('show');
         });
