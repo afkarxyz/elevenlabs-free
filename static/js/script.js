@@ -324,6 +324,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    const speedRange = document.getElementById('speedRange');
+    const speedValue = document.getElementById('speedValue');
+    const resetSpeedButton = document.getElementById('resetSpeedButton');
+    if (speedRange && speedValue) {
+        const savedSpeed = localStorage.getItem('elevenLabsSelectedSpeed');
+        if (savedSpeed) {
+            speedRange.value = savedSpeed;
+            speedValue.textContent = parseFloat(savedSpeed).toFixed(2) + 'x';
+        }
+        speedRange.addEventListener('input', function() {
+            speedValue.textContent = parseFloat(speedRange.value).toFixed(2) + 'x';
+            localStorage.setItem('elevenLabsSelectedSpeed', speedRange.value);
+        });
+    }
+    if (resetSpeedButton && speedRange && speedValue) {
+        resetSpeedButton.addEventListener('click', function() {
+            speedRange.value = '1.00';
+            speedValue.textContent = '1.00x';
+            localStorage.setItem('elevenLabsSelectedSpeed', '1.00');
+        });
+    }
+
     function formatNumber(number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
@@ -431,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const modelId = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2';
         const voiceId = localStorage.getItem('elevenLabsSelectedVoice');
         const voiceName = document.getElementById('selectedVoiceName').textContent;
+        const speed = speedRange ? speedRange.value : (localStorage.getItem('elevenLabsSelectedSpeed') || '1.00');
         
         if (!voiceId) {
             showCustomAlert('Please select a voice first!', 'error');
@@ -451,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadButton.classList.add('hidden');
     
         try {
-            const response = await fetch(`/generate-audio?text=${encodeURIComponent(text)}&model_id=${encodeURIComponent(modelId)}&voice_id=${encodeURIComponent(voiceId)}`, {
+            const response = await fetch(`/generate-audio?text=${encodeURIComponent(text)}&model_id=${encodeURIComponent(modelId)}&voice_id=${encodeURIComponent(voiceId)}&speed=${encodeURIComponent(speed)}`, {
                 headers: {
                     'X-API-KEY': apiKey
                 }
@@ -555,7 +578,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             historyTimestamp.innerHTML = `<i class="fas fa-calendar-clock mr-1"></i>${formatDate(item.timestamp)}`;
             
-            historyCharCount.innerHTML = `<i class="fas fa-font mr-1"></i>${formatNumber(item.text.length)}`;
+            historyCharCount.innerHTML = `<i class="fas fa-text-size mr-1"></i>${formatNumber(item.text.length)}`;
             
             const fullText = item.text;
             const limitedText = fullText.length > 300 ? fullText.slice(0, 297) + '...' : fullText;

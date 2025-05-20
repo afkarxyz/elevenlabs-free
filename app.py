@@ -1,5 +1,6 @@
 from flask import Flask, Response, render_template, request, jsonify
 from elevenlabs import ElevenLabs
+from elevenlabs import VoiceSettings
 
 app = Flask(__name__)
 
@@ -21,6 +22,16 @@ def generate_audio():
     model_id = request.args.get('model_id')
     voice_id = request.args.get('voice_id')
     
+    speed = request.args.get('speed', '1.00')
+    try:
+        speed = float(speed)
+        if speed < 0.70:
+            speed = 0.70
+        elif speed > 1.20:
+            speed = 1.20
+    except (ValueError, TypeError):
+        speed = 1.00
+    
     if not text or not model_id or not voice_id:
         return Response('Missing required parameters', status=400)
     
@@ -32,6 +43,9 @@ def generate_audio():
             output_format="mp3_44100_128",
             text=text,
             model_id=model_id,
+            voice_settings=VoiceSettings(
+                speed=speed
+            )
         )
         
         audio_bytes = b''.join(audio_generator)
@@ -196,7 +210,7 @@ def add_voice():
 
     try:
         client = ElevenLabs(api_key=api_key)
-        response = client.voices.add_sharing_voice(
+        client.voices.add_sharing_voice(
             public_user_id=public_user_id,
             voice_id=voice_id,
             new_name=new_name
