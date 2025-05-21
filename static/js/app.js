@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const customAlertOverlay = document.getElementById('customAlertOverlay');
     const modelOverlay = document.getElementById('modelOverlay');
 
-    let themeToggleLogo;
-    const body = document.body;
+    let themeToggleLogo; 
+    const body = document.body; 
 
     function toggleIconStyle(selector, isDark) {
         const iconElement = document.querySelector(selector);
@@ -59,14 +59,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function applyTheme(theme) {
-        themeToggleLogo = document.getElementById('themeToggleLogo');
+        themeToggleLogo = document.getElementById('themeToggleLogo'); 
+        const htmlElement = document.documentElement;
         const isDark = theme === 'dark';
 
         if (isDark) {
-            body.classList.add('dark');
+            htmlElement.classList.add('dark');
+            body.classList.add('dark'); 
             if (themeToggleLogo) themeToggleLogo.style.filter = 'invert(1) brightness(1.5) contrast(0.9)';
         } else {
-            body.classList.remove('dark');
+            htmlElement.classList.remove('dark');
+            body.classList.remove('dark'); 
             if (themeToggleLogo) themeToggleLogo.style.filter = 'none';
         }
 
@@ -76,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function toggleTheme() {
-        const currentThemeIsDark = body.classList.contains('dark');
+        const currentThemeIsDark = document.documentElement.classList.contains('dark');
         const newTheme = currentThemeIsDark ? 'light' : 'dark';
         localStorage.setItem('elevenlabs-theme', newTheme);
         applyTheme(newTheme);
@@ -160,31 +163,38 @@ document.addEventListener('DOMContentLoaded', function() {
     function showCustomAlert(message, type = 'info', duration = 1500) {
         if (!customAlertElement || !customAlertOverlay) return;
         customAlertElement.innerHTML = `<div>${message}</div>`;
-        customAlertElement.className = 'custom-alert';
+        customAlertElement.className = 'custom-alert'; 
         customAlertElement.classList.add(`custom-alert-${type}`, 'show');
         customAlertOverlay.classList.add('show');
         setTimeout(() => {
             customAlertElement.classList.remove('show');
             customAlertOverlay.classList.remove('show');
-            setTimeout(() => customAlertElement.classList.add('hidden'), 200);
+            setTimeout(() => customAlertElement.classList.add('hidden'), 200); 
         }, duration);
     }
 
     function showCustomConfirm(message, onConfirm, onCancel) {
         if (!customAlertElement || !customAlertOverlay) return;
-        customAlertElement.className = 'custom-alert';
+        customAlertElement.className = 'custom-alert'; 
         customAlertElement.innerHTML = `<div class="custom-alert-message">${message}</div><div class="custom-alert-buttons"><button class="custom-alert-button custom-alert-cancel">Cancel</button><button class="custom-alert-button custom-alert-confirm">Confirm</button></div>`;
         customAlertElement.classList.add('show'); customAlertOverlay.classList.add('show');
+        
         const confirmBtn = customAlertElement.querySelector('.custom-alert-confirm');
         const cancelBtn = customAlertElement.querySelector('.custom-alert-cancel');
+
         const close = () => {
-            confirmBtn.removeEventListener('click', confirmHandler); cancelBtn.removeEventListener('click', cancelHandler);
-            customAlertElement.classList.remove('show'); customAlertOverlay.classList.remove('show');
+            confirmBtn.removeEventListener('click', confirmHandler); 
+            cancelBtn.removeEventListener('click', cancelHandler);
+            customAlertElement.classList.remove('show'); 
+            customAlertOverlay.classList.remove('show');
             setTimeout(() => customAlertElement.classList.add('hidden'), 200);
         };
+
         const confirmHandler = () => { close(); if (onConfirm) onConfirm(); };
         const cancelHandler = () => { close(); if (onCancel) onCancel(); };
-        confirmBtn.addEventListener('click', confirmHandler); cancelBtn.addEventListener('click', cancelHandler);
+
+        confirmBtn.addEventListener('click', confirmHandler); 
+        cancelBtn.addEventListener('click', cancelHandler);
     }
 
     function showVoiceNamePopup(defaultName, onConfirm) {
@@ -192,28 +202,54 @@ document.addEventListener('DOMContentLoaded', function() {
         const overlay = document.getElementById("customAlertOverlay");
         const input = document.getElementById("voiceNameInput");
         if (!popup || !overlay || !input) return;
+
         input.value = defaultName;
-        popup.classList.remove("hidden"); popup.classList.add("show"); overlay.classList.add("show");
-        setTimeout(() => input.focus(), 100);
+        popup.classList.remove("hidden"); popup.classList.add("show"); 
+        overlay.classList.add("show");
+        setTimeout(() => input.focus(), 100); 
+
         const confirmBtn = popup.querySelector(".custom-alert-confirm");
         const cancelBtn = popup.querySelector(".custom-alert-cancel");
-        const nConfirmBtn = confirmBtn.cloneNode(true), nCancelBtn = cancelBtn.cloneNode(true);
-        confirmBtn.replaceWith(nConfirmBtn); cancelBtn.replaceWith(nCancelBtn);
+
+        const nConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.replaceWith(nConfirmBtn);
+        const nCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.replaceWith(nCancelBtn);
+        
         const close = () => {
-            nConfirmBtn.removeEventListener('click', confirmH); nCancelBtn.removeEventListener('click', cancelH); input.removeEventListener('keyup', enterH);
-            popup.classList.remove("show"); overlay.classList.remove("show"); setTimeout(() => popup.classList.add("hidden"), 200);
+            nConfirmBtn.removeEventListener('click', confirmH); 
+            nCancelBtn.removeEventListener('click', cancelH); 
+            input.removeEventListener('keyup', enterH);
+            popup.classList.remove("show"); 
+            overlay.classList.remove("show"); 
+            setTimeout(() => popup.classList.add("hidden"), 200);
         };
-        const confirmH = () => { const name = input.value.trim(); if (name) { close(); onConfirm(name); } else { showCustomAlert("Voice name cannot be empty.", "error", 2000); input.focus(); }};
+
+        const confirmH = () => { 
+            const name = input.value.trim(); 
+            if (name) { 
+                close(); 
+                onConfirm(name); 
+            } else { 
+                showCustomAlert("Voice name cannot be empty.", "error", 2000); 
+                input.focus(); 
+            }
+        };
         const cancelH = () => close();
         const enterH = e => { if (e.key === "Enter") nConfirmBtn.click(); };
-        nConfirmBtn.addEventListener("click", confirmH); nCancelBtn.addEventListener("click", cancelH); input.addEventListener("keyup", enterH);
+
+        nConfirmBtn.addEventListener("click", confirmH); 
+        nCancelBtn.addEventListener("click", cancelH); 
+        input.addEventListener("keyup", enterH);
     }
+
 
     function updateApiKeyDisplay() {
         const apiKeyInput = document.getElementById('apiKey');
         const settingsCount = document.getElementById('settingsApiKeyCount');
         const labelText = document.getElementById('apiKeyLabelText');
         const toggleBtn = document.getElementById('toggleApiKey');
+
         if (apiKeyInput && settingsCount && labelText && toggleBtn) {
             const singleKey = apiKeys.length <= 1;
             apiKeyInput.value = singleKey && apiKeys.length === 1 ? apiKeys[0] : '';
@@ -264,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!isNaN(newIndex) && newIndex >= 0 && newIndex < apiKeys.length) {
             switchApiKey(newIndex);
         } else {
-            inputElement.value = currentApiKeyIndex + 1;
+            inputElement.value = currentApiKeyIndex + 1; 
         }
     }
 
@@ -279,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const activeTabContent = document.getElementById(activeTabId);
                 if (activeTabContent) activeTabContent.classList.remove('hidden');
 
-                localStorage.setItem('elevenlabs-activeTab', activeTabId); // Save active tab
+                localStorage.setItem('elevenlabs-activeTab', activeTabId); 
 
                 if (activeTabId !== 'dashboard' && generatedAudioCard) generatedAudioCard.classList.add('hidden');
                 if (activeTabId === 'my-voices') getUserVoices();
@@ -297,9 +333,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setupDashboardAudioPlayerSync() {
-        const historyAudioPlayer = document.getElementById('historyAudio');
-        if (historyAudioPlayer && simpleAudioPlayer && generatedAudioCard) {
-        }
     }
 
     function initializeDB() {
@@ -331,13 +364,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const lenSpan = document.createElement('span');
         lenSpan.textContent = formatNumber(len);
 
-        if (len > effectiveRemainingCredit && limitFromAPI > 0) {
-            lenSpan.classList.add('text-red-400');
+        if (len > effectiveRemainingCredit && limitFromAPI > 0) { 
+            lenSpan.classList.add('text-red-400'); 
         }
         charCountDisplay.innerHTML = ''; charCountDisplay.append(lenSpan, ` / ${formatNumber(effectiveRemainingCredit)}`);
         inputText.dir = isRTL(inputText.value) ? 'rtl' : 'ltr';
         inputText.style.textAlign = isRTL(inputText.value) ? 'right' : 'left';
     }
+
 
     async function fetchVoicesForDashboard() {
         const apiKey = apiKeys[currentApiKeyIndex];
@@ -346,12 +380,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('/get-voices', { headers: { 'X-API-KEY': apiKey }});
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            localStorage.setItem('dashboardVoicesCache', JSON.stringify(data));
+            localStorage.setItem('dashboardVoicesCache', JSON.stringify(data)); 
             populateVoiceSelectForDashboard(data);
         } catch (error) {
             console.error('Error fetching dashboard voices:', error);
             showCustomAlert(`Failed to load voices: ${error.message}`, 'error');
-            populateVoiceSelectForDashboard([]);
+            populateVoiceSelectForDashboard([]); 
         }
     }
 
@@ -362,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const response = await fetch('/get-usage-info', { headers: { 'X-API-KEY': apiKey }});
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            if (data.error) throw new Error(data.error);
+            if (data.error) throw new Error(data.error); 
             lastCharacterCount = data.character_count;
             lastCharacterLimit = data.character_limit;
             lastNextReset = data.next_character_count_reset_unix;
@@ -370,12 +404,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error fetching usage:', error);
             showCustomAlert(`Usage info error: ${error.message}`, 'error');
-            updateUsageInfo(0,0,0);
+            updateUsageInfo(0,0,0); 
         }
     }
 
+
     function updateUIBasedOnApiKey() {
-        const hasKey = apiKeys.length > 0;
+        const hasKey = apiKeys.length > 0 && currentApiKeyIndex >= 0 && currentApiKeyIndex < apiKeys.length;
         const elementsToToggle = {
             'usageCard': hasKey, 'modelSelectContainer': hasKey, 'voiceSelectContainer': hasKey,
             'clearButton': hasKey, 'pasteButton': hasKey, 'characterCountWrapper': hasKey
@@ -384,10 +419,15 @@ document.addEventListener('DOMContentLoaded', function() {
             const el = document.getElementById(id);
             if (el) el.classList.toggle('hidden', !show);
         });
-        if (inputText) { inputText.disabled = !hasKey; inputText.placeholder = hasKey ? 'Type text...' : 'Enter API key first'; }
+
+        if (inputText) { 
+            inputText.disabled = !hasKey; 
+            inputText.placeholder = hasKey ? 'Type text here or paste from clipboard...' : 'Please enter your API key first in the API Key tab'; 
+        }
         const genBtn = ttsForm ? ttsForm.querySelector('button[type="submit"]') : null;
         if (genBtn) genBtn.disabled = !hasKey;
     }
+
 
     function updateUsageInfo(apiCount, apiLimit, resetUnix) {
         const bar = document.getElementById('usageBar'), countEl = document.getElementById('characterCount'),
@@ -401,15 +441,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!bar || !countEl || !resetDateEl || !percentEl || !resetCountdownEl || !resetCountdownDesktopEl || !resetCountdownMobileEl) return;
 
         const percent = apiLimit > 0 ? (apiCount / apiLimit) * 100 : 0;
-        bar.style.width = `${Math.min(100, percent)}%`;
+        bar.style.width = `${Math.min(100, percent)}%`; 
         percentEl.textContent = `(${percent.toFixed(0)}%)`;
-        bar.classList.remove('usage-danger', 'usage-warning');
+        
+        bar.classList.remove('usage-danger', 'usage-warning'); 
         if (percent >= 90) bar.classList.add('usage-danger');
         else if (percent >= 80) bar.classList.add('usage-warning');
 
         countEl.textContent = `${formatNumber(apiCount)} / ${formatNumber(apiLimit)}`;
 
-        resetCountdownEl.classList.add('text-sm');
+        resetCountdownEl.classList.add('text-sm'); 
         resetCountdownEl.classList.remove('text-xs');
 
 
@@ -417,16 +458,16 @@ document.addEventListener('DOMContentLoaded', function() {
             const resetDateFormatted = formatDate(resetUnix * 1000);
             const now = new Date();
             const resetDateObj = new Date(resetUnix * 1000);
-            const diffTime = Math.max(0, resetDateObj - now);
+            const diffTime = Math.max(0, resetDateObj - now); 
             resetDateEl.textContent = resetDateFormatted;
             resetCountdownDesktopEl.textContent = `(reset in ${formatShortDuration(diffTime)})`;
             resetCountdownMobileEl.textContent = `reset in ${formatShortDuration(diffTime)}`;
         } else {
-            resetDateEl.textContent = '-';
+            resetDateEl.textContent = 'N/A'; 
             resetCountdownDesktopEl.textContent = '';
             resetCountdownMobileEl.textContent = '';
         }
-        updateCharCount();
+        updateCharCount(); 
     }
 
     function clearUsageInfo() { updateUsageInfo(0,0,0); }
@@ -445,28 +486,29 @@ document.addEventListener('DOMContentLoaded', function() {
             'eleven_turbo_v2': 'Eleven Turbo v2',
             'eleven_flash_v2': 'Eleven Flash v2'
         };
-        return models[modelId] || modelId;
+        return models[modelId] || formatString(modelId.replace('eleven_', '')) || "Unknown Model";
     }
-
+    
     function getModelNameForFile(modelId) {
         const map = {'eleven_multilingual_v2':'MultiV2','eleven_turbo_v2_5':'Turbo2.5','eleven_flash_v2_5':'Flash2.5','eleven_turbo_v2':'TurboV2','eleven_flash_v2':'FlashV2'};
-        return map[modelId] || modelId.replace('eleven_','');
+        return map[modelId] || modelId.replace('eleven_','').replace(/[^a-zA-Z0-9]/g, '');
     }
 
     function populateVoiceSelectForDashboard(voices) {
         const defaultCatEl = document.querySelector('#voicePopup #defaultCategory .voice-options');
         const libraryCatEl = document.querySelector('#voicePopup #libraryCategory .voice-options');
-        const libContainer = document.querySelector('#voicePopup #libraryCategory');
+        const libContainer = document.querySelector('#voicePopup #libraryCategory'); 
         if (!defaultCatEl || !libraryCatEl || !libContainer) return;
-        defaultCatEl.innerHTML = ''; libraryCatEl.innerHTML = '';
+
+        defaultCatEl.innerHTML = ''; libraryCatEl.innerHTML = ''; 
         const savedVoiceId = localStorage.getItem('elevenLabsSelectedVoice');
         let selVoiceName = "Select Voice", foundSel = false, hasLibVoices = false;
 
         (voices || []).forEach(voice => {
-            if (!voice || !voice.id) return;
+            if (!voice || !voice.id) return; 
             const option = document.createElement('div'); option.className = 'voice-option'; option.dataset.voiceId = voice.id;
-            const voiceName = formatString(voice.name || 'Unnamed');
-            const labels = voice.labels || {}, tags = [
+            const voiceName = formatString(voice.name || 'Unnamed Voice');
+            const labels = voice.labels || {}, tags = [ 
                 { cls:"bg-blue-100 text-blue-800", val:formatString(labels.gender||''), show:!!labels.gender},
                 { cls:"bg-green-100 text-green-800", val:formatString(labels.age||''), show:!!labels.age},
                 { cls:"bg-yellow-100 text-yellow-800", val:formatString(labels.accent||''), show:!!labels.accent},
@@ -474,28 +516,34 @@ document.addEventListener('DOMContentLoaded', function() {
             ];
             const tagsHtml = tags.filter(t => t.show && t.val).map(t => `<span class="voice-tag ${t.cls}">${t.val}</span>`).join('');
             option.innerHTML = `<div class="voice-name">${voiceName}</div><div class="voice-tags">${tagsHtml}</div>`;
+            
             if (voice.id === savedVoiceId) { selVoiceName = voiceName; foundSel = true; }
+
             if (voice.category === 'premade') defaultCatEl.appendChild(option);
             else { libraryCatEl.appendChild(option); hasLibVoices = true; }
         });
-        libContainer.style.display = hasLibVoices ? 'block' : 'none';
+
+        libContainer.style.display = hasLibVoices ? 'block' : 'none'; 
+
         const selVoiceNameEl = document.getElementById('selectedVoiceName');
         if (selVoiceNameEl) selVoiceNameEl.textContent = foundSel ? selVoiceName : "Select Voice";
+
         if (!foundSel && voices.length > 0 && voices[0].id) {
-            const firstVoice = voices.find(v => v.category === 'premade') || voices[0];
+            const firstVoice = voices.find(v => v.category === 'premade') || voices[0]; 
             localStorage.setItem('elevenLabsSelectedVoice', firstVoice.id);
-            if (selVoiceNameEl) selVoiceNameEl.textContent = formatString(firstVoice.name || 'Unnamed');
+            if (selVoiceNameEl) selVoiceNameEl.textContent = formatString(firstVoice.name || 'Unnamed Voice');
         } else if (voices.length === 0) {
-             localStorage.removeItem('elevenLabsSelectedVoice');
+             localStorage.removeItem('elevenLabsSelectedVoice'); 
              if (selVoiceNameEl) selVoiceNameEl.textContent = "No voices available";
         }
-        setupVoiceSelectionForDashboard();
+        setupVoiceSelectionForDashboard(); 
     }
 
     function setupVoiceSelectionForDashboard() {
         const btn = document.getElementById('voiceSelectButton'), popup = document.getElementById('voicePopup'),
               search = document.getElementById('voiceSearchInputDashboard');
         if (!btn || !popup || !modelOverlay || !search) return;
+
         const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn);
         nBtn.addEventListener('click', e => { e.stopPropagation(); popup.classList.toggle('show'); modelOverlay.classList.toggle('show'); });
 
@@ -504,11 +552,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 popup.classList.remove('show'); modelOverlay.classList.remove('show');
             }
         };
-        document.removeEventListener('click', clickOutsideHandler);
+        document.removeEventListener('click', clickOutsideHandler); 
         document.addEventListener('click', clickOutsideHandler);
 
         popup.querySelectorAll('.voice-option').forEach(opt => {
-            const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt);
+            const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt); 
             nOpt.addEventListener('click', () => {
                 const id = nOpt.dataset.voiceId, name = (nOpt.querySelector('.voice-name') || {}).textContent || 'Selected';
                 const selNameEl = document.getElementById('selectedVoiceName');
@@ -517,6 +565,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 popup.classList.remove('show'); modelOverlay.classList.remove('show');
             });
         });
+
         search.addEventListener('input', e => {
             const term = e.target.value.toLowerCase();
             ['#voicePopup #defaultCategory', '#voicePopup #libraryCategory'].forEach(catSel => {
@@ -535,13 +584,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    
 
     function setupDashboardFeatures() {
         if (inputText) inputText.addEventListener('input', updateCharCount);
         const pasteBtn = document.getElementById('pasteButton');
         if (pasteBtn) pasteBtn.addEventListener('click', async () => {
             try { const text = await navigator.clipboard.readText(); if (inputText) inputText.value = text; updateCharCount(); }
-            catch(e){ showCustomAlert("Failed to paste text.", "error");}
+            catch(e){ showCustomAlert("Failed to paste text. Clipboard permission might be needed.", "error");}
         });
         const clearBtn = document.getElementById('clearButton');
         if (clearBtn) clearBtn.addEventListener('click', () => { if (inputText) inputText.value = ''; updateCharCount(); });
@@ -550,7 +600,11 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const apiKey = apiKeys[currentApiKeyIndex];
             if (!apiKey) { showCustomAlert('API key required!', 'error'); return; }
-            const textVal = inputText.value, modelId = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2',
+            
+            const textVal = inputText.value.trim();
+            if (!textVal) { showCustomAlert('Text cannot be empty!', 'error'); return; }
+
+            const modelId = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2',
                   voiceId = localStorage.getItem('elevenLabsSelectedVoice'),
                   voiceNameForFile = (document.getElementById('selectedVoiceName')||{}).textContent || "Voice",
                   speedVal = speedRange ? speedRange.value : (localStorage.getItem('elevenLabsSelectedSpeed') || '1.00');
@@ -568,7 +622,11 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const url = `/generate-audio?text=${encodeURIComponent(textVal)}&model_id=${encodeURIComponent(modelId)}&voice_id=${encodeURIComponent(voiceId)}&speed=${encodeURIComponent(speedVal)}`;
                 const response = await fetch(url, { headers: { 'X-API-KEY': apiKey }});
-                if (!response.ok) throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                if (!response.ok) {
+                    let errorMsg = `HTTP ${response.status}`;
+                    try { const errData = await response.json(); errorMsg = errData.detail?.message || errData.detail || errorMsg; } catch (_) {}
+                    throw new Error(errorMsg);
+                }
                 const audioBlob = await response.blob();
                 const audioUrl = URL.createObjectURL(audioBlob);
                 if (simpleAudioPlayer) simpleAudioPlayer.src = audioUrl;
@@ -578,13 +636,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     downloadAudio(audioBlob, fName);
                 };
                 saveToHistory(textVal, audioBlob, modelId, voiceNameForHistory);
-                if (simpleAudioPlayer) simpleAudioPlayer.play().catch(err => console.warn("Audio play failed", err));
+                if (simpleAudioPlayer) simpleAudioPlayer.play().catch(err => console.warn("Audio play failed, user interaction might be needed.", err));
             } catch (error) {
                 console.error('TTS Error:', error);
                 showCustomAlert(`Audio generation failed: ${error.message}`, 'error', 3000);
             } finally {
                 submitBtn.disabled = false; normalState.classList.remove('hidden'); loadingState.classList.add('hidden');
-                fetchUsageInfo();
+                fetchUsageInfo(); 
             }
         });
 
@@ -602,12 +660,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('elevenLabsSelectedSpeed', '1.00');
             });
         }
+        
         const modelBtn = document.getElementById('modelSelectButton'), modelPopup = document.getElementById('modelPopup'), selModelName = document.getElementById('selectedModelName');
         if (modelBtn && modelPopup && selModelName && modelOverlay) {
             const savedMdl = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2';
             const initMdlOpt = modelPopup.querySelector(`.model-option[data-value="${savedMdl}"]`);
             if (initMdlOpt) selModelName.textContent = (initMdlOpt.querySelector('.model-name')||{}).textContent || "Select Model";
-            else selModelName.textContent = "Select Model";
+            else selModelName.textContent = "Select Model"; 
 
             modelBtn.addEventListener('click', e => { e.stopPropagation(); modelPopup.classList.toggle('show'); modelOverlay.classList.toggle('show');});
 
@@ -620,11 +679,11 @@ document.addEventListener('DOMContentLoaded', function() {
             document.addEventListener('click', clickOutsideModelHandler);
 
             modelPopup.querySelectorAll('.model-option').forEach(opt => {
-                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt);
+                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt); 
                 nOpt.addEventListener('click', () => {
                     const id = nOpt.dataset.value, name = (nOpt.querySelector('.model-name')||{}).textContent;
                     selModelName.textContent = name; localStorage.setItem('elevenLabsSelectedModel', id);
-                    updateUsageInfo(lastCharacterCount, lastCharacterLimit, lastNextReset);
+                    updateUsageInfo(lastCharacterCount, lastCharacterLimit, lastNextReset); 
                     modelPopup.classList.remove('show'); modelOverlay.classList.remove('show');
                 });
             });
@@ -635,15 +694,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!db) return;
         const tx = db.transaction([storeName], "readwrite");
         tx.objectStore(storeName).add({ text, audio: audioBlob, modelId, voiceName, timestamp: Date.now() });
-        tx.oncomplete = loadHistoryFromDB;
+        tx.oncomplete = loadHistoryFromDB; 
         tx.onerror = e => console.error("Save history error:", e.target.error);
     }
 
     function loadHistoryFromDB() {
         if (!db) return;
         const tx = db.transaction([storeName], "readonly");
-        const req = tx.objectStore(storeName).index("timestamp").openCursor(null, "prev");
-        historyItems = [];
+        const req = tx.objectStore(storeName).index("timestamp").openCursor(null, "prev"); 
+        historyItems = []; 
         req.onsuccess = e => {
             const cursor = e.target.result;
             if (cursor) { historyItems.push(cursor.value); cursor.continue(); }
@@ -661,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
               countDisplay = document.getElementById('historyCount'), clearAllBtn = document.getElementById('clearAllHistory');
 
         if (!itemEl || !textElOriginal || !audioEl || !timeEl || !charEl || !sizeEl || !toggleTextBtnOriginal || !prevBtn || !nextBtn || !idxInput || !countDisplay || !clearAllBtn) {
-             return;
+             console.error("One or more history UI elements are missing."); return;
         }
 
         const hasHistory = historyItems.length > 0;
@@ -681,13 +740,16 @@ document.addEventListener('DOMContentLoaded', function() {
             charEl.innerHTML = `<i class="fas fa-text-size mr-1"></i>${formatNumber(item.text.length)}`;
 
             let fullTextShown = false;
-            const textEl = textElOriginal.cloneNode(false);
+            const textEl = textElOriginal.cloneNode(false); 
             textElOriginal.parentNode.replaceChild(textEl, textElOriginal);
-            textEl.id = 'historyText';
+            textEl.id = 'historyText'; 
+            textEl.className = "mb-2 text-gray-700 whitespace-pre-wrap"; 
 
             const toggleTextBtn = toggleTextBtnOriginal.cloneNode(true);
             toggleTextBtnOriginal.parentNode.replaceChild(toggleTextBtn, toggleTextBtnOriginal);
             toggleTextBtn.id = 'toggleFullText';
+            toggleTextBtn.className = "text-sm text-blue-600 hover:text-blue-800"; 
+
 
             const updateTextDisplayLogic = () => {
                 const limited = item.text.length > 300 ? item.text.slice(0,297)+'...' : item.text;
@@ -696,16 +758,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 textEl.style.textAlign = isRTL(textEl.textContent) ? 'right' : 'left';
                 toggleTextBtn.textContent = fullTextShown ? 'Show Less' : 'Show More';
             };
-            updateTextDisplayLogic();
+            updateTextDisplayLogic(); 
             toggleTextBtn.classList.toggle('hidden', item.text.length <= 300);
             toggleTextBtn.addEventListener('click', () => { fullTextShown = !fullTextShown; updateTextDisplayLogic(); });
-
+            
             if (item.text.length > 300) {
                  textEl.style.cursor = 'pointer';
                  textEl.addEventListener('click', () => { fullTextShown = !fullTextShown; updateTextDisplayLogic(); });
             } else {
                  textEl.style.cursor = 'default';
+                 textEl.removeEventListener('click', () => {}); 
             }
+
 
             if (item.audio instanceof Blob) audioEl.src = URL.createObjectURL(item.audio); else audioEl.src='';
             sizeEl.innerHTML = `<span class="desktop-info"><i class="fas fa-database mr-1"></i>${formatFileSize(item.audio.size)} <i class="fas fa-microphone-lines ml-2 mr-1"></i>${getModelNameForDisplay(item.modelId)} <i class="fas fa-user-headset ml-2 mr-1"></i>${formatString(item.voiceName)}</span><span class="mobile-info"><i class="fas fa-database mr-1"></i>${formatFileSize(item.audio.size)}<br><i class="fas fa-microphone-lines mr-1"></i>${getModelNameForDisplay(item.modelId)}<br><i class="fas fa-user-headset mr-1"></i>${formatString(item.voiceName)}</span>`;
@@ -720,11 +784,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+
     function deleteHistoryItem(id) {
         if (!db) return;
         const tx = db.transaction([storeName], "readwrite");
         tx.objectStore(storeName).delete(id);
-        tx.oncomplete = loadHistoryFromDB;
+        tx.oncomplete = loadHistoryFromDB; 
     }
 
     function setupHistoryFeatures() {
@@ -733,16 +798,16 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('currentHistoryIndex')?.addEventListener('change', function() {
             let newIdx = parseInt(this.value) - 1;
             if (!isNaN(newIdx) && newIdx >= 0 && newIdx < historyItems.length) currentHistoryIndex = newIdx;
-            else this.value = (currentHistoryIndex >=0 && historyItems.length > 0) ? currentHistoryIndex + 1 : "";
+            else this.value = (currentHistoryIndex >=0 && historyItems.length > 0) ? currentHistoryIndex + 1 : ""; 
             updateHistoryUI();
         });
         document.getElementById('copyTextButton')?.addEventListener('click', function() {
             if (currentHistoryIndex >= 0 && currentHistoryIndex < historyItems.length) {
                 const text = historyItems[currentHistoryIndex].text;
                 navigator.clipboard.writeText(text).then(() => {
-                    const origIcon = this.innerHTML; this.innerHTML = '<i class="fas fa-check"></i>';
+                    const origIcon = this.innerHTML; this.innerHTML = '<i class="fas fa-check"></i>'; 
                     setTimeout(() => this.innerHTML = origIcon, 1000);
-                }).catch(e => showCustomAlert("Copy failed.", "error"));
+                }).catch(e => showCustomAlert("Copy failed. Check permissions.", "error"));
             }
         });
         document.getElementById('reuseTextButton')?.addEventListener('click', () => {
@@ -750,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (inputText) inputText.value = historyItems[currentHistoryIndex].text;
                 updateCharCount(); if (generatedAudioCard) generatedAudioCard.classList.add('hidden');
                 const dashboardTab = document.querySelector('[data-tab="dashboard"]');
-                if (dashboardTab) dashboardTab.click();
+                if (dashboardTab) dashboardTab.click(); 
             }
         });
         document.getElementById('downloadHistoryAudio')?.addEventListener('click', () => {
@@ -776,13 +841,13 @@ document.addEventListener('DOMContentLoaded', function() {
     async function getUserVoices() {
         if (!userVoiceList) return;
         const apiKey = apiKeys[currentApiKeyIndex];
-        if (!apiKey) { userVoiceList.innerHTML = '<div class="p-4 text-red-500">No API key. Add one in Settings.</div>'; return; }
-        userVoiceList.innerHTML = '<div class="p-4 text-gray-500">Loading voices...</div>';
+        if (!apiKey) { userVoiceList.innerHTML = '<div class="p-4 text-red-500">No API key selected. Add or select one in the API Key tab.</div>'; return; }
+        userVoiceList.innerHTML = '<div class="p-4 text-gray-500">Loading your voices...</div>';
         try {
             const response = await fetch("/get-voices", { headers: { "X-API-KEY": apiKey }});
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const allVoices = await response.json();
-            const libraryVoices = allVoices.filter(voice => voice.category !== 'premade');
+            const libraryVoices = allVoices.filter(voice => voice.category !== 'premade'); 
             displayUserVoices(libraryVoices);
         } catch (error) {
             console.error("Error fetching user voices:", error);
@@ -792,14 +857,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function displayUserVoices(voices) {
         if (!userVoiceList || !voicesTitle) return;
-        voicesTitle.textContent = "Voices";
-        userVoiceList.innerHTML = "";
-        if (voices.length === 0) { userVoiceList.innerHTML = '<div class="p-4 text-gray-500">No voices found in your library. Add voices from the Library tab.</div>'; return; }
+        voicesTitle.textContent = "Voices"; 
+        userVoiceList.innerHTML = ""; 
+        if (voices.length === 0) { userVoiceList.innerHTML = '<div class="p-4 text-gray-500">No custom voices found in your library. You can add voices from the Library tab.</div>'; return; }
 
         voices.forEach(voice => {
-            const item = document.createElement("div"); item.className = "p-4 border-b border-gray-200";
+            const item = document.createElement("div"); item.className = "p-4 border-b border-gray-200"; 
             const labels = voice.labels || {}, tagOrder = ["gender", "age", "accent", "descriptive", "use_case"],
-                  tagStyles = {gender:"blue",age:"green",accent:"yellow",descriptive:"pink",use_case:"indigo"};
+                  tagStyles = {gender:"blue",age:"green",accent:"yellow",descriptive:"pink",use_case:"indigo"}; 
             let tagsHtml = tagOrder.map(tag => {
                 if (labels[tag]) return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 mb-1 bg-${tagStyles[tag]}-100 text-${tagStyles[tag]}-800">${formatString(labels[tag])}</span>`;
                 return '';
@@ -810,23 +875,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${voice.preview_url ? `<div class="mt-2 audio-controls flex items-center gap-2">
                     <audio controls class="flex-grow"><source src="${voice.preview_url}" type="audio/mpeg"></audio>
                     <button class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" data-voice-id="${voice.id}"><i class="fas fa-trash-alt"></i></button>
-                </div>` : ""}</div></div>`;
+                </div>` : `<div class="mt-2"><button class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" data-voice-id="${voice.id}"><i class="fas fa-trash-alt"></i></button></div>`}</div></div>`; 
             userVoiceList.appendChild(item);
         });
-        attachDeleteListeners();
+        attachDeleteListeners(); 
     }
 
     function attachDeleteListeners() {
         document.querySelectorAll("#userVoiceList .deleteVoiceBtn").forEach(btn => {
-            const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn);
+            const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn); 
             nBtn.addEventListener("click", async function() {
                 const voiceId = this.dataset.voiceId;
-                showCustomConfirm("Delete this voice?", async () => {
+                showCustomConfirm("Are you sure you want to delete this voice from your library?", async () => {
                     try {
                         const response = await fetch(`/delete-voice?voice_id=${voiceId}`, { method: "DELETE", headers: { "X-API-KEY": apiKeys[currentApiKeyIndex] }});
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                        getUserVoices();
-                        fetchVoicesForDashboard();
+                        getUserVoices(); 
+                        fetchVoicesForDashboard(); 
+                        showCustomAlert("Voice deleted successfully.", "success");
                     } catch (error) { showCustomAlert(`Delete failed: ${error.message}`, "error"); }
                 });
             });
@@ -837,22 +903,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!userVoiceList) return;
         const voiceBtns = userVoiceList.querySelectorAll(".deleteVoiceBtn");
         if (voiceBtns.length === 0) { showCustomAlert("No voices to clear.", "info"); return; }
-        showCustomConfirm(`Delete all ${voiceBtns.length} voices?`, async () => {
+        showCustomConfirm(`Are you sure you want to delete all ${voiceBtns.length} voices from your library? This cannot be undone.`, async () => {
+            let successCount = 0;
+            let failCount = 0;
             try {
-                const results = await Promise.allSettled(Array.from(voiceBtns).map(btn =>
-                    fetch(`/delete-voice?voice_id=${btn.dataset.voiceId}`, { method: "DELETE", headers: { "X-API-KEY": apiKeys[currentApiKeyIndex] }})
-                ));
-                let allSuccess = true;
-                results.forEach(result => {
-                    if (result.status === 'rejected' || (result.status === 'fulfilled' && !result.value.ok)) {
-                        allSuccess = false;
-                        console.error("Failed to delete a voice:", result.reason || result.value.statusText);
-                    }
-                });
-                getUserVoices(); fetchVoicesForDashboard();
-                if (allSuccess) showCustomAlert("All voices deleted.", "info");
-                else showCustomAlert("Some voices could not be deleted. Check console.", "error");
-            } catch (error) { showCustomAlert(`Clear failed: ${error.message}`, "error"); }
+                for (const btn of Array.from(voiceBtns)) { 
+                     try {
+                        const response = await fetch(`/delete-voice?voice_id=${btn.dataset.voiceId}`, { method: "DELETE", headers: { "X-API-KEY": apiKeys[currentApiKeyIndex] }});
+                        if (response.ok) successCount++; else failCount++;
+                     } catch (e) {
+                        failCount++;
+                        console.error("Failed to delete a voice:", e);
+                     }
+                }
+            } finally {
+                getUserVoices(); fetchVoicesForDashboard(); 
+                if (failCount > 0) {
+                    showCustomAlert(`${successCount} voices deleted. ${failCount} failed. Check console.`, "error");
+                } else {
+                    showCustomAlert("All voices deleted successfully.", "success");
+                }
+            }
         });
     }
 
@@ -867,7 +938,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const optGender = opt.dataset.gender || "";
             opt.classList.toggle("active", optGender === selectedGender);
         });
-        const genderOrder = ["", "male", "female"];
+        const genderOrder = ["", "male", "female"]; 
         const idx = genderOrder.indexOf(selectedGender);
         if (idx !== -1) {
            slider.style.transform = `translateX(${idx * 100}%)`;
@@ -887,7 +958,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function searchVoicesInLibrary(clearExisting = true) {
         const apiKey = apiKeys[currentApiKeyIndex];
-        if (!apiKey) { showCustomAlert("API key required.", "error"); if(searchResultsDiv) searchResultsDiv.classList.add("hidden"); return; }
+        if (!apiKey) { showCustomAlert("API key required to search the library.", "error"); if(searchResultsDiv) searchResultsDiv.classList.add("hidden"); return; }
         if (clearExisting) { libraryCurrentPage = 0; libraryTotalLoadedItems = 0; }
 
         const searchBtn = document.getElementById('searchVoicesBtn');
@@ -896,13 +967,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             let url = `/search-voices?gender=${libraryCurrentGender}&page=${libraryCurrentPage}&sort=${libraryCurrentSort}`;
-            if (libraryCurrentLanguage.code && libraryCurrentLanguage.code.toLowerCase() !== 'any') url += `&language=${libraryCurrentLanguage.code}`;
+            if (libraryCurrentLanguage.code && libraryCurrentLanguage.code.toLowerCase() !== 'any' && libraryCurrentLanguage.code !== "") url += `&language=${libraryCurrentLanguage.code}`;
             if (libraryCurrentSearch) url += `&search=${encodeURIComponent(libraryCurrentSearch.trim())}`;
+            
             const response = await fetch(url, { headers: { "X-API-KEY": apiKey }});
             let errorData = null;
             if (!response.ok) {
-                try { errorData = await response.json(); } catch(e) { /* ignore json parse error */ }
-                throw new Error(errorData?.error || `HTTP ${response.status}`);
+                try { errorData = await response.json(); } catch(e) { }
+                throw new Error(errorData?.error || errorData?.detail || `HTTP ${response.status}`);
             }
             const voicesData = await response.json();
             const voices = Array.isArray(voicesData) ? voicesData.filter(v => v.free_users_allowed !== false) : [];
@@ -911,8 +983,8 @@ document.addEventListener('DOMContentLoaded', function() {
             displaySearchResultsInLibrary(voices, clearExisting);
         } catch (error) {
             console.error("Error searching library voices:", error);
-            showCustomAlert(`Search failed: ${error.message}`, "error");
-            if (libraryVoiceList && clearExisting) libraryVoiceList.innerHTML = '<div class="p-4 text-red-500">Search error.</div>';
+            showCustomAlert(`Library search failed: ${error.message}`, "error");
+            if (libraryVoiceList && clearExisting) libraryVoiceList.innerHTML = '<div class="p-4 text-red-500">Search error. Try again or check API key.</div>';
         } finally {
             if (searchBtn) { searchBtn.disabled = false; searchBtn.innerHTML = '<i class="fas fa-search mr-2"></i>Search'; }
         }
@@ -929,15 +1001,18 @@ document.addEventListener('DOMContentLoaded', function() {
             loadMoreBtn.classList.add("hidden");
             return;
         }
-        if (voices.length === 0 && !clearExisting) {
+        if (voices.length === 0 && !clearExisting) { 
             loadMoreBtn.classList.add("hidden");
-            showCustomAlert("No more voices to load.", "info", 2000);
+            showCustomAlert("No more voices to load for these criteria.", "info", 2000);
             return;
         }
 
         voices.forEach((voice, idx) => {
             const item = document.createElement("div"); item.className = "p-4";
-            if (idx < voices.length -1 || libraryTotalLoadedItems + voices.length > voices.length) item.classList.add("border-b", "border-gray-200");
+            if (idx < voices.length -1 || libraryTotalLoadedItems > 0) {
+                item.classList.add("border-b", "border-gray-200");
+            }
+
 
             const itemNum = libraryTotalLoadedItems + idx + 1;
             const labels = voice.labels || {}, tagOrder = ["gender", "age", "accent", "descriptive", "use_case"],
@@ -947,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return '';
             }).join('');
             item.innerHTML = `<div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0">
+                <div class="flex-1 min-w-0"> <!-- Ensure text truncates -->
                     <div class="flex items-center justify-between mb-1">
                         <p class="text-sm font-medium text-gray-900 truncate"><span class="text-gray-500 mr-2">${itemNum}.</span>${voice.name}</p>
                         ${voice.category ? `<span class="text-xs text-gray-500 ml-2 flex-shrink-0">${formatString(voice.category)}</span>` : ""}
@@ -955,9 +1030,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${voice.description ? `<p class="text-sm text-gray-600 mt-1 mb-2">${voice.description}</p>` : ""}
                     <div class="mt-2 flex flex-wrap">${tagsHtml}</div>
                     <div class="mt-2 flex flex-wrap items-center text-xs sm:text-sm text-gray-500 gap-x-3 gap-y-1">
-                        <span class="flex items-center whitespace-nowrap"><i class="fas fa-calendar-clock mr-1"></i>${formatDate(voice.date_unix * 1000)}</span>
-                        <span class="flex items-center whitespace-nowrap"><i class="fas fa-clock mr-1"></i>${formatTimeAgo(voice.date_unix * 1000)}</span>
-                        <span class="flex items-center whitespace-nowrap"><i class="fas fa-users mr-1"></i>${formatNumber(voice.cloned_by_count)}</span>
+                        ${voice.date_unix ? `<span class="flex items-center whitespace-nowrap"><i class="fas fa-calendar-clock mr-1"></i>${formatDate(voice.date_unix * 1000)}</span>` : ''}
+                        ${voice.date_unix ? `<span class="flex items-center whitespace-nowrap"><i class="fas fa-clock mr-1"></i>${formatTimeAgo(voice.date_unix * 1000)}</span>` : ''}
+                        ${typeof voice.cloned_by_count !== 'undefined' ? `<span class="flex items-center whitespace-nowrap"><i class="fas fa-users mr-1"></i>${formatNumber(voice.cloned_by_count)}</span>` : ''}
                     </div>
                     ${voice.preview_url ? `<div class="mt-2 audio-controls">
                         <audio controls><source src="${voice.preview_url}" type="audio/mpeg"></audio>
@@ -967,13 +1042,13 @@ document.addEventListener('DOMContentLoaded', function() {
             libraryVoiceList.appendChild(item);
         });
         libraryTotalLoadedItems += voices.length;
-        loadMoreBtn.classList.toggle("hidden", voices.length === 0);
+        loadMoreBtn.classList.toggle("hidden", voices.length === 0); 
         attachAddVoiceListeners();
     }
 
     function attachAddVoiceListeners() {
         document.querySelectorAll("#voiceList .addVoiceBtn").forEach(btn => {
-            const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn);
+            const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn); 
             nBtn.addEventListener("click", function() {
                 const id = this.dataset.voiceId, pubId = this.dataset.publicUserId, name = this.dataset.voiceName;
                 showVoiceNamePopup(name, newName => { if (newName) addVoiceToUserLibrary(pubId, id, newName); });
@@ -983,23 +1058,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function addVoiceToUserLibrary(publicUserId, voiceId, newName) {
         const apiKey = apiKeys[currentApiKeyIndex];
-        if (!apiKey) { showCustomAlert("API Key required.", "error"); return; }
+        if (!apiKey) { showCustomAlert("API Key required to add voices.", "error"); return; }
         try {
             const response = await fetch("/add-voice", { method: "POST", headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
                 body: JSON.stringify({ public_user_id: publicUserId, voice_id: voiceId, new_name: newName }) });
-            if (!response.ok) { const err = await response.json(); throw new Error(err.error || "Failed to add voice"); }
+            if (!response.ok) { 
+                const errData = await response.json(); 
+                throw new Error(errData.error || errData.detail || "Failed to add voice"); 
+            }
             const result = await response.json();
-            if (result.success) {
-                showCustomAlert("Voice added to 'My Voices'.", "success");
-                getUserVoices();
-                fetchVoicesForDashboard();
-            } else throw new Error(result.error || "Failed to add voice");
+            if (result.success || result.voice_id) { 
+                showCustomAlert("Voice added to 'Voices' tab.", "success");
+                getUserVoices(); 
+                fetchVoicesForDashboard(); 
+            } else throw new Error(result.error || result.detail || "Failed to add voice, unknown error.");
         } catch (error) { showCustomAlert(`Add voice error: ${error.message}`, "error"); }
     }
     
     function setupLibraryFeatures() {
         setupGenderToggle();
-        updateToggleState(libraryCurrentGender);
+        updateToggleState(libraryCurrentGender); 
 
         const searchInput = document.getElementById("searchInput");
         const clearSearchBtn = document.getElementById("clearSearchBtn");
@@ -1023,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sortOverlayEl.addEventListener("click", closeSortPopup);
 
             sortPopup.querySelectorAll(".sort-option").forEach(opt => {
-                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt);
+                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt); 
                 nOpt.addEventListener("click", () => {
                     const val = nOpt.dataset.value, iconCls = nOpt.querySelector('i').className;
                     selSort.textContent = nOpt.textContent.trim(); selSortIcon.className = iconCls;
@@ -1038,7 +1116,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const initLangOpt = langPopup.querySelector(`.language-option[data-value="${libraryCurrentLanguage.code}"]`);
             if (initLangOpt) {
                 selLang.textContent = initLangOpt.textContent.trim();
-                const iconEl = initLangOpt.querySelector('.inline-flex .fi, .inline-flex .fas');
+                const iconEl = initLangOpt.querySelector('.inline-flex .fi, .inline-flex .fas'); 
                 if (iconEl) { selLangIcon.innerHTML = ''; selLangIcon.appendChild(iconEl.cloneNode(true));}
             }
             const openLangPopup = () => { langPopup.classList.add("show"); langOverlayEl.classList.add("show"); };
@@ -1047,11 +1125,11 @@ document.addEventListener('DOMContentLoaded', function() {
             langOverlayEl.addEventListener("click", closeLangPopup);
 
             langPopup.querySelectorAll(".language-option").forEach(opt => {
-                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt);
+                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt); 
                 nOpt.addEventListener("click", () => {
                     const val = nOpt.dataset.value; selLang.textContent = nOpt.textContent.trim();
                     const iconEl = nOpt.querySelector('.inline-flex .fi, .inline-flex .fas');
-                    if (iconEl) { selLangIcon.innerHTML = ''; selLangIcon.appendChild(iconEl.cloneNode(true));} else { selLangIcon.innerHTML = '<i class="fas fa-globe text-gray-600"></i>';}
+                    if (iconEl) { selLangIcon.innerHTML = ''; selLangIcon.appendChild(iconEl.cloneNode(true));} else { selLangIcon.innerHTML = '<i class="fas fa-globe text-gray-600"></i>';} 
                     libraryCurrentLanguage = { code: val, label: nOpt.textContent.trim() }; localStorage.setItem("libraryCurrentLanguage", JSON.stringify(libraryCurrentLanguage));
                     closeLangPopup();
                 });
@@ -1062,15 +1140,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function setupSettingsFeatures() {
         const apiKeyInput = document.getElementById('apiKey');
         if (apiKeyInput) apiKeyInput.addEventListener('input', function() {
-            if (apiKeys.length <= 1) {
+            if (apiKeys.length <= 1) { 
                 const key = this.value.trim();
-                if (key.startsWith('sk_') || key === "") {
+                if (key.startsWith('sk_') || key === "") { 
                     apiKeys = key ? [key] : [];
                     localStorage.setItem('elevenLabsApiKeys', JSON.stringify(apiKeys));
                     currentApiKeyIndex = apiKeys.length > 0 ? 0 : -1;
                     localStorage.setItem('currentApiKeyIndex', String(currentApiKeyIndex));
+                    
                     updateUIBasedOnApiKey(); updateApiKeyDisplay(); updateApiKeyNavigation();
-                    if (apiKeys.length > 0) { fetchVoicesForDashboard(); fetchUsageInfo(); } else { clearUsageInfo(); populateVoiceSelectForDashboard([]); }
+                    if (apiKeys.length > 0 && currentApiKeyIndex !== -1) { 
+                        fetchVoicesForDashboard(); fetchUsageInfo(); 
+                    } else { 
+                        clearUsageInfo(); populateVoiceSelectForDashboard([]); 
+                    }
                 }
             }
         });
@@ -1081,11 +1164,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         document.getElementById('clearApiKey')?.addEventListener('click', () => {
             if (apiKeys.length === 0) { showCustomAlert("No API keys to clear.", "info"); return;}
-            const msg = apiKeys.length > 1 ? "Clear all API Keys?" : "Clear the API Key?";
+            const msg = apiKeys.length > 1 ? "Are you sure you want to clear all API Keys?" : "Are you sure you want to clear the API Key?";
             showCustomConfirm(msg, () => {
-                apiKeys = []; localStorage.removeItem('elevenLabsApiKeys'); currentApiKeyIndex = -1; localStorage.setItem('currentApiKeyIndex', '-1');
-                updateUIBasedOnApiKey(); updateApiKeyDisplay(); updateApiKeyNavigation(); clearUsageInfo(); populateVoiceSelectForDashboard([]);
+                apiKeys = []; localStorage.removeItem('elevenLabsApiKeys'); 
+                currentApiKeyIndex = -1; localStorage.setItem('currentApiKeyIndex', '-1');
+                
+                updateUIBasedOnApiKey(); updateApiKeyDisplay(); updateApiKeyNavigation(); 
+                clearUsageInfo(); populateVoiceSelectForDashboard([]);
                 const apiKeyField = document.getElementById('apiKey'); if(apiKeyField) apiKeyField.value = "";
+                showCustomAlert("API Key(s) cleared.", "success");
             });
         });
         document.getElementById('importApiKey')?.addEventListener('click', () => {
@@ -1097,13 +1184,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     reader.onload = re => {
                         const newKeys = (re.target.result.trim().split('\n') || []).map(k => k.trim()).filter(k => k.startsWith('sk_'));
                         if (newKeys.length > 0) {
-                            apiKeys = [...new Set(newKeys)]; localStorage.setItem('elevenLabsApiKeys', JSON.stringify(apiKeys));
+                            apiKeys = [...new Set(newKeys)]; 
+                            localStorage.setItem('elevenLabsApiKeys', JSON.stringify(apiKeys));
                             currentApiKeyIndex = 0; localStorage.setItem('currentApiKeyIndex', '0');
+                            
                             updateUIBasedOnApiKey(); updateApiKeyDisplay(); updateApiKeyNavigation();
                             fetchVoicesForDashboard(); fetchUsageInfo();
-                            showCustomAlert(`${newKeys.length} API key(s) imported.`, "success");
+                            showCustomAlert(`${newKeys.length} API key(s) imported successfully.`, "success");
                         } else {
-                            showCustomAlert("No valid API keys found in the file.", "error");
+                            showCustomAlert("No valid API keys (starting with 'sk_') found in the file.", "error");
                         }
                     };
                     reader.readAsText(file);
@@ -1117,11 +1206,12 @@ document.addEventListener('DOMContentLoaded', function() {
         ['usageCurrentApiKeyIndex', 'myVoicesCurrentApiKeyIndex'].forEach(id => document.getElementById(id)?.addEventListener('change', function() { handleApiKeyChangeFromInput(id); }));
     }
 
+
     function initializeApp() {
         apiKeys = JSON.parse(localStorage.getItem('elevenLabsApiKeys') || '[]');
         currentApiKeyIndex = parseInt(localStorage.getItem('currentApiKeyIndex') || '0');
         if (isNaN(currentApiKeyIndex) || currentApiKeyIndex >= apiKeys.length || currentApiKeyIndex < (apiKeys.length > 0 ? 0 : -1) ) {
-             currentApiKeyIndex = apiKeys.length > 0 ? 0 : -1;
+             currentApiKeyIndex = apiKeys.length > 0 ? 0 : -1; 
         }
         localStorage.setItem('currentApiKeyIndex', String(currentApiKeyIndex));
 
@@ -1129,14 +1219,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (themeToggleLogo) {
             themeToggleLogo.addEventListener('click', toggleTheme);
         }
+        const savedTheme = localStorage.getItem('elevenlabs-theme') || 'light'; 
+        applyTheme(savedTheme);
 
-        const savedTheme = localStorage.getItem('elevenlabs-theme');
-        applyTheme(savedTheme || 'light');
 
         setupTabNavigation();
         setupGlobalAudioPlayManagement();
-        setupDashboardAudioPlayerSync();
-        initializeDB();
+        setupDashboardAudioPlayerSync(); 
+        initializeDB(); 
 
         updateApiKeyDisplay();
         updateApiKeyNavigation();
@@ -1147,13 +1237,14 @@ document.addEventListener('DOMContentLoaded', function() {
         setupLibraryFeatures();
         setupSettingsFeatures();
 
-        updateUIBasedOnApiKey();
+        updateUIBasedOnApiKey(); 
+        
         if (apiKeys.length > 0 && currentApiKeyIndex !== -1 && apiKeys[currentApiKeyIndex]) {
             fetchUsageInfo();
             fetchVoicesForDashboard();
         } else {
-            clearUsageInfo();
-            populateVoiceSelectForDashboard([]);
+            clearUsageInfo(); 
+            populateVoiceSelectForDashboard([]); 
         }
 
         const savedTabId = localStorage.getItem('elevenlabs-activeTab');
