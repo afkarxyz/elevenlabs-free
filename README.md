@@ -19,37 +19,37 @@
 
 ## 🖼️ Screenshots
 
-![image](https://github.com/user-attachments/assets/3cced0d8-6c11-4c7b-a172-0f1c7152d513)
+![image](https://github.com/user-attachments/assets/4967c61f-1475-4800-8ba0-304cf309994e)
 
 ![image](https://github.com/user-attachments/assets/185b543c-e105-4499-8976-1641ad73744d)
 
 ![image](https://github.com/user-attachments/assets/7a78f1e0-b3df-431e-b91a-28ff85cfbd0b)
 
-![image](https://github.com/user-attachments/assets/c70935a9-65c7-453b-8bb5-bf552fe30c2c)
+![image](https://github.com/user-attachments/assets/02331d16-df9e-44bb-af4b-d9de2bdee371)
 
 > [!Tip]
 > Please fill in the search field if you want to search for a specific voice. If you want to display the full list of voices, leave it empty.
 
 ## 🖥️ Installation
 
-1. Install required Python packages:
+1. 
    ```bash
    pip install flask elevenlabs
    ```
    
-2. Clone the repository:
+2. 
    ```bash
    git clone https://github.com/afkarxyz/elevenlabs-free.git
    cd elevenlabs-free
    ```
    
-3. Run the application:
+3. 
    ```bash
    python app.py
    ```
 
 4. Access the web interface at `http://127.0.0.1:5000`
-5. Enter your API key in the API Key tab
+5. Enter your `API key` in the API Key tab
      
 ## <img src="https://vercel.com/vc-ap-vercel-marketing/_next/static/media/vercel-logotype-dark.01246f11.svg" width="100" alt="Vercel">
 
