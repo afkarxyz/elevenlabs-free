@@ -1,7 +1,5 @@
 # ElevenLabs Free <img src="https://flagicons.lipis.dev/flags/4x3/ps.svg" width="36" alt="Palestine">
 
-A simple web application built with Flask that allows users to generate speech from text using ElevenLabs' text-to-speech API.
-
 ## ✨ Features
 
 - Download generated audio files
@@ -11,6 +9,7 @@ A simple web application built with Flask that allows users to generate speech f
 - Multiple API keys
 - API Management
 - Responsive UI
+- Dark theme
 
 ## 🚧 Warning
 
@@ -20,29 +19,18 @@ A simple web application built with Flask that allows users to generate speech f
 
 ## 🖼️ Screenshots
 
-![image](https://github.com/user-attachments/assets/5cab6839-78ca-4e27-8102-11aee788ef1c)
+![image](https://github.com/user-attachments/assets/3cced0d8-6c11-4c7b-a172-0f1c7152d513)
 
-![image](https://github.com/user-attachments/assets/3ac3bced-aea8-499d-98cf-dc1f02511d24)
+![image](https://github.com/user-attachments/assets/185b543c-e105-4499-8976-1641ad73744d)
 
-![image](https://github.com/user-attachments/assets/7d94587f-02b9-4753-bb8d-c1535cd09e0e)
+![image](https://github.com/user-attachments/assets/7a78f1e0-b3df-431e-b91a-28ff85cfbd0b)
 
-## 🔑 API Management
+![image](https://github.com/user-attachments/assets/c70935a9-65c7-453b-8bb5-bf552fe30c2c)
 
-You can add voices from the library or remove existing voices from your account.
-
-> [!Note]
+> [!Tip]
 > Please fill in the search field if you want to search for a specific voice. If you want to display the full list of voices, leave it empty.
 
-![image](https://github.com/user-attachments/assets/1e8b282a-69d5-4154-a488-4c48f7c4ced1)
-
-![image](https://github.com/user-attachments/assets/e62bdb4b-c6ad-40bc-adda-d6846ab83a58)
-
-
-## 📱 Mobile Version
-
-![image](https://github.com/user-attachments/assets/99acfcb2-c90f-4499-868e-797dd7d57a46)
-
-## 🖥️ Local Installation
+## 🖥️ Installation
 
 1. Install required Python packages:
    ```bash
@@ -61,7 +49,7 @@ You can add voices from the library or remove existing voices from your account.
    ```
 
 4. Access the web interface at `http://127.0.0.1:5000`
-5. Enter your API key in the Settings tab
+5. Enter your API key in the API Key tab
      
 ## <img src="https://vercel.com/vc-ap-vercel-marketing/_next/static/media/vercel-logotype-dark.01246f11.svg" width="100" alt="Vercel">
 
