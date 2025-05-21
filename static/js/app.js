@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const customAlertOverlay = document.getElementById('customAlertOverlay');
     const modelOverlay = document.getElementById('modelOverlay');
 
-    let themeToggleLogo; 
+    let themeToggleLogo;
     const body = document.body;
 
     function toggleIconStyle(selector, isDark) {
@@ -59,12 +59,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function applyTheme(theme) {
-        themeToggleLogo = document.getElementById('themeToggleLogo'); 
+        themeToggleLogo = document.getElementById('themeToggleLogo');
         const isDark = theme === 'dark';
 
         if (isDark) {
             body.classList.add('dark');
-            if (themeToggleLogo) themeToggleLogo.style.filter = 'invert(1) brightness(1.5) contrast(0.9)'; 
+            if (themeToggleLogo) themeToggleLogo.style.filter = 'invert(1) brightness(1.5) contrast(0.9)';
         } else {
             body.classList.remove('dark');
             if (themeToggleLogo) themeToggleLogo.style.filter = 'none';
@@ -94,10 +94,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (str.includes(' - ')) return str.split(' - ').map(part => formatSegment(part.trim())).join(' - ');
         return formatSegment(str.trim());
     }
+
     function formatNumber(num) {
         if (typeof num !== 'number') return String(num);
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
+
     function formatTimeAgo(timestampMs) {
         const now = new Date();
         const date = new Date(timestampMs);
@@ -113,17 +115,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hours < 24) return `${hours}h ago`;
 
         const days = Math.floor(hours / 24);
-        if (days < 28) return `${days}d ago`; 
+        if (days < 28) return `${days}d ago`;
 
-        const months = Math.floor(days / 30.4375); 
+        const months = Math.floor(days / 30.4375);
         if (months < 12) return `${months}mo ago`;
 
         const years = Math.floor(days / 365.25);
         return `${years}y ago`;
     }
+
     function formatShortDuration(milliseconds) {
         if (milliseconds <= 0) return "0sec";
-        
+
         const seconds = Math.floor(milliseconds / 1000);
         const minutes = Math.floor(seconds / 60);
         const hours = Math.floor(minutes / 60);
@@ -138,34 +141,38 @@ document.addEventListener('DOMContentLoaded', function() {
         if (minutes > 0) return `${minutes}min`;
         return `${seconds}sec`;
     }
+
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 KB';
         const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'], i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
+
     function formatDate(dateValue, includeTime = true) {
         const date = new Date(dateValue);
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
         if (includeTime) Object.assign(options, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
         return date.toLocaleString('en-GB', options).replace(',', '');
     }
+
     function isRTL(s) { return /[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]/.test(s); }
 
     function showCustomAlert(message, type = 'info', duration = 1500) {
         if (!customAlertElement || !customAlertOverlay) return;
         customAlertElement.innerHTML = `<div>${message}</div>`;
-        customAlertElement.className = 'custom-alert'; 
+        customAlertElement.className = 'custom-alert';
         customAlertElement.classList.add(`custom-alert-${type}`, 'show');
         customAlertOverlay.classList.add('show');
         setTimeout(() => {
             customAlertElement.classList.remove('show');
             customAlertOverlay.classList.remove('show');
-            setTimeout(() => customAlertElement.classList.add('hidden'), 200); 
+            setTimeout(() => customAlertElement.classList.add('hidden'), 200);
         }, duration);
     }
+
     function showCustomConfirm(message, onConfirm, onCancel) {
         if (!customAlertElement || !customAlertOverlay) return;
-        customAlertElement.className = 'custom-alert'; 
+        customAlertElement.className = 'custom-alert';
         customAlertElement.innerHTML = `<div class="custom-alert-message">${message}</div><div class="custom-alert-buttons"><button class="custom-alert-button custom-alert-cancel">Cancel</button><button class="custom-alert-button custom-alert-confirm">Confirm</button></div>`;
         customAlertElement.classList.add('show'); customAlertOverlay.classList.add('show');
         const confirmBtn = customAlertElement.querySelector('.custom-alert-confirm');
@@ -173,12 +180,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const close = () => {
             confirmBtn.removeEventListener('click', confirmHandler); cancelBtn.removeEventListener('click', cancelHandler);
             customAlertElement.classList.remove('show'); customAlertOverlay.classList.remove('show');
-            setTimeout(() => customAlertElement.classList.add('hidden'), 200); 
+            setTimeout(() => customAlertElement.classList.add('hidden'), 200);
         };
         const confirmHandler = () => { close(); if (onConfirm) onConfirm(); };
         const cancelHandler = () => { close(); if (onCancel) onCancel(); };
         confirmBtn.addEventListener('click', confirmHandler); cancelBtn.addEventListener('click', cancelHandler);
     }
+
     function showVoiceNamePopup(defaultName, onConfirm) {
         const popup = document.getElementById("voiceNamePopup");
         const overlay = document.getElementById("customAlertOverlay");
@@ -218,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const myVoicesCount = document.getElementById("myVoicesApiKeyCount");
         if (myVoicesCount) myVoicesCount.textContent = apiKeys.length > 1 ? `(${apiKeys.length} Keys)` : "";
     }
+
     function updateApiKeyNavigation() {
         const sections = [
             { nav: 'usageApiKeyNavigation', current: 'usageCurrentApiKeyIndex', total: 'usageTotalApiKeys', prev: 'usagePrevApiKey', next: 'usageNextApiKey' },
@@ -235,6 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
     function switchApiKey(newIndex) {
         if (newIndex >= 0 && newIndex < apiKeys.length && newIndex !== currentApiKeyIndex) {
             currentApiKeyIndex = newIndex;
@@ -246,6 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+
     function handleApiKeyChangeFromInput(inputId) {
         const inputElement = document.getElementById(inputId);
         if (!inputElement) return;
@@ -267,6 +278,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
                 const activeTabContent = document.getElementById(activeTabId);
                 if (activeTabContent) activeTabContent.classList.remove('hidden');
+
+                localStorage.setItem('elevenlabs-activeTab', activeTabId); // Save active tab
+
                 if (activeTabId !== 'dashboard' && generatedAudioCard) generatedAudioCard.classList.add('hidden');
                 if (activeTabId === 'my-voices') getUserVoices();
             });
@@ -281,17 +295,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, true);
     }
+
     function setupDashboardAudioPlayerSync() {
         const historyAudioPlayer = document.getElementById('historyAudio');
         if (historyAudioPlayer && simpleAudioPlayer && generatedAudioCard) {
-            historyAudioPlayer.addEventListener('play', () => {
-                simpleAudioPlayer.src = historyAudioPlayer.src;
-                simpleAudioPlayer.currentTime = historyAudioPlayer.currentTime;
-                const dashboardTab = document.querySelector('[data-tab="dashboard"]');
-                if (dashboardTab) dashboardTab.click();
-                generatedAudioCard.classList.remove('hidden');
-                simpleAudioPlayer.play().catch(e => console.warn("Simple player play from history failed:", e));
-            });
         }
     }
 
@@ -323,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
         effectiveRemainingCredit = Math.max(0, effectiveRemainingCredit);
         const lenSpan = document.createElement('span');
         lenSpan.textContent = formatNumber(len);
-        
+
         if (len > effectiveRemainingCredit && limitFromAPI > 0) {
             lenSpan.classList.add('text-red-400');
         }
@@ -331,6 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
         inputText.dir = isRTL(inputText.value) ? 'rtl' : 'ltr';
         inputText.style.textAlign = isRTL(inputText.value) ? 'right' : 'left';
     }
+
     async function fetchVoicesForDashboard() {
         const apiKey = apiKeys[currentApiKeyIndex];
         if (!apiKey) { populateVoiceSelectForDashboard([]); return; }
@@ -346,6 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
             populateVoiceSelectForDashboard([]);
         }
     }
+
     async function fetchUsageInfo() {
         const apiKey = apiKeys[currentApiKeyIndex];
         if (!apiKey) { updateUsageInfo(0,0,0); return; }
@@ -364,6 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateUsageInfo(0,0,0);
         }
     }
+
     function updateUIBasedOnApiKey() {
         const hasKey = apiKeys.length > 0;
         const elementsToToggle = {
@@ -378,9 +388,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const genBtn = ttsForm ? ttsForm.querySelector('button[type="submit"]') : null;
         if (genBtn) genBtn.disabled = !hasKey;
     }
+
     function updateUsageInfo(apiCount, apiLimit, resetUnix) {
         const bar = document.getElementById('usageBar'), countEl = document.getElementById('characterCount'),
-              resetDateEl = document.getElementById('resetDate'), 
+              resetDateEl = document.getElementById('resetDate'),
               percentEl = document.getElementById('usagePercentage'),
               resetCountdownEl = document.getElementById('resetCountdown'),
               resetCountdownDesktopEl = resetCountdownEl?.querySelector('.reset-countdown-desktop-format'),
@@ -388,16 +399,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
         if (!bar || !countEl || !resetDateEl || !percentEl || !resetCountdownEl || !resetCountdownDesktopEl || !resetCountdownMobileEl) return;
-        
+
         const percent = apiLimit > 0 ? (apiCount / apiLimit) * 100 : 0;
         bar.style.width = `${Math.min(100, percent)}%`;
         percentEl.textContent = `(${percent.toFixed(0)}%)`;
         bar.classList.remove('usage-danger', 'usage-warning');
         if (percent >= 90) bar.classList.add('usage-danger');
         else if (percent >= 80) bar.classList.add('usage-warning');
-        
+
         countEl.textContent = `${formatNumber(apiCount)} / ${formatNumber(apiLimit)}`;
-        
+
         resetCountdownEl.classList.add('text-sm');
         resetCountdownEl.classList.remove('text-xs');
 
@@ -407,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
             const resetDateObj = new Date(resetUnix * 1000);
             const diffTime = Math.max(0, resetDateObj - now);
-            resetDateEl.textContent = resetDateFormatted; 
+            resetDateEl.textContent = resetDateFormatted;
             resetCountdownDesktopEl.textContent = `(reset in ${formatShortDuration(diffTime)})`;
             resetCountdownMobileEl.textContent = `reset in ${formatShortDuration(diffTime)}`;
         } else {
@@ -417,13 +428,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         updateCharCount();
     }
+
     function clearUsageInfo() { updateUsageInfo(0,0,0); }
+
     function downloadAudio(blob, filename = 'audio.mp3') {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url; a.download = filename;
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     }
-    
+
     function getModelNameForDisplay(modelId) {
         const models = {
             'eleven_multilingual_v2': 'Eleven Multilingual v2',
@@ -478,19 +491,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         setupVoiceSelectionForDashboard();
     }
+
     function setupVoiceSelectionForDashboard() {
         const btn = document.getElementById('voiceSelectButton'), popup = document.getElementById('voicePopup'),
               search = document.getElementById('voiceSearchInputDashboard');
         if (!btn || !popup || !modelOverlay || !search) return;
         const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn);
         nBtn.addEventListener('click', e => { e.stopPropagation(); popup.classList.toggle('show'); modelOverlay.classList.toggle('show'); });
-        
+
         const clickOutsideHandler = e => {
             if (!nBtn.contains(e.target) && !popup.contains(e.target)) {
                 popup.classList.remove('show'); modelOverlay.classList.remove('show');
             }
         };
-        document.removeEventListener('click', clickOutsideHandler); 
+        document.removeEventListener('click', clickOutsideHandler);
         document.addEventListener('click', clickOutsideHandler);
 
         popup.querySelectorAll('.voice-option').forEach(opt => {
@@ -521,6 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
     function setupDashboardFeatures() {
         if (inputText) inputText.addEventListener('input', updateCharCount);
         const pasteBtn = document.getElementById('pasteButton');
@@ -536,10 +551,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const apiKey = apiKeys[currentApiKeyIndex];
             if (!apiKey) { showCustomAlert('API key required!', 'error'); return; }
             const textVal = inputText.value, modelId = localStorage.getItem('elevenLabsSelectedModel') || 'eleven_multilingual_v2',
-                  voiceId = localStorage.getItem('elevenLabsSelectedVoice'), 
+                  voiceId = localStorage.getItem('elevenLabsSelectedVoice'),
                   voiceNameForFile = (document.getElementById('selectedVoiceName')||{}).textContent || "Voice",
                   speedVal = speedRange ? speedRange.value : (localStorage.getItem('elevenLabsSelectedSpeed') || '1.00');
-            
+
             const cachedVoices = JSON.parse(localStorage.getItem('dashboardVoicesCache') || '[]');
             const selectedVoiceObject = cachedVoices.find(v => v.id === voiceId);
             const voiceNameForHistory = selectedVoiceObject ? (selectedVoiceObject.name || "Voice") : voiceNameForFile;
@@ -595,13 +610,13 @@ document.addEventListener('DOMContentLoaded', function() {
             else selModelName.textContent = "Select Model";
 
             modelBtn.addEventListener('click', e => { e.stopPropagation(); modelPopup.classList.toggle('show'); modelOverlay.classList.toggle('show');});
-            
-            const clickOutsideModelHandler = e => { 
-                if (!modelBtn.contains(e.target) && !modelPopup.contains(e.target)) { 
+
+            const clickOutsideModelHandler = e => {
+                if (!modelBtn.contains(e.target) && !modelPopup.contains(e.target)) {
                     modelPopup.classList.remove('show'); modelOverlay.classList.remove('show');
                 }
             };
-            document.removeEventListener('click', clickOutsideModelHandler); 
+            document.removeEventListener('click', clickOutsideModelHandler);
             document.addEventListener('click', clickOutsideModelHandler);
 
             modelPopup.querySelectorAll('.model-option').forEach(opt => {
@@ -609,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 nOpt.addEventListener('click', () => {
                     const id = nOpt.dataset.value, name = (nOpt.querySelector('.model-name')||{}).textContent;
                     selModelName.textContent = name; localStorage.setItem('elevenLabsSelectedModel', id);
-                    updateUsageInfo(lastCharacterCount, lastCharacterLimit, lastNextReset); 
+                    updateUsageInfo(lastCharacterCount, lastCharacterLimit, lastNextReset);
                     modelPopup.classList.remove('show'); modelOverlay.classList.remove('show');
                 });
             });
@@ -623,6 +638,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tx.oncomplete = loadHistoryFromDB;
         tx.onerror = e => console.error("Save history error:", e.target.error);
     }
+
     function loadHistoryFromDB() {
         if (!db) return;
         const tx = db.transaction([storeName], "readonly");
@@ -635,6 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         req.onerror = e => console.error("Load history error:", e.target.error);
     }
+
     function updateHistoryUI() {
         const itemEl = document.getElementById('historyItem'), textElOriginal = document.getElementById('historyText'),
               audioEl = document.getElementById('historyAudio'), timeEl = document.getElementById('historyTimestamp'),
@@ -646,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!itemEl || !textElOriginal || !audioEl || !timeEl || !charEl || !sizeEl || !toggleTextBtnOriginal || !prevBtn || !nextBtn || !idxInput || !countDisplay || !clearAllBtn) {
              return;
         }
-        
+
         const hasHistory = historyItems.length > 0;
         if (historyCard) historyCard.classList.toggle('hidden', !hasHistory);
         if (noHistoryMessage) noHistoryMessage.classList.toggle('hidden', hasHistory);
@@ -656,21 +673,21 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hasHistory && currentHistoryIndex >= 0 && currentHistoryIndex < historyItems.length) {
             itemEl.classList.remove('hidden');
             const item = historyItems[currentHistoryIndex];
-            
+
             const formattedDate = formatDate(item.timestamp);
             const timeAgo = formatTimeAgo(item.timestamp);
             timeEl.innerHTML = `<i class="fas fa-calendar-clock mr-1"></i>${formattedDate} <span class="text-gray-500 text-sm ml-1">(${timeAgo})</span>`;
-            
-            charEl.innerHTML = `<i class="fas fa-text-size mr-1"></i>${formatNumber(item.text.length)}`;
-            
-            let fullTextShown = false;
-            const textEl = textElOriginal.cloneNode(false); 
-            textElOriginal.parentNode.replaceChild(textEl, textElOriginal);
-            textEl.id = 'historyText'; 
 
-            const toggleTextBtn = toggleTextBtnOriginal.cloneNode(true); 
+            charEl.innerHTML = `<i class="fas fa-text-size mr-1"></i>${formatNumber(item.text.length)}`;
+
+            let fullTextShown = false;
+            const textEl = textElOriginal.cloneNode(false);
+            textElOriginal.parentNode.replaceChild(textEl, textElOriginal);
+            textEl.id = 'historyText';
+
+            const toggleTextBtn = toggleTextBtnOriginal.cloneNode(true);
             toggleTextBtnOriginal.parentNode.replaceChild(toggleTextBtn, toggleTextBtnOriginal);
-            toggleTextBtn.id = 'toggleFullText'; 
+            toggleTextBtn.id = 'toggleFullText';
 
             const updateTextDisplayLogic = () => {
                 const limited = item.text.length > 300 ? item.text.slice(0,297)+'...' : item.text;
@@ -702,12 +719,14 @@ document.addEventListener('DOMContentLoaded', function() {
             idxInput.value = "";
         }
     }
+
     function deleteHistoryItem(id) {
         if (!db) return;
         const tx = db.transaction([storeName], "readwrite");
         tx.objectStore(storeName).delete(id);
         tx.oncomplete = loadHistoryFromDB;
     }
+
     function setupHistoryFeatures() {
         document.getElementById('prevHistory')?.addEventListener('click', () => { if (currentHistoryIndex > 0) { currentHistoryIndex--; updateHistoryUI(); }});
         document.getElementById('nextHistory')?.addEventListener('click', () => { if (currentHistoryIndex < historyItems.length - 1) { currentHistoryIndex++; updateHistoryUI(); }});
@@ -770,12 +789,13 @@ document.addEventListener('DOMContentLoaded', function() {
             userVoiceList.innerHTML = `<div class="p-4 text-red-500">Failed to load voices: ${error.message}.</div>`;
         }
     }
+
     function displayUserVoices(voices) {
         if (!userVoiceList || !voicesTitle) return;
         voicesTitle.textContent = "Voices";
         userVoiceList.innerHTML = "";
         if (voices.length === 0) { userVoiceList.innerHTML = '<div class="p-4 text-gray-500">No voices found in your library. Add voices from the Library tab.</div>'; return; }
-        
+
         voices.forEach(voice => {
             const item = document.createElement("div"); item.className = "p-4 border-b border-gray-200";
             const labels = voice.labels || {}, tagOrder = ["gender", "age", "accent", "descriptive", "use_case"],
@@ -795,22 +815,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         attachDeleteListeners();
     }
+
     function attachDeleteListeners() {
         document.querySelectorAll("#userVoiceList .deleteVoiceBtn").forEach(btn => {
-            const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn); 
+            const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn);
             nBtn.addEventListener("click", async function() {
                 const voiceId = this.dataset.voiceId;
                 showCustomConfirm("Delete this voice?", async () => {
                     try {
                         const response = await fetch(`/delete-voice?voice_id=${voiceId}`, { method: "DELETE", headers: { "X-API-KEY": apiKeys[currentApiKeyIndex] }});
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                        getUserVoices(); 
-                        fetchVoicesForDashboard(); 
+                        getUserVoices();
+                        fetchVoicesForDashboard();
                     } catch (error) { showCustomAlert(`Delete failed: ${error.message}`, "error"); }
                 });
             });
         });
     }
+
     async function clearAllVoices() {
         if (!userVoiceList) return;
         const voiceBtns = userVoiceList.querySelectorAll(".deleteVoiceBtn");
@@ -833,6 +855,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) { showCustomAlert(`Clear failed: ${error.message}`, "error"); }
         });
     }
+
     function setupMyVoicesFeatures() {
         document.getElementById("clearAllVoices")?.addEventListener("click", clearAllVoices);
     }
@@ -850,6 +873,7 @@ document.addEventListener('DOMContentLoaded', function() {
            slider.style.transform = `translateX(${idx * 100}%)`;
         }
     }
+
     function setupGenderToggle() {
         const toggleOpts = document.querySelectorAll("#library .toggle-option");
         toggleOpts.forEach(opt => {
@@ -860,11 +884,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
     async function searchVoicesInLibrary(clearExisting = true) {
         const apiKey = apiKeys[currentApiKeyIndex];
         if (!apiKey) { showCustomAlert("API key required.", "error"); if(searchResultsDiv) searchResultsDiv.classList.add("hidden"); return; }
         if (clearExisting) { libraryCurrentPage = 0; libraryTotalLoadedItems = 0; }
-        
+
         const searchBtn = document.getElementById('searchVoicesBtn');
         if (searchBtn) { searchBtn.disabled = true; searchBtn.innerHTML = '<i class="fas fa-spinner-third fa-spin mr-2"></i>Searching...'; }
         if (loadMoreBtn) loadMoreBtn.classList.add('hidden');
@@ -875,14 +900,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (libraryCurrentSearch) url += `&search=${encodeURIComponent(libraryCurrentSearch.trim())}`;
             const response = await fetch(url, { headers: { "X-API-KEY": apiKey }});
             let errorData = null;
-            if (!response.ok) { 
+            if (!response.ok) {
                 try { errorData = await response.json(); } catch(e) { /* ignore json parse error */ }
-                throw new Error(errorData?.error || `HTTP ${response.status}`); 
+                throw new Error(errorData?.error || `HTTP ${response.status}`);
             }
             const voicesData = await response.json();
             const voices = Array.isArray(voicesData) ? voicesData.filter(v => v.free_users_allowed !== false) : [];
             if (!Array.isArray(voicesData)) console.warn("API did not return an array for voices:", voicesData);
-            
+
             displaySearchResultsInLibrary(voices, clearExisting);
         } catch (error) {
             console.error("Error searching library voices:", error);
@@ -892,10 +917,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (searchBtn) { searchBtn.disabled = false; searchBtn.innerHTML = '<i class="fas fa-search mr-2"></i>Search'; }
         }
     }
+
     function displaySearchResultsInLibrary(voices, clearExisting = true) {
         if (!libraryVoiceList || !searchResultsDiv || !loadMoreBtn) return;
         if (clearExisting) { libraryVoiceList.innerHTML = ""; libraryTotalLoadedItems = 0; }
-        
+
         searchResultsDiv.classList.remove("hidden");
 
         if (voices.length === 0 && clearExisting) {
@@ -944,15 +970,17 @@ document.addEventListener('DOMContentLoaded', function() {
         loadMoreBtn.classList.toggle("hidden", voices.length === 0);
         attachAddVoiceListeners();
     }
+
     function attachAddVoiceListeners() {
         document.querySelectorAll("#voiceList .addVoiceBtn").forEach(btn => {
-            const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn); 
+            const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn);
             nBtn.addEventListener("click", function() {
                 const id = this.dataset.voiceId, pubId = this.dataset.publicUserId, name = this.dataset.voiceName;
                 showVoiceNamePopup(name, newName => { if (newName) addVoiceToUserLibrary(pubId, id, newName); });
             });
         });
     }
+
     async function addVoiceToUserLibrary(publicUserId, voiceId, newName) {
         const apiKey = apiKeys[currentApiKeyIndex];
         if (!apiKey) { showCustomAlert("API Key required.", "error"); return; }
@@ -963,11 +991,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const result = await response.json();
             if (result.success) {
                 showCustomAlert("Voice added to 'My Voices'.", "success");
-                getUserVoices(); 
-                fetchVoicesForDashboard(); 
+                getUserVoices();
+                fetchVoicesForDashboard();
             } else throw new Error(result.error || "Failed to add voice");
         } catch (error) { showCustomAlert(`Add voice error: ${error.message}`, "error"); }
     }
+    
     function setupLibraryFeatures() {
         setupGenderToggle();
         updateToggleState(libraryCurrentGender);
@@ -987,14 +1016,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (sortBtn && sortPopup && sortOverlayEl && selSort && selSortIcon) {
             const initSortOpt = sortPopup.querySelector(`.sort-option[data-value="${libraryCurrentSort}"]`);
             if (initSortOpt) { selSort.textContent = initSortOpt.textContent.trim(); selSortIcon.className = initSortOpt.querySelector('i').className; }
-            
+
             const openSortPopup = () => { sortPopup.classList.add("show"); sortOverlayEl.classList.add("show"); };
             const closeSortPopup = () => { sortPopup.classList.remove("show"); sortOverlayEl.classList.remove("show"); };
             sortBtn.addEventListener("click", openSortPopup);
             sortOverlayEl.addEventListener("click", closeSortPopup);
-            
+
             sortPopup.querySelectorAll(".sort-option").forEach(opt => {
-                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt); 
+                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt);
                 nOpt.addEventListener("click", () => {
                     const val = nOpt.dataset.value, iconCls = nOpt.querySelector('i').className;
                     selSort.textContent = nOpt.textContent.trim(); selSortIcon.className = iconCls;
@@ -1016,9 +1045,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const closeLangPopup = () => { langPopup.classList.remove("show"); langOverlayEl.classList.remove("show"); };
             langBtn.addEventListener("click", openLangPopup);
             langOverlayEl.addEventListener("click", closeLangPopup);
-            
+
             langPopup.querySelectorAll(".language-option").forEach(opt => {
-                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt); 
+                const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt);
                 nOpt.addEventListener("click", () => {
                     const val = nOpt.dataset.value; selLang.textContent = nOpt.textContent.trim();
                     const iconEl = nOpt.querySelector('.inline-flex .fi, .inline-flex .fas');
@@ -1126,12 +1155,24 @@ document.addEventListener('DOMContentLoaded', function() {
             clearUsageInfo();
             populateVoiceSelectForDashboard([]);
         }
-        
-        const initialTab = document.querySelector('.tab[data-tab="dashboard"]');
-        if (initialTab) initialTab.click();
-        else {
-            const firstTab = document.querySelector('.tab');
-            if(firstTab) firstTab.click();
+
+        const savedTabId = localStorage.getItem('elevenlabs-activeTab');
+        let initialTabElement = null;
+
+        if (savedTabId) {
+            initialTabElement = document.querySelector(`.tab[data-tab="${savedTabId}"]`);
+        }
+
+        if (initialTabElement) {
+            initialTabElement.click();
+        } else {
+            const dashboardTab = document.querySelector('.tab[data-tab="dashboard"]');
+            if (dashboardTab) {
+                dashboardTab.click();
+            } else {
+                const firstTab = document.querySelector('.tab');
+                if (firstTab) firstTab.click();
+            }
         }
     }
 
