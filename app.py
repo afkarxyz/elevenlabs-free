@@ -202,7 +202,7 @@ def add_voice():
 
     try:
         client = ElevenLabs(api_key=api_key)
-        client.voices.add_sharing_voice(
+        client.voices.share(
             public_user_id=public_user_id,
             voice_id=voice_id,
             new_name=new_name
