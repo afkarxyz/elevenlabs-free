@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     let apiKeys = [];
     let currentApiKeyIndex = 0;
-    let currentlyPlayingAudio = null;
-    let lastCharacterCount = 0;
+    let currentlyPlayingAudio = null;    let lastCharacterCount = 0;
     let lastCharacterLimit = 0;
     let lastNextReset = 0;
+    let lastIsResetValid = false;
+    let lastTimeSinceLastReset = 0;
     let historyItems = [];
     let currentHistoryIndex = -1;
     let db;
@@ -391,20 +392,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchUsageInfo() {
         const apiKey = apiKeys[currentApiKeyIndex];
-        if (!apiKey) { updateUsageInfo(0,0,0); return; }
+        if (!apiKey) { updateUsageInfo(0,0,0,false,0); return; }
         try {
             const response = await fetch('/get-usage-info', { headers: { 'X-API-KEY': apiKey }});
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            if (data.error) throw new Error(data.error); 
-            lastCharacterCount = data.character_count;
+            if (data.error) throw new Error(data.error);            lastCharacterCount = data.character_count;
             lastCharacterLimit = data.character_limit;
             lastNextReset = data.next_character_count_reset_unix;
-            updateUsageInfo(data.character_count, data.character_limit, data.next_character_count_reset_unix);
+            lastIsResetValid = data.is_reset_valid;
+            lastTimeSinceLastReset = data.time_since_last_reset;
+            updateUsageInfo(data.character_count, data.character_limit, data.next_character_count_reset_unix, data.is_reset_valid, data.time_since_last_reset);
         } catch (error) {
             console.error('Error fetching usage:', error);
             showCustomAlert(`Usage info error: ${error.message}`, 'error');
-            updateUsageInfo(0,0,0); 
+            updateUsageInfo(0,0,0,false,0); 
         }
     }
 
@@ -429,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    function updateUsageInfo(apiCount, apiLimit, resetUnix) {
+    function updateUsageInfo(apiCount, apiLimit, resetUnix, isResetValid, timeSinceLastReset) {
         const bar = document.getElementById('usageBar'), countEl = document.getElementById('characterCount'),
               resetDateEl = document.getElementById('resetDate'),
               percentEl = document.getElementById('usagePercentage'),
@@ -451,17 +453,23 @@ document.addEventListener('DOMContentLoaded', function() {
         countEl.textContent = `${formatNumber(apiCount)} / ${formatNumber(apiLimit)}`;
 
         resetCountdownEl.classList.add('text-sm'); 
-        resetCountdownEl.classList.remove('text-xs');
-
-
-        if (resetUnix > 0) {
+        resetCountdownEl.classList.remove('text-xs');        if (resetUnix > 0) {
             const resetDateFormatted = formatDate(resetUnix * 1000);
             const now = new Date();
             const resetDateObj = new Date(resetUnix * 1000);
             const diffTime = Math.max(0, resetDateObj - now); 
             resetDateEl.textContent = resetDateFormatted;
-            resetCountdownDesktopEl.textContent = `(reset in ${formatShortDuration(diffTime)})`;
-            resetCountdownMobileEl.textContent = `reset in ${formatShortDuration(diffTime)}`;
+            
+            if (isResetValid) {
+                resetCountdownDesktopEl.textContent = `(reset in ${formatShortDuration(diffTime)})`;
+                resetCountdownMobileEl.textContent = `reset in ${formatShortDuration(diffTime)}`;
+            } else if (timeSinceLastReset > 0) {
+                resetCountdownDesktopEl.textContent = `(last used ${formatShortDuration(timeSinceLastReset * 1000)} ago)`;
+                resetCountdownMobileEl.textContent = `last used ${formatShortDuration(timeSinceLastReset * 1000)} ago`;
+            } else {
+                resetCountdownDesktopEl.textContent = '';
+                resetCountdownMobileEl.textContent = '';
+            }
         } else {
             resetDateEl.textContent = 'N/A'; 
             resetCountdownDesktopEl.textContent = '';
@@ -470,7 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCharCount(); 
     }
 
-    function clearUsageInfo() { updateUsageInfo(0,0,0); }
+    function clearUsageInfo() { updateUsageInfo(0,0,0,false,0); }
 
     function downloadAudio(blob, filename = 'audio.mp3') {
         const url = URL.createObjectURL(blob);
@@ -688,10 +696,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             modelPopup.querySelectorAll('.model-option').forEach(opt => {
                 const nOpt = opt.cloneNode(true); opt.replaceWith(nOpt); 
-                nOpt.addEventListener('click', () => {
-                    const id = nOpt.dataset.value, name = (nOpt.querySelector('.model-name')||{}).textContent;
+                nOpt.addEventListener('click', () => {                    const id = nOpt.dataset.value, name = (nOpt.querySelector('.model-name')||{}).textContent;
                     selModelName.textContent = name; localStorage.setItem('elevenLabsSelectedModel', id);
-                    updateUsageInfo(lastCharacterCount, lastCharacterLimit, lastNextReset); 
+                    updateUsageInfo(lastCharacterCount, lastCharacterLimit, lastNextReset, lastIsResetValid, lastTimeSinceLastReset); 
                     modelPopup.classList.remove('show'); modelOverlay.classList.remove('show');
                 });
             });

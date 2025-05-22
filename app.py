@@ -67,10 +67,20 @@ def get_usage_info():
         client = ElevenLabs(api_key=api_key)
         subscription = client.user.subscription.get()
         
+        import time
+        current_time = int(time.time())
+        is_reset_valid = subscription.next_character_count_reset_unix > current_time
+        
+        time_since_last_reset = 0
+        if not is_reset_valid:
+            time_since_last_reset = current_time - subscription.next_character_count_reset_unix
+        
         return jsonify({
             'character_count': subscription.character_count,
             'character_limit': subscription.character_limit,
-            'next_character_count_reset_unix': subscription.next_character_count_reset_unix
+            'next_character_count_reset_unix': subscription.next_character_count_reset_unix,
+            'is_reset_valid': is_reset_valid,
+            'time_since_last_reset': time_since_last_reset
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400
