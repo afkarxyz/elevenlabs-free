@@ -23,9 +23,9 @@
 
 ![image](https://github.com/user-attachments/assets/185b543c-e105-4499-8976-1641ad73744d)
 
-![image](https://github.com/user-attachments/assets/7a78f1e0-b3df-431e-b91a-28ff85cfbd0b)
+![image](https://github.com/user-attachments/assets/284c9e6a-19f2-4c77-ad4e-3e5894f7bb3a)
 
-![image](https://github.com/user-attachments/assets/02331d16-df9e-44bb-af4b-d9de2bdee371)
+![image](https://github.com/user-attachments/assets/3eb815b3-6fa6-4503-ba68-ae86923f60d6)
 
 > [!Tip]
 > Please fill in the search field if you want to search for a specific voice. If you want to display the full list of voices, leave it empty.
