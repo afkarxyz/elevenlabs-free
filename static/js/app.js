@@ -503,31 +503,39 @@ document.addEventListener('DOMContentLoaded', function() {
         defaultCatEl.innerHTML = ''; libraryCatEl.innerHTML = ''; 
         const savedVoiceId = localStorage.getItem('elevenLabsSelectedVoice');
         let selVoiceName = "Select Voice", foundSel = false, hasLibVoices = false;
-
+        let defaultCount = 0, libraryCount = 0;
         (voices || []).forEach(voice => {
             if (!voice || !voice.id) return; 
-            const option = document.createElement('div'); option.className = 'voice-option'; option.dataset.voiceId = voice.id;
-            const voiceName = formatString(voice.name || 'Unnamed Voice');
-            const labels = voice.labels || {}, tags = [ 
-                { cls:"bg-blue-100 text-blue-800", val:formatString(labels.gender||''), show:!!labels.gender},
-                { cls:"bg-green-100 text-green-800", val:formatString(labels.age||''), show:!!labels.age},
-                { cls:"bg-yellow-100 text-yellow-800", val:formatString(labels.accent||''), show:!!labels.accent},
-                { cls:"bg-indigo-100 text-indigo-800", val:formatString(labels.use_case||''), show:!!labels.use_case}
+            const option = document.createElement('div'); option.className = 'voice-option'; option.dataset.voiceId = voice.id;            
+            const voiceName = formatString(voice.name || 'Unnamed Voice');            
+            const labels = voice.labels || {};
+            let genderTagClass = "bg-green-100 text-green-800";
+            const gender = formatString(labels.gender||'');
+            if (gender.toLowerCase() === 'male') {
+                genderTagClass = "bg-blue-100 text-blue-800";
+            } else if (gender.toLowerCase() === 'female') {
+                genderTagClass = "bg-pink-100 text-pink-800";
+            }
+            const tags = [ 
+                { cls: genderTagClass, val: gender, show: !!labels.gender},
+                { cls:"bg-purple-100 text-purple-800", val:formatString(labels.age||''), show:!!labels.age},
+                { cls:"bg-amber-100 text-amber-800", val:formatString(labels.accent||''), show:!!labels.accent},
+                { cls:"bg-indigo-100 text-indigo-800", val:formatString(labels.description||''), show:!!labels.description},
+                { cls:"bg-teal-100 text-teal-800", val:formatString(labels.use_case||''), show:!!labels.use_case}
             ];
             const tagsHtml = tags.filter(t => t.show && t.val).map(t => `<span class="voice-tag ${t.cls}">${t.val}</span>`).join('');
             option.innerHTML = `<div class="voice-name">${voiceName}</div><div class="voice-tags">${tagsHtml}</div>`;
-            
             if (voice.id === savedVoiceId) { selVoiceName = voiceName; foundSel = true; }
-
-            if (voice.category === 'premade') defaultCatEl.appendChild(option);
-            else { libraryCatEl.appendChild(option); hasLibVoices = true; }
+            if (voice.category === 'premade') { defaultCatEl.appendChild(option); defaultCount++; }
+            else { libraryCatEl.appendChild(option); hasLibVoices = true; libraryCount++; }
         });
-
+        const defaultTitle = document.querySelector('#voicePopup #defaultCategory .category-title');
+        if (defaultTitle) defaultTitle.textContent = `Default (${defaultCount})`;
+        const libraryTitle = document.querySelector('#voicePopup #libraryCategory .category-title');
+        if (libraryTitle) libraryTitle.textContent = `Library (${libraryCount})`;
         libContainer.style.display = hasLibVoices ? 'block' : 'none'; 
-
         const selVoiceNameEl = document.getElementById('selectedVoiceName');
         if (selVoiceNameEl) selVoiceNameEl.textContent = foundSel ? selVoiceName : "Select Voice";
-
         if (!foundSel && voices.length > 0 && voices[0].id) {
             const firstVoice = voices.find(v => v.category === 'premade') || voices[0]; 
             localStorage.setItem('elevenLabsSelectedVoice', firstVoice.id);
@@ -858,24 +866,48 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayUserVoices(voices) {
         if (!userVoiceList || !voicesTitle) return;
         voicesTitle.textContent = "Voices"; 
-        userVoiceList.innerHTML = ""; 
-        if (voices.length === 0) { userVoiceList.innerHTML = '<div class="p-4 text-gray-500">No custom voices found in your library. You can add voices from the Library tab.</div>'; return; }
+        userVoiceList.innerHTML = "";        if (voices.length === 0) { userVoiceList.innerHTML = '<div class="p-4 text-gray-500">No custom voices found in your library. You can add voices from the Library tab.</div>'; return; }
 
-        voices.forEach(voice => {
-            const item = document.createElement("div"); item.className = "p-4 border-b border-gray-200"; 
-            const labels = voice.labels || {}, tagOrder = ["gender", "age", "accent", "descriptive", "use_case"],
-                  tagStyles = {gender:"blue",age:"green",accent:"yellow",descriptive:"pink",use_case:"indigo"}; 
-            let tagsHtml = tagOrder.map(tag => {
-                if (labels[tag]) return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 mb-1 bg-${tagStyles[tag]}-100 text-${tagStyles[tag]}-800">${formatString(labels[tag])}</span>`;
-                return '';
-            }).join('');
+        voices.forEach(voice => {            
+            const item = document.createElement("div"); 
+            item.className = "p-4 border-b border-gray-200";            
+            const labels = voice.labels || {};
+            
+            let tagsHtml = '';
+            
+            if (labels.gender) {
+                const gender = formatString(labels.gender);
+                let genderClass = "bg-green-100 text-green-800";
+                if (gender.toLowerCase() === 'male') {
+                    genderClass = "bg-blue-100 text-blue-800";
+                } else if (gender.toLowerCase() === 'female') {
+                    genderClass = "bg-pink-100 text-pink-800";
+                }
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 ${genderClass}">${gender}</span>`;
+            }
+            
+            if (labels.age) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-purple-100 text-purple-800">${formatString(labels.age)}</span>`;
+            }
+            if (labels.accent) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-amber-100 text-amber-800">${formatString(labels.accent)}</span>`;
+            }
+            if (labels.descriptive) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-indigo-100 text-indigo-800">${formatString(labels.descriptive)}</span>`;
+            }
+            if (labels.description) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-indigo-100 text-indigo-800">${formatString(labels.description)}</span>`;
+            }
+            if (labels.use_case) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-teal-100 text-teal-800">${formatString(labels.use_case)}</span>`;
+            }
             item.innerHTML = `<div class="flex items-center justify-between"><div class="flex-1">
                 <div class="flex items-center justify-between"><p class="text-sm font-medium text-gray-900">${voice.name}</p>${voice.category ? `<span class="text-xs text-gray-500">${formatString(voice.category)}</span>` : ""}</div>
-                ${voice.description ? `<p class="text-sm text-gray-600 mt-1">${voice.description}</p>` : ""}<div class="mt-2 flex flex-wrap gap-1">${tagsHtml}</div>
+                ${(voice.description || (voice.labels && voice.labels.description)) ? `<p class="text-sm text-gray-600 mt-1">${voice.description || (voice.labels && voice.labels.description)}</p>` : ""}<div class="mt-2 flex flex-wrap gap-1">${tagsHtml}</div>
                 ${voice.preview_url ? `<div class="mt-2 audio-controls flex items-center gap-2">
                     <audio controls class="flex-grow"><source src="${voice.preview_url}" type="audio/mpeg"></audio>
                     <button class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" data-voice-id="${voice.id}"><i class="fas fa-trash-alt"></i></button>
-                </div>` : `<div class="mt-2"><button class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" data-voice-id="${voice.id}"><i class="fas fa-trash-alt"></i></button></div>`}</div></div>`; 
+                </div>` : `<div class="mt-2"><button class="deleteVoiceBtn bg-red-600 text-white rounded hover:bg-red-700 p-2" data-voice-id="${voice.id}"><i class="fas fa-trash-alt"></i></button></div>`}</div></div>`;
             userVoiceList.appendChild(item);
         });
         attachDeleteListeners(); 
@@ -886,7 +918,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const nBtn = btn.cloneNode(true); btn.replaceWith(nBtn); 
             nBtn.addEventListener("click", async function() {
                 const voiceId = this.dataset.voiceId;
-                showCustomConfirm("Are you sure you want to delete this voice from your library?", async () => {
+                showCustomConfirm("Delete this voice item?", async () => {
                     try {
                         const response = await fetch(`/delete-voice?voice_id=${voiceId}`, { method: "DELETE", headers: { "X-API-KEY": apiKeys[currentApiKeyIndex] }});
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -903,7 +935,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!userVoiceList) return;
         const voiceBtns = userVoiceList.querySelectorAll(".deleteVoiceBtn");
         if (voiceBtns.length === 0) { showCustomAlert("No voices to clear.", "info"); return; }
-        showCustomConfirm(`Are you sure you want to delete all ${voiceBtns.length} voices from your library? This cannot be undone.`, async () => {
+        showCustomConfirm(`Delete all ${voiceBtns.length} voices? This can't be undone.`, async () => {
             let successCount = 0;
             let failCount = 0;
             try {
@@ -928,6 +960,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setupMyVoicesFeatures() {
+        const refreshVoicesBtn = document.getElementById("refreshVoicesBtn");
+        if (refreshVoicesBtn) {
+            refreshVoicesBtn.addEventListener("click", () => {
+                fetchUserVoices();
+            });
+        }
+        
+        const voiceSearchInput = document.getElementById("voiceSearchInput");
+        if (voiceSearchInput) {
+            voiceSearchInput.addEventListener("input", (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                filterUserVoices(searchTerm);
+            });
+        }
+        
+        const myVoicesCurrentKeyInput = document.getElementById("myVoicesCurrentApiKeyIndex");
+        if (myVoicesCurrentKeyInput) {
+            myVoicesCurrentKeyInput.addEventListener("change", () => {
+                handleApiKeyChangeFromInput("myVoicesCurrentApiKeyIndex");
+            });
+        }
+        
         document.getElementById("clearAllVoices")?.addEventListener("click", clearAllVoices);
     }
 
@@ -1005,29 +1059,48 @@ document.addEventListener('DOMContentLoaded', function() {
             loadMoreBtn.classList.add("hidden");
             showCustomAlert("No more voices to load for these criteria.", "info", 2000);
             return;
-        }
-
-        voices.forEach((voice, idx) => {
+        }        voices.forEach((voice, idx) => {
             const item = document.createElement("div"); item.className = "p-4";
             if (idx < voices.length -1 || libraryTotalLoadedItems > 0) {
                 item.classList.add("border-b", "border-gray-200");
+            }            
+            const itemNum = libraryTotalLoadedItems + idx + 1;            
+            const labels = voice.labels || {};
+            
+            let tagsHtml = '';
+            
+            if (labels.gender) {
+                const gender = formatString(labels.gender);
+                let genderClass = "bg-green-100 text-green-800";
+                if (gender.toLowerCase() === 'male') {
+                    genderClass = "bg-blue-100 text-blue-800";
+                } else if (gender.toLowerCase() === 'female') {
+                    genderClass = "bg-pink-100 text-pink-800";
+                }
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 ${genderClass}">${gender}</span>`;
             }
-
-
-            const itemNum = libraryTotalLoadedItems + idx + 1;
-            const labels = voice.labels || {}, tagOrder = ["gender", "age", "accent", "descriptive", "use_case"],
-                  tagStyles = {gender:"blue",age:"green",accent:"yellow",descriptive:"pink",use_case:"indigo"};
-            let tagsHtml = tagOrder.map(tag => {
-                if (labels[tag]) return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 mb-1 bg-${tagStyles[tag]}-100 text-${tagStyles[tag]}-800">${formatString(labels[tag])}</span>`;
-                return '';
-            }).join('');
+            
+            if (labels.age) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-purple-100 text-purple-800">${formatString(labels.age)}</span>`;
+            }
+            if (labels.accent) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-amber-100 text-amber-800">${formatString(labels.accent)}</span>`;
+            }
+            if (labels.descriptive) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-indigo-100 text-indigo-800">${formatString(labels.descriptive)}</span>`;
+            }
+            if (labels.description) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-indigo-100 text-indigo-800">${formatString(labels.description)}</span>`;
+            }
+            if (labels.use_case) {
+                tagsHtml += `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs mr-2 mb-1 bg-teal-100 text-teal-800">${formatString(labels.use_case)}</span>`;
+            }
             item.innerHTML = `<div class="flex items-start justify-between">
-                <div class="flex-1 min-w-0"> <!-- Ensure text truncates -->
-                    <div class="flex items-center justify-between mb-1">
+                <div class="flex-1 min-w-0"> <!-- Ensure text truncates -->                    <div class="flex items-center justify-between mb-1">
                         <p class="text-sm font-medium text-gray-900 truncate"><span class="text-gray-500 mr-2">${itemNum}.</span>${voice.name}</p>
                         ${voice.category ? `<span class="text-xs text-gray-500 ml-2 flex-shrink-0">${formatString(voice.category)}</span>` : ""}
                     </div>
-                    ${voice.description ? `<p class="text-sm text-gray-600 mt-1 mb-2">${voice.description}</p>` : ""}
+                    ${(voice.description || (voice.labels && voice.labels.description)) ? `<p class="text-sm text-gray-600 mt-1 mb-2">${voice.description || (voice.labels && voice.labels.description)}</p>` : ""}
                     <div class="mt-2 flex flex-wrap">${tagsHtml}</div>
                     <div class="mt-2 flex flex-wrap items-center text-xs sm:text-sm text-gray-500 gap-x-3 gap-y-1">
                         ${voice.date_unix ? `<span class="flex items-center whitespace-nowrap"><i class="fas fa-calendar-clock mr-1"></i>${formatDate(voice.date_unix * 1000)}</span>` : ''}
@@ -1164,7 +1237,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         document.getElementById('clearApiKey')?.addEventListener('click', () => {
             if (apiKeys.length === 0) { showCustomAlert("No API keys to clear.", "info"); return;}
-            const msg = apiKeys.length > 1 ? "Are you sure you want to clear all API Keys?" : "Are you sure you want to clear the API Key?";
+            const msg = apiKeys.length > 1 ? "Clear all API Keys?" : "Clear API Key?";
             showCustomConfirm(msg, () => {
                 apiKeys = []; localStorage.removeItem('elevenLabsApiKeys'); 
                 currentApiKeyIndex = -1; localStorage.setItem('currentApiKeyIndex', '-1');
@@ -1202,7 +1275,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         ['usagePrevApiKey', 'myVoicesPrevApiKey'].forEach(id => document.getElementById(id)?.addEventListener('click', () => switchApiKey(currentApiKeyIndex - 1)));
-        ['usageNextApiKey', 'myVoicesNextApiKey'].forEach(id => document.getElementById(id)?.addEventListener('click', () => switchApiKey(currentApiKeyIndex + 1)));
+        ['usageNextApiKey', 'myVoicesNextApiKey'].forEach(id => document.getElementById(id)?.addEventListener('click', () => switchApiKey(currentApiKeyIndex +  1)));
         ['usageCurrentApiKeyIndex', 'myVoicesCurrentApiKeyIndex'].forEach(id => document.getElementById(id)?.addEventListener('change', function() { handleApiKeyChangeFromInput(id); }));
     }
 
@@ -1210,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeApp() {
         apiKeys = JSON.parse(localStorage.getItem('elevenLabsApiKeys') || '[]');
         currentApiKeyIndex = parseInt(localStorage.getItem('currentApiKeyIndex') || '0');
-        if (isNaN(currentApiKeyIndex) || currentApiKeyIndex >= apiKeys.length || currentApiKeyIndex < (apiKeys.length > 0 ? 0 : -1) ) {
+        if (isNaN(currentApiKeyIndex) || currentApiKeyIndex >= apiKeys.length || currentApiKeyIndex < (apiKeys.length > 0 ?  0 : -1) ) {
              currentApiKeyIndex = apiKeys.length > 0 ? 0 : -1; 
         }
         localStorage.setItem('currentApiKeyIndex', String(currentApiKeyIndex));

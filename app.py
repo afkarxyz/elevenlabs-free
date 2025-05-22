@@ -83,7 +83,12 @@ def get_voices():
 
     try:
         client = ElevenLabs(api_key=api_key)
-        voices = client.voices.get_all()
+        voices = client.voices.search(
+            page_size=100,
+            sort="name",
+            sort_direction="asc",
+            include_total_count=True,
+        )
         voice_data = [
             {
                 "id": voice.voice_id,
@@ -91,7 +96,7 @@ def get_voices():
                 "preview_url": voice.preview_url,
                 "labels": voice.labels,
                 "category": voice.category,
-                "description": voice.description
+                "description": voice.description if hasattr(voice, 'description') else (voice.labels.get("description", "") if voice.labels else "")
             }
             for voice in voices.voices
         ]
