@@ -19,13 +19,15 @@
 
 ## 🖼️ Screenshots
 
-![image](https://github.com/user-attachments/assets/4967c61f-1475-4800-8ba0-304cf309994e)
+![image](https://github.com/user-attachments/assets/efb2261f-dc16-4567-b82d-d4ad50b0c39c)
 
-![image](https://github.com/user-attachments/assets/185b543c-e105-4499-8976-1641ad73744d)
+![image](https://github.com/user-attachments/assets/5a48c845-1ca6-4823-a720-10881e74294f)
 
-![image](https://github.com/user-attachments/assets/284c9e6a-19f2-4c77-ad4e-3e5894f7bb3a)
+![image](https://github.com/user-attachments/assets/74bfeb1c-40e4-4ebb-bfcb-afc63ffba971)
 
-![image](https://github.com/user-attachments/assets/3eb815b3-6fa6-4503-ba68-ae86923f60d6)
+![image](https://github.com/user-attachments/assets/253f6009-e17f-43db-a107-b737a783c853)
+
+![image](https://github.com/user-attachments/assets/7b89bc52-1582-4eee-8a07-5c5a23e1d8d3)
 
 > [!Tip]
 > Please fill in the search field if you want to search for a specific voice. If you want to display the full list of voices, leave it empty.
